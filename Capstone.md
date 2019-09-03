@@ -6,66 +6,36 @@ Jeremy Yew
 
 ## Chapter 1
 
-The goal of this research project is to improve the learning experience of students enrolled in YSC3216: Functional Programming and Proving, a course in Yale-NUS College that introduces students to mechanized proofs. Students exercise equational reasoning by constructing logical proofs as executable programs, using the formal language provided by the Coq proof assistant (referred to as Coq). 
+The goal of this research project is to assist the learning experience of students enrolled in YSC3216: Functional Programming and Proving (FPP). FPP is a course in Yale-NUS College that introduces students to mechanized proofs. Students exercise equational reasoning by constructing logical proofs, using the formal language provided by the Coq proof assistant (referred to as Coq). 
 
-To this end, I implement a tool that enforces the use of a subset of Coq; it will enforce certain style rules, and allow only a specified subset of libraries to be used. 
+To this end, I implement a tool to specify a subset of Coq, its libraries, and certain style rules, and to enforce their use. The tool parses text files containing Coq proofs submitted by students, and output messages about transgressions. The idea is for students to check that their code adheres to the specification before submitting. 
 
-The tool will parse text files containing Coq proofs submitted by students, and will output warning messages that inform the user of any any transgressions. Students will use to tool to check their code before submitting.  
-
-Lastly, the tool will be designed as an extension of the GNU Emacs text editor, potentially integrating with the Proof General interface. It should be easy to install, configure, and use, so that it may be useful for other courses using Coq as well.   
+Lastly, the tool is designed as an extension of the GNU Emacs text editor, potentially integrated in the Proof General interface. It should be easy to install, configure, and use, so that it can be useful for other courses using Coq as well.   
 
 ### YSC3216: Functional Programming & Proving (FPP)
 
-FPP is a Mathematical, Computational and Statistical Sciences (MCS) course taught by Professor Olivier Danvy. Through the course, students gain an appreciation for the deep relationship between computer programs and logical proofs - two domains which have hitherto been presented to them as completely isolated. 
+FPP is a Mathematical, Computational and Statistical Sciences (MCS) course taught by Professor Olivier Danvy. Through the course, students gain an appreciation for the deep relationship between computer programs and logical proofs - two domains which have hitherto been presented to them separately and independently.
 
-Weekly assignments consist of progressive exercises involving reasoning and writing proofs about the properties of programs, and reflecting on the structure and properties of the proofs themselves. 
-
-#### Higher-order logic (HOL)
-
-To understand functional programming and proving, we must first describe their shared foundation: higher-order logic. 
-
-- In propositional logic, we can state propositions such as "P and Q implies R". A proposition is simply a statement, and a statement can be true or false. Here, P, Q and R are also propositions that can be be modified or connected by logical operators such as "not", "and", "or",  "implies", and "if and only if"  to form new propositions. 
-- In predicate logic, we extend propositional logic, and can state predicates, i.e. propositions that depend on (are predicated on) some input, such as "F(x)". Here, F is the predicate and x is a variable, and F could be a statement like "x is green". We may also quantify over variables as such: "for all x, F(x) holds", or "there exists some x for which F(x) holds".  
-- In first-order predicate logic, we can only have predicates that take input variables representing objects that are not predicates, and we can only quantify over such variables. 
-- In second-order predicate logic, we may have second-order predicates, which basically take first-order predicates as inputs. We may also quantify over these input predicates. For example: for all predicates P and values x, P(x) is true. 
-  - Third-order predicate logic involves third-order predicates, which may take second-order predicates as inputs, and can also quantify over those predicates. 
-
->  note: better example.
-
-- Higher order logic, then, allows for predication and quantification over n-th order (arbitrarily deeply nested) predicates. 
-- HOL in computer science and mathematics allows us to express certain programs and proofs. 
-- In computer science, HOL allows us to be more expressive in the context of functional programming, and allows us to write higher-order functions (see FP). 
-
-> If a predicate only returns true or false, how do we explain functions (that may return various values) from logic?  
-
-- In math, …? 
-
-> How does HOL fit in Coq? Is it because  there are propositions that rely on HOL and proofs that only rely on FOL? 
-
-- More: 
-  - Lambda calculus?? 
-  - Type theory?? 
-- Other logics and the context of their use? 
-
-> Is most of college-level math dependent on HOL, or any other types? 
+Weekly assignments consist of progressive exercises involving:
+    - writing programs,
+    - reasoning and writing proofs about the properties of programs,
+    - reflecting on the structure and properties of both the programs and the proofs.
 
 #### Functional programming (FP)
 
-FP is a programming paradigm that expresses programs as mathematical functions. That is, a program is a well-defined mapping of every possible input to exactly one output value. Functional programming is partly characterized by its 'declarative' style, in which the programmer directly expresses the desired output, derived from the input.
+FP is a programming paradigm that models programs as mathematical functions. That is, a program denotes a well-defined mapping of every possible input to exactly one output value. Functional programming is partly characterized by its 'declarative' style, in which the programmer directly expresses the desired output, derived from the input.
 
-This puts it in contrast with another ubiquitous paradigm, imperative programming. Imperative programs may be understood simply as a series of explicit statements or instructions to change a program's state in order to obtain some implictly desired state. In FP, a function always returns the same output given the same inputs; in imperative programming, programs still have input and output,  but output likely depends on 'external' (quite unpredictable) context or state. 
+This model contrasts with the other ubiquitous paradigm, imperative programming. 
 
-However, it is important to understand that at the low level, declarative programming still compiles into imperative read-write commands that modify state; the translation of declarations into commands is safely abstracted by the compiler. 
+> Section on Turing Machine and global state
 
-- Section on higher-order functions: 
+Imperative programs can therefore be understood simply as a series of explicit statements or instructions to change a program's state in order to obtain some desired output. The output thus depends on external - and thus implicit - parameters, i.e. the global state, and this program is described as 'impure'.
 
-  - Higher-order logic is the foundation of FP. The predicates of HOL are the functions of FP; that is to say, functions don't just take input variables representing values, they can also take other functions as input. 
-  - They can also return functions rather than values as outputs. 
+In contrast, a 'pure' FP program (or function, or method, or language) only has explicit parameters, and 
+it is obvious that it will always returns the same output given the same inputs. 
 
-  >  How does this relate to HOL? 
-
-  - Furthermore, we quantify over all inputs (including functions) by relying on them being of a specific 'type'. 
-  - Type theory?? 
+> Line about Turing completeness
+However, at the low level, declarative programming still compiles into imperative read-write commands that modify state; the translation of declarations into commands is safely abstracted by the compiler. 
 
 Students taking FPP are expected to have completed Intro to Computer Science taught in Yale-NUS, which trains them in functional programming with the language OCaml (Coq has a language of programs that is very similar to OCaml, and is in fact written in OCaml). 
 
