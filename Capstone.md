@@ -92,21 +92,47 @@ Certified OCaml programs may be extracted from Coq proofs.
 - <https://en.wikipedia.org/wiki/Higher-order_logic>
 
 ### Problem
-There are two main problems in the current learning process of FPP. 
+There are two main problems in the current learning process of FPP.
 
 1. Coq proofs contain 'magic' tactics.
-    - Students discover (via documentation or Googling) tactics that have not been introduced to class, and use them indiscriminately. Almost always, they do not understand what the tactic is doing under the hood and is satisfied as long as "it works". 
-    - This results in a lack of understanding about the proof. 
+    - Students discover, via documentation or Googling, advanced tactics that have not been introduced to class, and use them in their solutions. 
+    - These tactics often introduce some form of automated reasoning that also hides the proof steps generated under the hood. The student is satisfied as long as "it works", without understanding the proof itself.
 2. Coq proofs contain undesirable code style. 
-    - Students. 
+    - Students depart from the prescribed style demonstrated in class. For example: 
+        - Arbitrary indentation level for subcases. 
+        - Implicit arguments given to tactics (arguments are left blank, but inferred by Coq).
+        - Bad naming.  
+    - These stylistic departures, while syntactically correct and accepted by the Coq interpreter, are counterproductive to FPP's learning goals. Bad style reflects disorganized thoughts, and sometimes lack of understanding. Bad style make proofs harder to read and therefore also harder to complete. 
 
-These two problems correspond to a lack of 'guiding rails' in terms of concrete syntax (what tactics are allowed) and abstract syntax (how code should be styled).
+These two formal issues correspond to a lack of rules in terms of **abstract syntax** (what tactics are allowed) and **concrete syntax** (how code should be styled). Unfortunately, the power and flexibility that Coq affords, intended to make it more user-friendly, can be detrimental to beginners. 
 
-Furthermore, they seem to persist across iterations of the module, regardless of verbal and written reminders and repeated feedback. Indeed, the idea is for the tool to cut down on the amount of 'superficial' feedback ('don't use this tactic, because...', 'this is bad style, please correct it in this way', etc.) that the Professor must give repeatedly to individual students, and instead automatically lead students towards solutions that only require substantive feedback (ideas to pursue, possible restructuring of the proof, etc). 
+Furthermore, these issues seem to persist across iterations of the module, despite verbal and written reminders and repeated feedback. 
 
-### Motivating assumptions: 
+### Motivating assumptions 
+
+1. Written and verbal reminders are not efficient in training specific behaviour. 
+    - If reminders were enough to change behaviour, then we would not need to build a tool. We could just remind people harder. The experience of the professor seems to suggest otherwise. 
+    - Therefore, we should build a tool that automates the reminders. 
+2. Bad style reflects disorganized thoughts, and sometimes lack of understanding. 
+    > Example.
+3. Bad style make proofs harder to read and therefore also harder to complete. 
+    > Example.
+4. Neglecting to reinforce good habits allows bad habits to develop. 
+   > Section on building skills via muscle memory. Analogy of cooking: basic techniques + mis en place.
+   > Evidence from psychological literature. 
+   - Therefore, programming and proving at the beginner level should be generally prescriptive. 
+
+Overall, these assumptions motivate the building of a tool that provides immediate prescriptive feedback on the abstract and concrete syntax of Coq code. 
+
+The idea is for the tool to cut down on the amount of **'superficial'** feedback ('don't use this tactic, because...', 'this is bad style, please correct it in this way', etc.) that the Professor must give repeatedly to individual students, and instead automatically lead students towards solutions that only require **substantive** feedback (ideas to pursue, possible restructuring of the proof, etc).  
+
+Obviously, the less superficial feedback is required, the more time the Professor can spend on providing substantive feedback. Also, students will spend less effort correcting style errors if they do so immediately. The tool also reduces the need for the Professor to repeatedly make their case for why a student's submission is unacceptable - they can just point to the warnings generated.
+
+However, superficial feedback is not merely incidental or secondary. Superficial feedback reflects the formal concerns of the course and helps reinforces good programming habits, which will not only assist the learning experience of students, but benefit them in future endeavors. Therefore, the tool doesn't simply push aside pedantic concerns; it makes concrete the formal training prescriptions of the course. 
 
 ### Solution: parsing syntax specifications
+The solution to the problems of magic tactics and bad style is introducing 'safety rails' that will mechanically guide the student towards well-formed proofs. 
+
 
 ### Implementation: specifying a grammar of grammars
 
