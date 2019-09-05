@@ -109,10 +109,9 @@ These two formal issues correspond to a lack of rules in terms of **abstract syn
 Furthermore, these issues seem to persist across iterations of the module, despite verbal and written reminders and repeated feedback. 
 
 ### Motivating assumptions 
-
 1. Written and verbal reminders are not efficient in training specific behaviour. 
-    - If reminders were enough to change behaviour, then we would not need to build a tool. We could just remind people harder. The experience of the professor seems to suggest otherwise. 
-    - Therefore, we should build a tool that automates the reminders. 
+    - If reminders were enough to change behaviour, then we would not need to build a tool. We could just remind people harder. The experience of the Professor suggests otherwise. 
+    - Therefore, we should build a tool that automates the 'reminding'.
 2. Bad style reflects disorganized thoughts, and sometimes lack of understanding. 
     > Example.
 3. Bad style make proofs harder to read and therefore also harder to complete. 
@@ -124,15 +123,32 @@ Furthermore, these issues seem to persist across iterations of the module, despi
 
 Overall, these assumptions motivate the building of a tool that provides immediate prescriptive feedback on the abstract and concrete syntax of Coq code. 
 
-The idea is for the tool to cut down on the amount of **'superficial'** feedback ('don't use this tactic, because...', 'this is bad style, please correct it in this way', etc.) that the Professor must give repeatedly to individual students, and instead automatically lead students towards solutions that only require **substantive** feedback (ideas to pursue, possible restructuring of the proof, etc).  
-
-Obviously, the less superficial feedback is required, the more time the Professor can spend on providing substantive feedback. Also, students will spend less effort correcting style errors if they do so immediately. The tool also reduces the need for the Professor to repeatedly make their case for why a student's submission is unacceptable - they can just point to the warnings generated.
-
-However, superficial feedback is not merely incidental or secondary. Superficial feedback reflects the formal concerns of the course and helps reinforces good programming habits, which will not only assist the learning experience of students, but benefit them in future endeavors. Therefore, the tool doesn't simply push aside pedantic concerns; it makes concrete the formal training prescriptions of the course. 
-
 ### Solution: parsing syntax specifications
-The solution to the problems of magic tactics and bad style is introducing 'safety rails' that will mechanically guide the student towards well-formed proofs. 
+The solution to the problems of magic tactics and bad style is a tool that introduces 'safety rails' that will mechanically guide the student towards well-formed proofs, that satisfy a specification of **abstract** and **concrete** syntax - i.e., a **grammar**.
 
+The tool should not 'hard-code' the grammar intended by the Professor of FPP; instead, it should accept a specification that is readable and easily editable. This will allow the Professor to modify existing rules or extend them, and also allow any other course instructors to write their own specifications for use in other course, with no need to modify the rest of the code.  
+
+Therefore, at the high level, the tool will:
+-  accept a specification of a subset of Coq, its libraries, and certain style rules (e.g. indentation, ordering of statements, explicit argument application) in the form of a text file 
+-  accept a text file containing Coq code
+-  output warnings about instances where code fails to meet the specification
+
+The idea is for the tool to cut down on the amount of **'superficial'** feedback - e.g., 'don't use this tactic, because...', or 'this is bad style, please correct it in this way', etc. - that the Professor must give repeatedly to individual students, and instead automatically lead students towards solutions that only require **substantive** feedback - e.g., ideas to pursue, possible restructuring of the proof, etc.  
+
+The less superficial feedback is required, the more time the Professor can spend on providing substantive feedback. Also, students will spend less effort correcting style errors if they do so immediately. The tool also reduces the need for the Professor to repeatedly make their case for why a student's submission is unacceptable - they can just point to the warnings generated (if not already addressed by the student, as they should be).
+
+However, superficial feedback is not merely incidental. Superficial feedback reflects the formal concerns of the course and helps reinforces good programming habits, which will not only assist the learning experience of students, but benefit them in future endeavors. Therefore, the tool doesn't simply emphasize pedantic concerns; it makes concrete the formal training prescriptions of the course. 
+
+> Precedent: Racket
 
 ### Implementation: specifying a grammar of grammars
+In order to apply the specified grammar to the Coq code, the tool needs to understand how to read any given grammar. Therefore what we actually need is to specify a grammar of grammars. 
+
+For example, we may use a BNF (Backus–Naur Form) specification that lists the different types of rules we can include in the desired grammar, such as: 
+    - Abstract syntax rules
+      - A proof is...
+      - A tactic application is either one of several tactics that have zero arguments, or one of several tactics that have n arguments...
+    - Concrete syntax rules 
+      - An expression, if in a subcase after a split indented at level n, should be indented at level n + 1...
+
 
