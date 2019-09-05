@@ -148,7 +148,7 @@ Similarly, both programming and proving may be considered disciplines. Cooking i
 
 In the formal training of French cooking, heavy emphasis is placed on mastering the basics: basic ingredients of french cooking, knife skills for every type of ingredient, cooking techniques for every types of dish, recipes for the canonical sauces, etc. 
 > Find quote about how strong knife skills should be/the kind of practice it takes.
-> Also, mise en place: external form reflects and also influences the mind. Anthony Bourdain's story. 
+> Also, mise en place: external form reflects but also affects the mind. Anthony Bourdain's story. 
 
 ### Solution: a grammar of grammars
 The solution to the problems of magic tactics and bad style is a tool that introduces 'safety rails' that will mechanically guide the student towards well-formed proofs, that satisfy a specification of **abstract** and **concrete** syntax - i.e., a **grammar**.
