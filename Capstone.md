@@ -69,9 +69,12 @@ Certified OCaml programs may be extracted from Coq proofs.
 
 #### GNU Emacs Editor
 
-Emacs is a family of real-time text editors, characterized by extensibility, customizability and self-documentation. GNU Emacs was written in 1984 by GNU Project founder Richard Stallman. 
+Emacs is a family of real-time text editors which are characterized by their **customizability** and **extensibility**. GNU Emacs was written in 1984 by GNU Project founder Richard Stallman. 
 
-The user interacts with files displayed in 'buffers' - a view of a text file - via keystroke commands, with feedback and status messages displayed in a smaller buffer at the bottom of the screen - the 'minibuffer'. The user can create and dismiss buffers, and multiple buffers can exist without all being on display.  
+The user interacts with files displayed in 'buffers' - a view of a text file - via **commands** invoked by 'macros' - keystroke sequences. Feedback and status messages are displayed in a smaller buffer at the bottom of the screen - the 'minibuffer'. The user can create and dismiss buffers, and multiple buffers can exist without all being on display.  
+
+- GNU Emacs is **customizable** because users can change the behaviour of some commands via parameters, without having to redefine or modify the underlying code of the command itself. Users can also easily redefine key mappings. 
+- GNU Emacs is **extensible** because users can write new commands as programs and bind them to new macros. 
 
 GNU Emacs is used in Intro CS, Intro to Algos and Data Structures, and FPP.
 
@@ -121,10 +124,11 @@ Furthermore, these issues seem to persist across iterations of the module, despi
     > Example.
 3. Bad style make proofs harder to read and also harder to complete. 
     > Example.
-4. Neglecting to reinforce good habits allows bad habits to develop. 
-   > Section on building skills via muscle memory. Analogy of cooking: basic techniques + mis en place.
-   > Evidence from psychological literature. 
-   - Therefore, programming and proving at the beginner level should be generally prescriptive. 
+4. Programming and proving at the beginner level should be generally prescriptive. 
+   - Students beginning to learn how to program and to write proofs often develop certain bad habits (such as those described in the 'Problem' section). These habits, if left unchecked, will affect their future endeavors. 
+     - For example, inappropriate indentation makes any code less readable, regardless of domain or language. 
+     - Relying on implicit logic too often also makes written proofs harder to understand. 
+   - Therefore, we should reinforce good habits at an early stage, in the same way that training in many sports or disciplines begin with prescriptive routine and repetition. See the next section 'Analogy: coding is like cooking'.
 
 Overall, these assumptions motivate the building of a tool that provides immediate prescriptive feedback on the abstract and concrete syntax of Coq code. 
 
@@ -133,6 +137,18 @@ The idea is for the tool to cut down on the amount of **'superficial'** feedback
 The less superficial feedback is required, the more time the Professor can spend on providing substantive feedback. Also, students will spend less effort correcting style errors if they do so immediately. The tool also reduces the need for the Professor to repeatedly make their case for why a student's submission is unacceptable - they can just point to the warnings generated (if not already addressed by the student, as they should be).
 
 However, superficial feedback is not merely incidental. Superficial feedback reflects the formal concerns of the course and helps reinforces good programming habits, which will not only assist the learning experience of students, but benefit them in future endeavors. Therefore, the tool doesn't simply emphasize pedantic concerns; it makes concrete the formal training prescriptions of the course. 
+
+# Analogy: coding is like cooking 
+
+Consider different fields of mastery and skill that we call 'disciplines' - for example, martial arts, dancing, acting, cooking, etc. Usually, they are called as such because they indeed require discipline to achieve mastery. 
+
+Discipline is required to stick to the sometimes painfully boring or mundane routines and practice exercises prescribed by experienced teachers. These exercises are often designed to build understanding as well as and muscle memory in the basics of the craft. Even in disciplines that also require some form of flexibility and creativity, students are usually only able to exercise freedom effectively when they have mastered the basics.
+
+Similarly, both programming and proving may be considered disciplines. Cooking in particular provides a nice analogy. 
+
+In the formal training of French cooking, heavy emphasis is placed on mastering the basics: basic ingredients of french cooking, knife skills for every type of ingredient, cooking techniques for every types of dish, recipes for the canonical sauces, etc. 
+> Find quote about how strong knife skills should be/the kind of practice it takes.
+> Also, mise en place: external form reflects and also influences the mind. Anthony Bourdain's story. 
 
 ### Solution: a grammar of grammars
 The solution to the problems of magic tactics and bad style is a tool that introduces 'safety rails' that will mechanically guide the student towards well-formed proofs, that satisfy a specification of **abstract** and **concrete** syntax - i.e., a **grammar**.
