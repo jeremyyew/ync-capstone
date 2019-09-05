@@ -48,6 +48,8 @@ Mathematical proofs use logical rules to demonstrate that what we are sure of im
 
 Often, propositions contain equations, which are statements asserting the equality of two expressions which contain variables (unknown values). In equational reasoning, we apply axioms to equations in order to incrementally transform them into something that is clearly true. 
 
+#### The Calculus of Constructions
+>TODO.
 
 #### Coq proof assistant
 
@@ -67,11 +69,11 @@ Certified OCaml programs may be extracted from Coq proofs.
 
 #### GNU Emacs Editor
 
-- History: "For those curious about Emacs history: Emacs was originally implemented in 1976 on the [MIT](http://www.mit.edu/) AI Lab's Incompatible Timesharing System (ITS), as a collection of TECO macros. The name “Emacs” was originally chosen as an abbreviation of “Editor MACroS”. This version of Emacs, GNU Emacs, was originally written in 1984."
-- shortcuts
-- Extensible, customizable, self-documenting
-  - <https://www.gnu.org/software/emacs/emacs-paper.html>
-- Use in Intro CS, Algos and DS, FPP
+Emacs is a family of real-time text editors, characterized by extensibility, customizability and self-documentation. GNU Emacs was written in 1984 by GNU Project founder Richard Stallman. 
+
+The user interacts with files displayed in 'buffers' - a view of a text file - via keystroke commands, with feedback and status messages displayed in a smaller buffer at the bottom of the screen - the 'minibuffer'. The user can create and dismiss buffers, and multiple buffers can exist without all being on display.  
+
+GNU Emacs is used in Intro CS, Intro to Algos and Data Structures, and FPP.
 
 #### Proof General
 
@@ -90,6 +92,9 @@ Certified OCaml programs may be extracted from Coq proofs.
 - <https://www.gnu.org/software/emacs/further-information.html>
 - <https://en.wikipedia.org/wiki/Higher-order_function>
 - <https://en.wikipedia.org/wiki/Higher-order_logic>
+- <https://www.gnu.org/software/emacs/emacs-paper.html>
+- https://en.wikipedia.org/wiki/GNU_Emacs
+- https://www.emacswiki.org/emacs/EmacsHistory
 
 ### Problem
 There are two main problems in the current learning process of FPP.
@@ -114,7 +119,7 @@ Furthermore, these issues seem to persist across iterations of the module, despi
     - Therefore, we should build a tool that automates the 'reminding'.
 2. Bad style reflects disorganized thoughts, and sometimes lack of understanding. 
     > Example.
-3. Bad style make proofs harder to read and therefore also harder to complete. 
+3. Bad style make proofs harder to read and also harder to complete. 
     > Example.
 4. Neglecting to reinforce good habits allows bad habits to develop. 
    > Section on building skills via muscle memory. Analogy of cooking: basic techniques + mis en place.
@@ -123,7 +128,13 @@ Furthermore, these issues seem to persist across iterations of the module, despi
 
 Overall, these assumptions motivate the building of a tool that provides immediate prescriptive feedback on the abstract and concrete syntax of Coq code. 
 
-### Solution: parsing syntax specifications
+The idea is for the tool to cut down on the amount of **'superficial'** feedback - e.g., 'don't use this tactic, because...', or 'this is bad style, please correct it in this way', etc. - that the Professor must give repeatedly to individual students, and instead automatically lead students towards solutions that only require **substantive** feedback - e.g., ideas to pursue, possible restructuring of the proof, etc.  
+
+The less superficial feedback is required, the more time the Professor can spend on providing substantive feedback. Also, students will spend less effort correcting style errors if they do so immediately. The tool also reduces the need for the Professor to repeatedly make their case for why a student's submission is unacceptable - they can just point to the warnings generated (if not already addressed by the student, as they should be).
+
+However, superficial feedback is not merely incidental. Superficial feedback reflects the formal concerns of the course and helps reinforces good programming habits, which will not only assist the learning experience of students, but benefit them in future endeavors. Therefore, the tool doesn't simply emphasize pedantic concerns; it makes concrete the formal training prescriptions of the course. 
+
+### Solution: a grammar of grammars
 The solution to the problems of magic tactics and bad style is a tool that introduces 'safety rails' that will mechanically guide the student towards well-formed proofs, that satisfy a specification of **abstract** and **concrete** syntax - i.e., a **grammar**.
 
 The tool should not 'hard-code' the grammar intended by the Professor of FPP; instead, it should accept a specification that is readable and easily editable. This will allow the Professor to modify existing rules or extend them, and also allow any other course instructors to write their own specifications for use in other course, with no need to modify the rest of the code.  
@@ -133,22 +144,9 @@ Therefore, at the high level, the tool will:
 -  accept a text file containing Coq code
 -  output warnings about instances where code fails to meet the specification
 
-The idea is for the tool to cut down on the amount of **'superficial'** feedback - e.g., 'don't use this tactic, because...', or 'this is bad style, please correct it in this way', etc. - that the Professor must give repeatedly to individual students, and instead automatically lead students towards solutions that only require **substantive** feedback - e.g., ideas to pursue, possible restructuring of the proof, etc.  
-
-The less superficial feedback is required, the more time the Professor can spend on providing substantive feedback. Also, students will spend less effort correcting style errors if they do so immediately. The tool also reduces the need for the Professor to repeatedly make their case for why a student's submission is unacceptable - they can just point to the warnings generated (if not already addressed by the student, as they should be).
-
-However, superficial feedback is not merely incidental. Superficial feedback reflects the formal concerns of the course and helps reinforces good programming habits, which will not only assist the learning experience of students, but benefit them in future endeavors. Therefore, the tool doesn't simply emphasize pedantic concerns; it makes concrete the formal training prescriptions of the course. 
+However, in order to apply the specified grammar to the Coq code, the tool needs to understand how to read any given grammar. Therefore what we actually need is to specify a **grammar of grammars**. 
 
 > Precedent: Racket
 
-### Implementation: specifying a grammar of grammars
-In order to apply the specified grammar to the Coq code, the tool needs to understand how to read any given grammar. Therefore what we actually need is to specify a grammar of grammars. 
-
-For example, we may use a BNF (Backus–Naur Form) specification that lists the different types of rules we can include in the desired grammar, such as: 
-    - Abstract syntax rules
-      - A proof is...
-      - A tactic application is either one of several tactics that have zero arguments, or one of several tactics that have n arguments...
-    - Concrete syntax rules 
-      - An expression, if in a subcase after a split indented at level n, should be indented at level n + 1...
 
 
