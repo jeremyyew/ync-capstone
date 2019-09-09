@@ -164,5 +164,64 @@ However, in order to apply the specified grammar to the Coq code, the tool needs
 
 > Precedent: Racket
 
+### An example grammar
+Adopted from multiple sub-grammars of Coq: 
+1. Vernacular of Gallina https://coq.inria.fr/distrib/current/refman/language/gallina-specification-language.html#the-vernacular
+2. Terms of the Calculus of Inductive Construction: https://coq.inria.fr/distrib/current/refman/language/gallina-specification-language.html#terms
+3. Tactic language: https://coq.inria.fr/distrib/current/refman/proof-engine/ltac.html#the-tactic-language
+4. Atomic tactics: https://coq.inria.fr/distrib/current/refman/proof-engine/tactics.html#tactics
+
+The notation "..." means any string. 
+
+```
+sentence ::= assertion proof 
+            | Definition ... . 
+            | Inductive ... . 
+            | Fixpoint ... . 
+            | ... .
+assertion ::=  assertion_keyword ident ... .
+assertion_keyword ::=  Theorem 
+                    | Lemma 
+                    | Remark 
+                    | Fact 
+                    | Corollary 
+                    | Proposition 
+                    | Definition 
+                    | Example
+ident ::= string
+proof ::= Proof . ... Qed . 
+        | Proof . ... Defined . 
+        | Proof . ... Admitted .
+        | Proof . ... Abort .
+expr ::= tactic_invocation 
+tactic_invocation ::= [- | + | >] tactic .
+tactic ::= intro ident 
+        | intros intro_pattern_list 
+        | clear
+        | exact term 
+        | apply term 
+        | split 
+        | left 
+        | right 
+        | rewrite_expr
+        | Compute ...
+        | Check ...
+        | reflexivity 
+rewrite_expr ::= rewrite -> term in ...
+                | rewrite -> term args
+                | rewrite <- term args
+// How to verify number of args? 
+intro_pattern_list
+term ::= ...
+```
+To be accounted for: 
+```
+Ltac
+Require 
+Notation 
+Comments
+```
+
+
 
 
