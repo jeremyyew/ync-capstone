@@ -48,11 +48,17 @@ Mathematical proofs use logical rules to demonstrate that what we are sure of im
 
 Often, propositions contain equations, which are statements asserting the equality of two expressions which contain variables (unknown values). In equational reasoning, we apply axioms to equations in order to incrementally transform them into something that is clearly true. 
 
-#### The Calculus of Constructions
->TODO.
+#### The Coq proof assistant
+The Coq proof assistant has three components: 
 
-#### Coq proof assistant
-
+1. Language
+   - The logical language in which we formalize axioms and specifications is based on a variety of type theory called the Calculus of Inductive Constructions (CoC).
+   - Type theories are a class of formal systems in mathematics and logic, in which every term has a certain type, and operations are restricted to 
+   - Some programming languages feature **type systems** that reduce bugs, which have some overlap with type theory. 
+   - CoC...
+2. Proof-checker: Coq 
+3. Program extractor
+   
 - Why
   - shortcomings of informal proofs 
   - other proof assistants 
@@ -80,29 +86,9 @@ GNU Emacs is used in Intro CS, Intro to Algos and Data Structures, and FPP.
 
 #### Proof General
 
-Proof General is a powerful, configurable and generic Emacs interface for proof assistants, developed at the University of Edinburgh since  1992. It provides a common interface across various proof assistants, including Coq, and allows users to interactively edit proof scripts and keep track of proof steps that have been applied. 
+Proof General is a powerful, configurable and generic Emacs interface for proof assistants, developed at the University of Edinburgh since 1992. It provides a common interface across various proof assistants, including Coq, and allows users to interactively edit proof scripts. 
 
-The interface is simple: 
-"Three Buffers for users to construct proofs; 
-One Buffer to hold the script; One Buffer for output;
-One Buffer to list them all, the subgoals that await them;
-In the Land of Coq where many truths lie." 
-
-> "Three Rings for the Elven-kings under the sky,
-Seven for the Dwarf-lords in their halls of stone,
-Nine for Mortal Men doomed to die,
-One for the Dark Lord on his dark throne
-In the Land of Mordor where the Shadows lie.
-One Ring to rule them all, One Ring to find them,
-One Ring to bring them all and in the darkness bind them
-In the Land of Mordor where the Shadows lie."
-
-- Three buffers: "The script buffer holds input, the commands to construct a proof. The goals buffer displays the current list of subgoals to be solved. The response buffer displays other output from the proof assistant. By default, only two of these three buffers are displayed. This means that the user normally only sees the output from the most recent interaction, rather than a screen full of output from the proof assistant. Proof General does not commandeer the proof assistant shell: the user still has complete access to it if necessary."
-- Other features: simplified interaction, script management, multiple file scripting, a script editing mode, proof by pointing, proof-tree visualization, toolbar and menus, syntax highlighting, real symbols, functions menu, tags, and finally, adaptability."
-- Coq without Proof General? CoqIDE, JSCoq. Coq in Jupyter?
-  - Do the buffers look the same in CoqIDE? 
-- <https://proofgeneral.github.io/>
-- <https://proofgeneral.github.io/doc/master/userman/Introducing-Proof-General/#Quick-start-guide>
+The interface presents users with three buffers (windows): one buffer for the script itself, one buffer for responses; and one buffer to list down all the subgoals that await them. 
 
 #### References
 
@@ -114,6 +100,8 @@ In the Land of Mordor where the Shadows lie."
 - <https://www.gnu.org/software/emacs/emacs-paper.html>
 - https://en.wikipedia.org/wiki/GNU_Emacs
 - https://www.emacswiki.org/emacs/EmacsHistory
+- <https://proofgeneral.github.io/>
+- <https://proofgeneral.github.io/doc/master/userman/Introducing-Proof-General/#Quick-start-guide>
 
 ### Problem
 There are two main problems in the current learning process of FPP.
