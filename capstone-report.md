@@ -80,7 +80,23 @@ GNU Emacs is used in Intro CS, Intro to Algos and Data Structures, and FPP.
 
 #### Proof General
 
-- Generic, Adaptable 
+Proof General is a powerful, configurable and generic Emacs interface for proof assistants, developed at the University of Edinburgh since  1992. It provides a common interface across various proof assistants, including Coq, and allows users to interactively edit proof scripts and keep track of proof steps that have been applied. 
+
+The interface is simple: 
+"Three Buffers for users to construct proofs; 
+One Buffer to hold the script; One Buffer for output;
+One Buffer to list them all, the subgoals that await them;
+In the Land of Coq where many truths lie." 
+
+> "Three Rings for the Elven-kings under the sky,
+Seven for the Dwarf-lords in their halls of stone,
+Nine for Mortal Men doomed to die,
+One for the Dark Lord on his dark throne
+In the Land of Mordor where the Shadows lie.
+One Ring to rule them all, One Ring to find them,
+One Ring to bring them all and in the darkness bind them
+In the Land of Mordor where the Shadows lie."
+
 - Three buffers: "The script buffer holds input, the commands to construct a proof. The goals buffer displays the current list of subgoals to be solved. The response buffer displays other output from the proof assistant. By default, only two of these three buffers are displayed. This means that the user normally only sees the output from the most recent interaction, rather than a screen full of output from the proof assistant. Proof General does not commandeer the proof assistant shell: the user still has complete access to it if necessary."
 - Other features: simplified interaction, script management, multiple file scripting, a script editing mode, proof by pointing, proof-tree visualization, toolbar and menus, syntax highlighting, real symbols, functions menu, tags, and finally, adaptability."
 - Coq without Proof General? CoqIDE, JSCoq. Coq in Jupyter?
