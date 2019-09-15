@@ -1,14 +1,37 @@
 # Capstone Proposal  
-Student:
-Supervisor: 
-Title: 
-Subject Areas: 
 
-Challenges: The Supervisor’s perception of aspects of this project may disagree with how students perceive it (e.g. numerous abstract proofs or advanced coding skills could affect the completion of the project). Such challenges should be carefully discussed towards finding a consensus between students and Supervisors.
+Student: Jeremy Yew, A0156262H
+Supervisor: Prof Olivier Danvy
+Title: Editorial Support for the Coq Proof Assistant 
+Subject Areas: Functional programming, mathematical logic and proofs,  data structures, language parsing. 
 
-Scope: The primary aim of the project is to contribute to the student’s intellectual development. Likewise, for a project associated to an internship, the Supervisor needs to ensure that the student’s education is paramount. Joint publications with the supervisor resulting from the project are encouraged, but they should not be obtained at the expense of the primary aim.
+## Challenges: 
+To build a tool that applies user-specified syntax rules to a Coq script, in order to build muscle memory for good programming habits. This will involve: 
+  - Programming a command in the Emacs editor, using emacs-lisp or other languages. 
+  - Programming a language parser that can apply both abstract and concrete syntax to a Coq script. 
+  - Programming a grammar parser that can accept a user-provided input grammar, and apply the grammar to a Coq script. 
+  - If writing a program external to Emacs, ensuring the command works across operating systems, i.e. calls the appropriate system command to run the external program outside of Emacs. 
 
-Expectations associated with grade achievement: Students should be informed about what kind of material the thesis should contain in order to lead to an A- grade. The prerequisites, the co-requisites, and the initial references must be made clear from the beginning.  
+## Scope: 
+- Learning how to assist student's CS education by instilling good programming habits. 
+- Learning how to program Emacs commands.
+- Learning how to write a language parser that applies specific syntax rules. 
+- Learning how to write a grammar parser that interprets user-specified syntax rules and applies them. 
 
-Time allocation: Typically, supervision occupies about 1 contact hour weekly or every other week (with considerable week-to-week variation and depending on supervisor). Contact time should not consist of lectures by the Supervisor. It is more profitable to have Q & A between Supervisor and student, with both asking/answering questions.
+## Expectations associated with grade achievement: 
+Note: Unless otherwise mentioned, all goals below are aimed to be completed by Semester 1 unless otherwise stated, with Semester 2 focused on additional features and report-writing/presentation prep. While it is a little ambitious to aim to complete all core code by Semester 1, it is important to design some buffer time to accommodate unpredictable technical challenges. 
 
+To fulfill the following tasks, to document their implementation and associated design decisions, and to gather feedback on the tool from the users (Professor and students): 
+- Program an emacs command that takes a pointer to a Coq script as input, and tells the user whether or not the script adheres to the syntax of the Coq logical language. 
+- Program the command to apply abstract syntax rules on the script, such as: "Proofs should only use a specified subset of libraries and tactics", and warn the user of transgressions. 
+- Program the command to apply concrete syntax rules on the script, such as: "Rewrite commands should specify the direction of rewrite, and rewrite rules should have all their arguments supplied", and warn the user of transgressions. 
+- Program the command to parse one or more input grammars that specify syntax rules. 
+
+Optionally (Sem 2):
+- Program the command to be more interactive, for example: 
+  - providing intermediate feedback at every step of the proof
+  - highlighting transgressions inside the script (as opposed to messages in the response buffer)
+  - providing suggested corrections
+
+## Time allocation: 
+Meetings with Prof Danvy: 1-1.5 hour a week of one-to-one discussion of project progress. Thursdays at 1pm.
