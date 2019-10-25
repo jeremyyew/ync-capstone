@@ -148,5 +148,3 @@ However, in order to apply the specified grammar to the Coq code, the tool needs
 
 > Precedent: Racket
 
-
-
