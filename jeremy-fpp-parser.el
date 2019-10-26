@@ -1,11 +1,3 @@
-;; Capstone
-;; Requirements of syntax checker:
-;; 1. Check rewrite is provided complete args.  
-;; 2. Check if tactics are in subset of allowed tactics.
-;; 3. Indentation - consider auto-indenting on user's behalf, especially since it is impossible to detect when indentation level should decrease unless we read the coq shell output.
-;; 4. Suggest naming conventions? E.g. hypothesis.  
-
-
 (defvar jeremy-coq-error-found nil
   "Whether error was found after sending script to Coq shell.")
 
@@ -31,8 +23,6 @@
   (print s))
 
 (defun jeremy-ends-with-period
-
-
 
 
 ;; Turn on the hook (via the hook-active variable), and process the buffer with the coq shell first.
