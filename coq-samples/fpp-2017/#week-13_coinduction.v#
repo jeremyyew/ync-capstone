@@ -1,0 +1,36 @@
+Require Import Arith List.
+
+CoInductive Lazy_list_nat : Type :=
+| Nil : Lazy_list_nat
+| Cons : nat -> Lazy_list_nat -> Lazy_list_nat.
+
+
+CoInductive bisimilar_Lazy_list_nat : Lazy_list_nat -> Lazy_list_nat -> Prop :=
+| Bisimilar_Nil :
+    bisimilar_Lazy_list_nat Nil Nil
+| Bisimilar_Cons :
+    forall (n1 n2 : nat) (n1s n2s : Lazy_list_nat),
+      n1 = n2 ->
+      bisimilar_Lazy_list_nat n1s n2s ->
+      bisimilar_Lazy_list_nat (Cons n1 n1s) (Cons n2 n2s).
+           
+
+Fixpoint prefix (m : nat) (ns : Lazy_list_nat) : list nat :=
+  match m with
+  | 0 => nil
+  | S m' => match ns with
+            | Nil => nil
+            | Cons n ns' => n :: (prefix m' ns')
+            end
+  end.
+
+CoFixpoint partial_sums_aux (a : nat) (ns : Lazy_list_nat) : Lazy_list_nat :=
+  match ns with
+  | Nil =>
+    Nil
+  | Cons n ns' =>
+    Cons (n + a) (partial_sums_aux (n + a) ns')
+  end.
+
+Definition partial_sums ns := partial_sums_aux 0 ns.
+

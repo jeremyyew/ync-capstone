@@ -1,0 +1,104 @@
+JEREMY's EMACS CHEATSHEET
+
+**********NAVIGATION**********
+
+----------DIRED----------
+C-x C-d...Open directory buffer
+f.........Open file 
+d/x.......Flag then delete file
+f.........File Open/Save
+
+
+----------FILE OPEN/SAVE----------
+C-x C-f...Open/create file in new buffer 
+C-x C-s...Save current buffer to original file/<file>
+C-x s.....Save some buffers
+C-x C-w...Save buffer as...
+
+
+----------BUFFERS----------
+C-x C-b...See all buffers
+d x.......flag then delete buffers
+C-x b.....Open selected buffer in curent window
+C-x right/left...next/prev buffer
+C-x k.....Kill current buffer
+C-x 4 0...Kill current buffer AND window
+
+
+----------WINDOWS----------
+Resize window...C-x }
+
+C-x 0.....Close current window 
+C-x 1.....Close all windows except current
+C-x 2/3...Split window vertically/horizontally
+C-x C-+/-.Zoom window in/out
+
+C-x 4 C-f.Open file in new window
+C-M-v.....Scroll other window
+C-x o.....Switch to other window
+
+
+----------FRAME----------
+M-x make-frame
+M-x delete-frame
+
+
+----------CURSOR----------
+C-s.......Forward search/next occurence
+C-r.......Reverse search
+
+C-n/C-p...Next/prev line
+C-f/C-b...Forward/back by char
+C-a/C-e...Beginning/end of line
+
+M-f/M-b...Forward/back by word
+M-a/M-e...Beginning/end of sentence
+
+C-x ]/M->.....Start/end of file
+C-L.......Move view to cursor 
+C-v/M-v...Next/prev screen
+
+
+----------HELP----------
+C-h ?.....help with help
+C-h a.....apropos keyword command search
+C-h c.....command name of key combination 
+C-h k.....open doc of command 
+C-h f.....Describe command
+
+
+----------MISC----------
+ESC x 3.........esc recursive editing level/minitab buffer
+C-u <n>/M-<n>...prefix numeric argument
+C-g.............stop quit partially entered command/quit 
+M-</M->.........beginning/end of text
+C-x C-c.........end sesh 
+C-z.............suspend sesh
+
+
+**********EDITING**********
+
+----------GENERAL----------
+C-/.............Undo
+C-x 4 C-f cheatsheet RET
+
+----------KILL----------
+C-k/(NOT C-x k)M-k...Kill from cursor to EOL/EOS
+C-spc C-w/M-w.......Kill selection/Copy selection
+
+C-y.......Yank last killed text
+M-y/M-S-y........cycle through yanks (pop backwards/pop forwards)
+alt-<del>/alt-d...Kill word before/after cursor
+<del>/C-d............Del char before/after cursor
+
+M-x replace-string <replacee> <replacer>...Replace all string <replacee> after cursor with <replacer>
+M-x recover file...Recover autosaved #file
+
+
+----------MODES----------
+M-x <mode>...Switch to mode
+C-h m...Docs for current mode 
+
+
+
+----------COQ PROOF ASSISTANT----------
