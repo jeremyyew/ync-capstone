@@ -1,25 +1,53 @@
-% Appendix A
-
-\chapter{Frequently Asked Questions} % Main appendix title
+\chapter{Appendix A} % Main appendix title
 
 \label{AppendixA} % For referencing this appendix elsewhere, use \ref{AppendixA}
 
-\section{How do I change the colors of links?}
+\section{An example grammar}
 
-The color of links can be changed to your liking using:
+Here is an example grammar that I might use as input to either a custom parser or a parser generator. It is a subset of Coq's grammar. 
 
-{\small\verb!\hypersetup{urlcolor=red}!}, or
+Note that the grammar is incomplete, and does not yet implement any of the rules described. The example is more a demonstration of an exploratory exercise to identify the relevant grammar definitions from various separate grammar specifications in the Coq documentation ("The Gallina specification language", "Terms of the calculus of inductive construction", "The tactic language", and "Atomic tactics").
 
-{\small\verb!\hypersetup{citecolor=green}!}, or
+The notation "..." means any string. 
 
-{\small\verb!\hypersetup{allcolor=blue}!}.
 
-\noindent If you want to completely hide the links, you can use:
-
-{\small\verb!\hypersetup{allcolors=.}!}, or even better: 
-
-{\small\verb!\hypersetup{hidelinks}!}.
-
-\noindent If you want to have obvious links in the PDF but not the printed text, use:
-
-{\small\verb!\hypersetup{colorlinks=false}!}.
+\begin{verbatim}
+        sentence ::= assertion proof 
+                    | Definition ... . 
+                    | Inductive ... . 
+                    | Fixpoint ... . 
+                    | ... .
+        assertion ::=  assertion_keyword ident ... .
+        assertion_keyword ::=  Theorem 
+                            | Lemma 
+                            | Remark 
+                            | Fact 
+                            | Corollary 
+                            | Proposition 
+                            | Definition 
+                            | Example
+        ident ::= string
+        string := char | char string
+        char :== a..z ∣ A..Z ∣ 0...9 | _
+        proof ::= Proof . tactic_invocations Qed . 
+                | Proof . tactic_invocations Defined . 
+                | Proof . tactic_invocations Admitted .
+                | Proof . tactic_invocations Abort .
+        tactic_invocations ::= tactic_invocation | tactic_invocation tactic_invocations
+        tactic_invocation ::= [- | + | >] tactic .
+        tactic ::= intro ident 
+                | intros intro_pattern_list 
+                | clear
+                | exact rule_application 
+                | apply term 
+                | split 
+                | left 
+                | right 
+                | rewrite_expr
+                | Compute ...
+                | Check ...
+                | reflexivity 
+        rewrite_expr ::= rewrite -> rule in ...
+                        | rewrite -> term args
+                        | rewrite <- term args
+                \end{verbatim}

@@ -133,14 +133,14 @@ headsepline, % Uncomment to get a line under the header
 I would like to acknowledge Prof Danvy for his generous and dedicated guidance.
 \end{acknowledgements}
 
-
 %----------------------------------------------------------------------------------------
 %	ABSTRACT PAGE
 %----------------------------------------------------------------------------------------
+ 
 
 \begin{abstract}
 \addchaptertocentry{\abstractname} % Add the abstract to the table of contents
-Abstract goes here.
+I provide learning support for students in YSC3236 Functional Programming and Proving (FPP), by building an interactive, Emacs-integrated tool that checks for syntax issues in student's Coq proof submissions. The tool thus acts as a set of 'safety rails' to guide students towards developing the proper muscle memory. The Lecturer will be able to provide a grammar specification as an input to the tool. 
 \end{abstract}
 
 
@@ -214,11 +214,10 @@ Abstract goes here.
 \tableofcontents % Prints the main table of contents
 
 % \listoftables % Prints the list of tables
-\label{lst:tabs}
+% \label{lst:tabs}
 
 % \listoffigures % Prints the list of figures
-\label{lst:figs}
-
+% \label{lst:figs}
 %----------------------------------------------------------------------------------------
 %	ABBREVIATIONS
 %----------------------------------------------------------------------------------------
@@ -263,8 +262,6 @@ Abstract goes here.
 %	DEDICATION
 %----------------------------------------------------------------------------------------
 
-% \dedicatory{Dedicated to ceux l\`{a} qui veulent.}
-
 %----------------------------------------------------------------------------------------
 %	THESIS CONTENT - CHAPTERS
 %----------------------------------------------------------------------------------------
@@ -275,23 +272,29 @@ Abstract goes here.
 
 % Include the chapters of the thesis as separate files from the Chapters folder
 % Uncomment the lines as you write the chapters
-
 \input{chapters/0-intro}
 \input{chapters/1-building-muscle-memory}
 \input{chapters/2-writing-proofs}
 \input{chapters/3-solution}
-% \input{chapters/chapter-1}
-% \input{chapters/otherchapter}
+
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
 
-\printbibliography[heading=bibintoc]
-
+% \printbibliography[heading=bibintoc]
 %----------------------------------------------------------------------------------------
 %	THESIS CONTENT - APPENDICES
 %----------------------------------------------------------------------------------------
+
+\chapter{References} % Main chapter title
+
+\begin{itemize}
+	\item GNU Emacs home page <https://www.gnu.org/software/emacs/further-information.html>
+	\item  Proof General home page <https://proofgeneral.github.io/>
+	\item  Coq reference manual <https://coq.inria.fr/distrib/current/refman/>
+	\item  Glickstein, Bob. Writing GNU Emacs Extensions. O'reilly Media, Inc., 2010.
+\end{itemize}
 
 \appendix % Cue to tell LaTeX that the following "chapters" are Appendices
 
@@ -299,3 +302,7 @@ Abstract goes here.
 % Uncomment the lines as you write the Appendices
 
  \input{appendix/appendixA}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}

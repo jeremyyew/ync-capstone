@@ -22,7 +22,6 @@
   "Parse for violations of separate rules."
   (print s))
 
-(defun jeremy-ends-with-period
 
 
 ;; Turn on the hook (via the hook-active variable), and process the buffer with the coq shell first.

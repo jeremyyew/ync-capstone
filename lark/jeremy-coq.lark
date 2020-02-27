@@ -1,0 +1,85 @@
+%import common.NEWLINE
+%import common.WS
+%import common.WORD
+%import common.LETTER
+%import common.DIGIT
+%ignore NEWLINE
+%ignore WS
+
+QED: "Qed."
+PROOF_KEYWORD: "Proof." 
+SENTENCE: /[^\.]+?\./ 
+VARNAME: (LETTER | DIGIT | "_")+
+
+start: document
+document: (sentence | proof)*
+sentence: SENTENCE
+proof: PROOF_KEYWORD (tactic_invocation)* QED // allow non-tactic_invocation sentences in proofs (currently sentence is too powerful). Technically, allow tactic invocations outside of proofs. 
+tactic_invocation: tactic tactic_args "."
+!tactic: "intros" 
+    | "destruct" ["as"] 
+    | "exact" 
+    | "rewrite" ("->" | "<-")
+    | "Restart"
+    | "exists"
+tactic_args: term*  // add intro patterns
+!term: VARNAME | "[" VARNAME* "]" | "(" VARNAME* ")" // allow term applications
+
+    // %ignore WS
+// sentence ::= assertion proof 
+//             | Definition ... . 
+//             | Inductive ... . 
+//             | Fixpoint ... . 
+//             | ... .
+// assertion ::=  assertion_keyword ident ... .
+// assertion_keyword ::=  Theorem 
+//                     | Lemma 
+//                     | Remark 
+//                     | Fact 
+//                     | Corollary 
+//                     | Proposition 
+//                     | Definition 
+//                     | Example
+// ident ::= string
+// string := char | char string
+// char :== a..z ∣ A..Z ∣ 0...9 | _
+// proof ::= Proof . tactic_invocations Qed . 
+//         | Proof . tactic_invocations Defined . 
+//         | Proof . tactic_invocations Admitted .
+//         | Proof . tactic_invocations Abort .
+// tactic_invocations ::= tactic_invocation | tactic_invocation tactic_invocations
+// tactic_invocation ::= [- | + | >] tactic .
+// tactic ::= intro ident 
+//         | intros intro_pattern_list 
+//         | clear
+//         | exact rule_application 
+//         | apply term 
+//         | split 
+//         | left 
+//         | right 
+//         | rewrite_expr
+//         | Compute ...
+//         | Check ...
+//         | reflexivity 
+// rewrite_expr ::= rewrite -> rule in ...
+//                 | rewrite -> term args
+//                 | rewrite <- term args
+
+// Lemma truism :
+//   forall P : nat -> Prop,
+//     (exists n : nat,
+//         P n) ->
+//     exists n : nat,
+//       P n.
+// Proof.
+//   intros P H_P.
+//   destruct H_P as [n H_Pn].
+//   exists n.
+//   exact H_Pn.
+
+//   Restart.
+
+//   intros P [n H_Pn].
+//   exists n.
+//   exact H_Pn.
+// Qed.

@@ -1,176 +1,226 @@
-# Capstone
+# Learning Support for Writing Proofs in Coq
 
 Jeremy Yew 
 
 [TOC]
 
-## Chapter 1
-The goal of this research project is to assist the learning experience of students enrolled in YSC3216: Functional Programming and Proving (FPP). FPP is a course in Yale-NUS College that introduces students to mechanized proofs - proofs that can be verified automatically by a machine. Students exercise logical and equational reasoning by programming proofs in the logical language provided by the Coq proof assistant (referred to as Coq). 
+# Abstract
+# Introduction 
+The goal of this research project is to provide learning support for students enrolled in YSC3216: Functional Programming and Proving (FPP), by building a tool that checks for syntax issues in student's proof submissions.
 
-To this end, I implement a tool to specify a subset of Coq, its libraries, and certain style rules, and to enforce their use. The tool parses text files containing Coq proofs submitted by students, and output messages about transgressions. The idea is for students to check that their code adheres to the specification before submitting. 
+FPP is a course in Yale-NUS College taught by Professor Olivier Danvy, under the Mathematical, Computational and Statistical Sciences major. FPP introduces students to the Coq proof assistant, which is a system for writing and verifying formal proofs. 
 
-Lastly, the tool is designed as an extension of the GNU Emacs text editor, potentially integrated in the Proof General interface. It should be easy to install, configure, and use, so that it can be useful for other courses using Coq as well.
+The learning goal for the first half of the course is to build muscle memory for basic proof techniques and programming habits. 
 
-### Context
+To this end, I implement a program that can act as a set of 'safety rails' to guide students towards developing the proper muscle memory. In particular, the program will enforce explicit tactic application within a subset of Coq, amongst other syntax rules. The Lecturer will be able to provide a grammar specification as an input to the tool. The program will be written as an extension of the Emacs text editor, and can therefore be used by students interactively. 
 
-#### YSC3216: Functional Programming & Proving (FPP)
+## Functional programming (FP)
+Functional programming is a programming paradigm that models programs as mathematical functions. That is, a program defines a mapping of every possible input to exactly one output value. Functional programming is partly characterized by its 'declarative' style, in which the programmer directly expresses the desired output, derived from the input.
 
-FPP is a Mathematical, Computational and Statistical Sciences (MCS) course taught by Professor Olivier Danvy. Through the course, students gain an appreciation for the deep relationship between computer programs and logical proofs - two domains which have hitherto been presented to them separately and independently.
+Students taking FPP are expected to have completed Intro to Computer Science taught in Yale-NUS, which trains them in functional programming with the language OCaml. Coq has a language of programs that is very similar to OCaml, and is in fact written in OCaml. 
 
-Weekly assignments consist of progressive exercises involving:
-    - writing programs,
-    - reasoning and writing proofs about the properties of programs,
-    - reflecting on the structure and properties of both the programs and the proofs.
+## Proving
 
-#### Functional programming (FP)
+In mathematics, a proposition is a statement that either holds or does not hold; a proposition is also sometimes called a theorem or lemma. 
 
-FP is a programming paradigm that models programs as mathematical functions. That is, a program denotes a well-defined mapping of every possible input to exactly one output value. Functional programming is partly characterized by its 'declarative' style, in which the programmer directly expresses the desired output, derived from the input.
+Proofs can be defined as a logical argument about whether a proposition holds. Proofs use logical rules to demonstrate that what we are sure of (an axiom) implies the truth of something we were not sure of. 
 
-This model contrasts with the other ubiquitous paradigm, imperative programming. 
+In mathematical proofs, propositions often contain equations, which are statements asserting the equality of two expressions containing variables (unknown values). In equational reasoning, we apply axioms to equations in order to incrementally transform them into something that is clearly true. 
 
-> Section on Turing Machine and global state
+## Verifiable proofs with the Coq proof assistant
+Many proofs in mathematics or computer science are natural language proofs - that is, they are written in a natural language, like English. Even though they may use jargon and formal symbols, they may be considered informal. Since natural languages are often ambiguous, natural language proofs are susceptible to misinterpretation or misconception. Furthermore, informal proofs rely on humans to check for logical errors, but humans are fallible.
 
-Imperative programs can therefore be understood simply as a series of explicit statements or instructions to change a program's state in order to obtain some desired output. The output thus depends on external - and thus implicit - parameters, i.e. the global state, and this program is described as 'impure'.
+On the other hand, just as there programming languages that express a set of instructions to be executed by a computer, there are also domain-specific languages for writing formal proofs that can be automatically, or mechanically, verified by a computer. 
 
-In contrast, a 'pure' FP program (or function, or method, or language) only has explicit parameters, and 
-it is obvious that it will always returns the same output given the same inputs. 
-
-> Line about Turing completeness
-However, at the low level, declarative programming still compiles into imperative read-write commands that modify state; the translation of declarations into commands is safely abstracted by the compiler. 
-
-Students taking FPP are expected to have completed Intro to Computer Science taught in Yale-NUS, which trains them in functional programming with the language OCaml (Coq has a language of programs that is very similar to OCaml, and is in fact written in OCaml). 
-
-#### Proving
-
-In mathematics, a proposition is a statement that either holds or does not hold; a proposition is also sometimes called a theorem or lemma. Proofs can be defined as an argument about whether a proposition holds. 
-
-Mathematical proofs use logical rules to demonstrate that what we are sure of implies the truth of something we weren't sure of. Therefore we can understand a proof as a functions which takes propositions we know or assume to hold (known as "axioms") as input; the output is a theorem that has been proven true. This theorem may then also be used as an input proposition to other proofs. 
-
-Often, propositions contain equations, which are statements asserting the equality of two expressions which contain variables (unknown values). In equational reasoning, we apply axioms to equations in order to incrementally transform them into something that is clearly true. 
-
-#### Verifiably correct proofs with the Coq proof assistant
-Most proofs in mathematics or computer science, even though they contain formal symbols and jargon, could be considered 'informal' in that they are written in natural human languages, which do not confirm to strict syntax. Natural languages are implicit and ambiguous, and thus open to misinterpretation. Furthermore, informal proofs rely on humans to check for logical errors, but humans are fallible.
-
-Coq allows us to formalize proofs in a structured logical language, and automatically verify that our proofs are correct. In particular, we can write both specifications and programs, and prove that programs fulfill their specifications (amongst other properties). Lastly, we can extract certified programs from Coq, i.e. programs that are guaranteed to fulfill their specifications.  
+Therefore Coq allows us to write formal, verifiable proofs in a structured logical language called Gallina, and will also automatically verify that our proofs are correct. 
 
 Proving is done as such: 
 1. First, we state a theorem (or lemma, proposition, etc) in the logical language of Coq. 
 2. Then, we solve 'subgoals'  generated by Coq (sub-statements we need to prove in order to prove the theorem) by stating a sequence of 'tactics' (the method we use at each step). As we apply each tactic to the current subgoal (by executing each line of code), Coq will progressively transform the subgoal.
 3. Once all our subgoals have been transformed into something that is clearly true, our proof is complete. Every proof step has been demonstrated to progress logically from each other; this process can be reproduced by any other user executing the same proof. Thus the the proof is verifiably correct. 
 
-Therefore, the Coq proof assistant has three components:
-1. Language of programs and proofs
-   - The logical language in which we formalize theorems, specifications, programs, and proofs, is the Calculus of Inductive Constructions (CIC). 
-   - In the CIC, every term has a particular 'type' (which we can think of as a kind of category) - variables, functions, proofs, and even types themselves, and terms are governed by a set of typing rules.
-   - The CIC also contains a 'mini' functional programming language, with which we write our programs.
-2. Proof-checker: 
-   - The program that runs a type-checking algorithm to determine if each proof step is logically valid, and also generates intermediate subgoals and other output. 
-3. Program extractor: 
-   - We can easily build certified functional programs by extracting them from either Coq functions or Coq proofs of specifications. Currently, OCaml, Haskell and Scheme are supported. 
+## YSC3236: Functional Programming & Proving (FPP)
+FPP is a course in Yale-NUS College taught by Professor Olivier Danvy, under the Mathematical, Computational and Statistical Sciences major. The class is taken not only by Yale-NUS students, but also PhD and post-doctoral students from the National University of Singapore (NUS) School of Computing (SoC). 
 
-#### GNU Emacs Editor
-
+FPP introduces students to the Coq proof assistant. Through the course, students gain an appreciation for the interconnectedness of computer programs and logical proofs - which have previously been presented to them as distinct domains of knowledge. For example, they are led to realize that an explicitly written Coq proof exactly corresponds to an equivalent mathematical proof they have written in detail, by hand.
+  
+Students engage in weekly assignments consisting of rigorous, progressive exercises involving:
+    - writing mathematical proofs
+    - writing programs, and proofs about the properties of programs
+    - eventually, stating their own theorems and proving them
+  
+## GNU Emacs Editor
 Emacs is a family of real-time text editors which are characterized by their **customizability** and **extensibility**. GNU Emacs was written in 1984 by GNU Project founder Richard Stallman. 
 
 The user interacts with files displayed in 'buffers' - a view of a text file - via **commands** invoked by 'macros' - keystroke sequences. Feedback and status messages are displayed in a smaller buffer at the bottom of the screen - the 'minibuffer'. The user can create and dismiss buffers, and multiple buffers can exist without all being on display.  
 
 - GNU Emacs is **customizable** because users can change the behaviour of some commands via parameters, without having to redefine or modify the underlying code of the command itself. Users can also easily redefine key mappings. 
 - GNU Emacs is **extensible** because users can write new commands as programs and bind them to new macros. 
+- GNU Emacs provides a language based on Lisp, Emacs Lisp, that is used to write extensions/programs run within Emacs. 
 
-GNU Emacs is used in Intro CS, Intro to Algos and Data Structures, and FPP.
+GNU Emacs is used in Intro CS, Intro to Algos and Data Structures, and FPP, so students are expected to have familiarity with its interface and indeed will be required to use it, since the class uses the Proof General interface. 
 
-#### Proof General
-
+## Proof General
 Proof General is a powerful, configurable and generic Emacs interface for proof assistants, developed at the University of Edinburgh since 1992. It provides a common interface across various proof assistants, including Coq, and allows users to interactively edit proof scripts. 
 
 The interface presents users with three buffers (windows): one buffer in which the Coq script is to edited, one buffer to display subgoals, and one buffer to display other responses like search results or error messages.
 
-#### References
+# Building muscle memory
+The learning philosophy of FPP is that programming and proving is similar to training in any skilled discipline such as martial arts, cooking, or dance: beginner training should build muscle memory for basic skills and habits. 
 
-- <https://coq.inria.fr/distrib/current/refman/credits.html>
-- https://www.quora.com/What-is-the-difference-between-predicate-logic-first-order-logic-second-order-logic-and-higher-order-logic>
-- <https://www.gnu.org/software/emacs/further-information.html>
-- <https://en.wikipedia.org/wiki/Higher-order_function>
-- <https://en.wikipedia.org/wiki/Higher-order_logic>
-- <https://www.gnu.org/software/emacs/emacs-paper.html>
-- https://en.wikipedia.org/wiki/GNU_Emacs
-- https://www.emacswiki.org/emacs/EmacsHistory
-- <https://proofgeneral.github.io/>
-- <https://proofgeneral.github.io/doc/master/userman/Introducing-Proof-General/#Quick-start-guide>
-- https://hal.inria.fr/hal-01094195/document
+For example, if you are training to be a chef, but you don't develop proper knife skills early on, this will hurt you for the rest of your career. 
 
-### Problem
-There are two main problems in the current learning process of FPP.
+Therefore, in the first half of the course, students complete rigorous, progressive exercises in order to practice specific proof techniques and programming habits. In the second half of the course, students can then rely on this muscle memory to write proofs with greater creativity and efficiency. By the end of the course, students will have independently written more proofs than they have ever written in their lives, and all of these proofs would have been verified by Coq.
 
-1. Coq proofs contain 'magic' tactics.
-    - Students discover, via documentation or Googling, advanced tactics that have not been introduced to class, and use them in their solutions. 
-    - These tactics often introduce some form of automated reasoning that also hides the proof steps generated under the hood. The student is satisfied as long as "it works", without understanding the proof itself.
-2. Coq proofs contain undesirable code style. 
-    - Students depart from the prescribed style demonstrated in class. For example: 
-        - Arbitrary indentation level for subcases. 
-        - Implicit arguments given to tactics (arguments are left blank, but inferred by Coq).
-        - Bad naming.  
-    - These stylistic departures, while syntactically correct and accepted by the Coq interpreter, are counterproductive to FPP's learning goals. Bad style reflects disorganized thoughts, and sometimes lack of understanding. Bad style make proofs harder to read and therefore also harder to complete. 
+# Writing proofs: what could go wrong?
+With programming languages, there are usually many ways to write the same program. In the same way, there are many equivalent representations of a Coq proof, because Coq is flexible and allows you to take shortcuts. However, for new learners, this flexibility can be counterproductive. In the context of FPP, several issues arise. 
 
-These two formal issues correspond to a lack of rules in terms of **abstract syntax** (what tactics are allowed) and **concrete syntax** (how code should be styled). Unfortunately, the power and flexibility that Coq affords, intended to make it more user-friendly, can be detrimental to beginners. 
+## Abuse of tactics 
+First, students may abuse tactics that have not been introduced in the course. 
 
-Furthermore, these issues seem to persist across iterations of the module, despite verbal and written reminders and repeated feedback. 
+When students get stuck on a proof, they might Google for related solutions or search the Coq documentation for anything that will 'solve' the proof. They might end up using a magical tactic, for example `trivial`, as in the latter version of the example proof below. 
 
-### Motivating assumptions 
-1. Written and verbal reminders are not efficient in training specific behaviour. 
-    - If reminders were enough to change behaviour, then we would not need to build a tool. We could just remind people harder. The experience of the Professor suggests otherwise. 
-    - Therefore, we should build a tool that automates the 'reminding'.
-2. Bad style reflects disorganized thoughts, and sometimes lack of understanding. 
-    > Example.
-3. Bad style make proofs harder to read and also harder to complete. 
-    > Example.
-4. Programming and proving at the beginner level should be generally prescriptive. 
-   - Students beginning to learn how to program and to write proofs often develop certain bad habits (such as those described in the 'Problem' section). These habits, if left unchecked, will affect their future endeavors. 
-     - For example, inappropriate indentation makes any code less readable, regardless of domain or language. 
-     - Relying on implicit logic too often also makes written proofs harder to understand. 
-   - Therefore, we should reinforce good habits at an early stage, in the same way that training in many sports or disciplines begin with prescriptive routine and repetition. See the next section 'Analogy: coding is like cooking'.
+```
+Lemma SSSn_is_3_plus_n :
+  forall n : nat,
+  S (S (S n)) = 3 + n.
+Proof.
+  intro n.
+  rewrite <- (Nat.add_1_l n).
+  rewrite <- (plus_Sn_m 1 n).
+  rewrite <- (plus_Sn_m 2 n).
+  reflexivity.
+Qed.
+```
 
-Overall, these assumptions motivate the building of a tool that provides immediate prescriptive feedback on the abstract and concrete syntax of Coq code. 
+```
+Lemma SSSn_is_3_plus_n :
+  forall n : nat,
+  S (S (S n)) = 3 + n.
+Proof.
+  trivial.
+Qed.
+```
 
-The idea is for the tool to cut down on the amount of **'superficial'** feedback - e.g., 'don't use this tactic, because...', or 'this is bad style, please correct it in this way', etc. - that the Professor must give repeatedly to individual students, and instead automatically lead students towards solutions that only require **substantive** feedback - e.g., ideas to pursue, possible restructuring of the proof, etc.  
+Under the hood, the `trivial` tactic uses some heuristics to automatically try various strategies to solve the current formula. However, in the first half of the course the focus is for students to understand every single proof step they write, because if students cannot explain what they are doing, they do not really understand it. Therefore, using a tactic like `trivial` completely goes against the objective of the exercise. 
 
-The less superficial feedback is required, the more time the Professor can spend on providing substantive feedback. Also, students will spend less effort correcting style errors if they do so immediately. The tool also reduces the need for the Professor to repeatedly make their case for why a student's submission is unacceptable - they can just point to the warnings generated (if not already addressed by the student, as they should be).
+Yet these tactics still appear in student submissions, because they might still have the bad programmer mindset of "if it works, its fine". This causes time between resubmissions to be wasted on superficial feedback. 
 
-However, superficial feedback is not merely incidental. Superficial feedback reflects the formal concerns of the course and helps reinforces good programming habits, which will not only assist the learning experience of students, but benefit them in future endeavors. Therefore, the tool doesn't simply emphasize pedantic concerns; it makes concrete the formal training prescriptions of the course. 
+## Misuse of tactics 
+Second, even when students use tactics that have been introduced, they may misuse them by taking shortcuts. 
 
-### Analogy: programming is like cooking 
+For instance, the rewrite tactic is used to apply a rule to the current formula. A rewrite rule is a function that expects specific terms in the formula as arguments; Coq will rewrite the given terms. For example, `Nat.add_assoc` accepts three arguments, `n`, `m` and `p`. 
 
-Consider different fields of mastery and skill that we call 'disciplines' - for example, martial arts, dancing, acting, cooking, etc. Usually, they are called as such because they indeed require discipline to achieve mastery. 
+```
+Check Nat.add_assoc.
+# Nat.add_assoc : forall n m p : nat, n + (m + p) = n + m + p. 
+```
 
-Discipline is required to stick to the sometimes painfully boring or mundane routines and practice exercises prescribed by experienced teachers. These exercises are often designed to build understanding as well as and muscle memory in the basics of the craft. Even in disciplines that also require some form of flexibility and creativity, students are usually only able to exercise freedom effectively when they have mastered the basics.
+However, Coq is flexible with the number of arguments you give it. As the example proofs below demonstrate, you could give the rewrite rule three, two, one or zero of the rewrite arguments required, and Coq will simply pick the first terms in the formula that it can apply the rule to. 
+```
+Proposition add_assoc_nested :
+  forall a b c d e: nat,
+    a + b + c + d + e = 
+    a + (b + (c + (d + e))).
+Proof.
+  intros a b c d e.
+  rewrite -> (Nat.add_assoc a b (c + (d + e)) ).
+  rewrite -> (Nat.add_assoc (a + b) c (d + e) ).
+  rewrite -> (Nat.add_assoc (a + b + c) d e ).
+  reflexivity.
+Qed.
+```
+```
+Proposition add_assoc_nested :
+  forall a b c d e: nat,
+    a + b + c + d + e = 
+    a + (b + (c + (d + e))).
+Proof.
+  intros a b c d e.
+  rewrite -> (Nat.add_assoc a b )
+  rewrite -> (Nat.add_assoc (a + b) ).
+  rewrite -> Nat.add_assoc.
+  reflexivity.
+Qed.
+```
+However, in the first half of the course, the focus is on understanding the proof at a low level. Clearly, students need to be aware of exactly which terms they have changed at every step. Otherwise, they may get stuck in a proof because they applied a rewrite rule to the wrong term, or they might reach a solution without knowing how. Therefore, taking advantage of this shortcut goes against the spirit of the exercise. 
 
-Similarly, both programming and proving may be considered disciplines. Cooking in particular provides a nice analogy. 
+Furthermore, this issue is not easy to check manually, especially with assignments that are hundreds of lines long.
 
-In the formal training of French cooking, heavy emphasis is placed on mastering the basics: basic ingredients of french cooking, knife skills for every type of ingredient, cooking techniques for every types of dish, recipes for the canonical sauces, etc. 
-> Find quote about how strong knife skills should be/the kind of practice it takes.
-> Also, mise en place: external form reflects but also affects the mind. Anthony Bourdain's story. 
+These two issues - abuse and misuse of tactics - correspond to issues of **abstract syntax** (what language constructs are represented in the grammar) and **concrete syntax** (what structures are used to represent language constructs) respectively. 
 
-### Solution: a grammar of grammars
-The solution to the problems of magic tactics and bad style is a tool that introduces 'safety rails' that will mechanically guide the student towards well-formed proofs, that satisfy a specification of **abstract** and **concrete** syntax - i.e., a **grammar**.
+Therefore, it would be nice to have a system that can anticipate and identify both abstract and concrete syntax issues, to save both students and the Lecturer's time and help achieve the learning goals of the course.   
 
-The tool should not 'hard-code' the grammar intended by the Professor of FPP; instead, it should accept a specification that is readable and easily editable. This will allow the Professor to modify existing rules or extend them, and also allow any other course instructors to write their own specifications for use in other course, with no need to modify the rest of the code.  
+## Other issues 
+Other issues I have discussed with the Lecturer include: 
+- arbitrary indentation levels for proof subcases
+- inconsistent naming
+- breaking style conventions. 
+- 
+All these issues seem to persist across the progression of the module, as well as iterations of the module, despite the Lecturer explaining to the students the rationale for following provided syntactical guidelines, and repeated reminders.
 
-Therefore, at the high level, the tool will:
--  accept a specification of a subset of Coq, its libraries, and certain style rules (e.g. indentation, ordering of statements, explicit argument application) in the form of a text file 
--  accept a text file containing Coq code
--  output warnings about instances where code fails to meet the specification
+The idea is for the proposed tool to cut down on the amount of **'superficial'** feedback - e.g., 'don't use this tactic, because...', or 'this is bad style, please correct it in this way', etc. - that the Lecturer must give repeatedly to individual students, and instead automatically lead students towards solutions that only require **substantive** feedback - e.g., ideas to pursue, possible restructuring of the proof, etc. The less superficial feedback is required, the more time the Professor can spend on providing substantive feedback. Also, students will spend less effort correcting style errors if they do so immediately.
 
-However, in order to apply the specified grammar to the Coq code, the tool needs to understand how to read any given grammar. Therefore what we actually need is to specify a **grammar of grammars**. 
+Yet, superficial feedback is not merely incidental. Superficial feedback reflects the formal concerns of the course and helps reinforces good programming habits, which will not only assist the learning experience of students, but benefit them in future endeavors. Therefore, the tool does not simply emphasize pedantic concerns; it makes concrete the formal training prescriptions of the course. 
 
-### An example grammar
-Adopted from multiple sub-grammars of Coq: 
-1. Vernacular of Gallina https://coq.inria.fr/distrib/current/refman/language/gallina-specification-language.html#the-vernacular
-2. Terms of the Calculus of Inductive Construction: https://coq.inria.fr/distrib/current/refman/language/gallina-specification-language.html#terms
-3. Tactic language: https://coq.inria.fr/distrib/current/refman/proof-engine/ltac.html#the-tactic-language
-4. Atomic tactics: https://coq.inria.fr/distrib/current/refman/proof-engine/tactics.html#tactics
+# Solution: a grammar of grammars
+
+The solution to these issues of abstract and concrete syntax is to develop a system that enforces explicit tactic application within a subset of Coq, amongst other rules. This system will be in the form of a program that takes as input a student's Coq file, as well as a grammar specification provided by the Lecturer. It will output warnings about instances where a syntax rule has been violated. (From here, I refer to 'the program' interchangeably as 'the tool' or 'the parser'.)
+
+The program will be writen as an extension of the Emacs editor, so students can execute a command within Emacs to parse the current file, and thus use the tool interactively as they construct their proofs. 
+
+The program will thus act as a set of safety rails for students to develop the right habits, in the spirit of learning for the first half of the course. As a result, students will have earlier, automated intervention on syntactical issues in their assignments, and the Lecturer can spend more time on substantive rather than superficial feedback. 
+
+However, the parser should not 'hard-code' a grammar that only enforces particular syntax rules. Instead, it should accept and parse a grammar specification that is readable and easily editable, and enforce that grammar. In other words, we need to implement a grammar of grammars. This will allow the Lecturer to modify existing rules or extend them, without having to modify the source code of the parser. This will also make it easier for other course instructors or developers to modify the parser behaviour for their own needs. 
+
+## Implementation trade-offs 
+The first trade-off is whether to write a custom syntax parser by hand, or to use a parser generator.
+
+A parser generator is a program that accepts a grammar specification as input, and automatically generates a parser that implements the grammar. I have identified parser generators intended to be run within Emacs, and written in Emacs Lisp (more on that below).
+
+A parser generator would be ideal - we do not want to reinvent the wheel. Firstly, in theory, there is minimal to no programming to be done. Instead, we declare a grammar using some notation. 
+
+Secondly, relying only on the declared grammar makes the program more extensible; it is easier for the Lecturer or other developers to modify existing rules or add new rules, since they do not need to touch underlying code.
+
+However, it will be necessary to grasp the grammar that is required as input in the first place. 
+
+A second trade-off relates to the case where we write a custom parser by hand: whether to write it using Emacs Lisp, or another language that I am more familiar with.
+
+Of course, using a familiar language might mean that we get to a first working version faster. But an Emacs Lisp implementation has many benefits: 
+- Easier for other Emacs developers to build on  
+- Integrated with Emacs editor features
+- Run within Emacs. No need to call external process, no external dependencies, no interoperability issues (e.g. making a call to create a new thread, etc).  
+
+This is why it is ideal to use a parser generator that generates Emacs Lisp code.  
+
+## Current progress
+I have made progress in the following areas: 
+- Defining a subset of Coq grammar.
+- Exploring different types of parsers for different types of languages.
+- How to write a parser.
+- How to write Emacs Lisp programs.
+- How to write an Emacs extension.
+
+In particular, I have written a script in Emacs Lisp that registers an Emacs interactive command, which may be executed while editing a Coq proof. The command is able to take the current buffer and use the Coq shell to parse it for Coq syntax errors. This command would be eventually used to run our custom parser; the idea is to first check that the input is syntactically correct with respect to Coq's grammar. This allows us to develop our custom parser assuming that the input code is already syntactically correct, hence we may define or provide a grammar that only encompasses a subset of Coq's grammar.
+
+Additionally, I have also started trying to use the Semantic Bovine parser generator. Semantic is a framework for writing Emacs packages, and Bovine is a built-in parser generator provided by Semantic. It accepts a BNF (Backus-Naur Formation)-like grammar specification, and generates a parser in Emacs Lisp, which is ideal. The main obstacle for now would be the slightly obscure documentation. The first step I am aiming for would be to specify a simple grammar (such as for arithmetic expressions with infix notation), and ensure that it raises an appropriate error when given a syntactically incorrect input. 
+
+## Challenges ahead
+The challenges ahead would be to decide on and proceed with an implementation of a program that can enforce a grammar addressing the two issues mentioned. Following which, I can then explore other rules mentioned. I will also be iterating on the tool based on usability feedback from both the Lecturer and FPP students, and the feedback will also be the measure of success for my project.
+
+## References
+1. GNU Emacs home page: <https://www.gnu.org/software/emacs/further-information.html>
+2. Proof General home page <https://proofgeneral.github.io/>
+3. Coq reference manual https://coq.inria.fr/distrib/current/refman/
+4. Glickstein, Bob. Writing GNU Emacs Extensions. O'reilly Media, Inc., 2010.
+5. GNU Emacs manual: Bovine parser development https://www.gnu.org/software/emacs/manual/html_node/bovine/index.html#Top
+
+## Appendix A: an example grammar
+Here is an example grammar that I might use as input to either a custom parser or a parser generator. It is a subset of Coq's grammar. 
+
+Note that the grammar is incomplete, and does not yet implement any of the rules described. The example is more a demonstration of an exploratory exercise to identify the relevant grammar definitions from various separate grammar specifications in the Coq documentation ("The Gallina specification language", "Terms of the calculus of inductive construction", "The tactic language", and "Atomic tactics").
 
 The notation "..." means any string. 
-
 ```
 sentence ::= assertion proof 
             | Definition ... . 
@@ -211,33 +261,4 @@ rewrite_expr ::= rewrite -> rule in ...
                 | rewrite -> term args
                 | rewrite <- term args
 ```
-To be accounted for: 
-```
-// How to verify number of args? 
-intro_pattern_list
-term 
-bindings
-Ltac
-Require 
-Notation 
-Comments
-occurence clauses
-```
-
-## Todo 
-
-- [ ] Insert to latex, see num pages. 
-- [X] Check if appendix is included in page count.
-  - [X] It seems only references are excluded. 
-- [ ] Sections to refine or add: 
-  - [X] Complete Coq. 
-  - [X] Complete Proof General.
-  - [ ] Rewrite problem, motivating assumptions. 
-  - [ ] Add to FP.
-  - [ ] Rewrite Programming and cooking.
-  - [ ] Add Examples of bad code. 
-- [X] Initial GoG BNF. 
-  - [ ] List missing pieces. 
-- [ ] Chapters 1-3.
-- [ ] Try writing in emacs-lisp.
 

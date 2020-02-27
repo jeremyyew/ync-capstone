@@ -1,0 +1,9 @@
+%type  <number>    
+%token <number> NUM
+%start NUM
+%%
+line:
+    NUM (string-to-number $1)
+  | line NUM (+ $1 (string-to-number $2));
+
+%%

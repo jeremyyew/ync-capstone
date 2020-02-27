@@ -1,5 +1,9 @@
 # YNC Capstone Implementation Note
-  
+
+# Working with bovine
+1. Evaluate `jeremy-fpp-parser.el`. 
+
+
 # Types of Parsers 
 - LL (l2r, leftmost derivation) 
 - LALR (look-ahead, l2r)

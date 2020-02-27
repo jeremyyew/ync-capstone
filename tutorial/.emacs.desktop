@@ -1,0 +1,67 @@
+;; -*- mode: emacs-lisp; coding: emacs-mule; -*-
+;; --------------------------------------------------------------------------
+;; Desktop File for Emacs
+;; --------------------------------------------------------------------------
+;; Created Thu Feb 13 15:58:08 2020
+;; Desktop file format version 208
+;; Emacs version 25.2.1
+
+;; Global section:
+(setq desktop-saved-frameset [frameset 1 (24133 400 73568 0) (desktop . "208") "Macintosh@Jeremys-MacBook-Pro-279.local" nil nil ((((font-backend mac-ct) (fontsize . 0) (font . "-*-Menlo-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1") (border-width . 0) (internal-border-width . 2) (vertical-scroll-bars . right) (horizontal-scroll-bars) (foreground-color . "#e1e1e0") (background-color . "#2d3743") (line-spacing) (left-fringe . 8) (right-fringe . 8) (menu-bar-lines . 1) (tool-bar-lines . 1) (title) (icon-type) (auto-raise) (auto-lower) (cursor-type . box) (scroll-bar-width . 15) (scroll-bar-height . 0) (alpha) (fullscreen . fullboth) (display-type . color) (background-mode . dark) (cursor-color . "#415160") (environment) (frameset--id . "7D1F-C705-FF79-323C") (frameset--mini t . t) (height . 64) (width . 200) (modeline . t) (minibuffer . t) (unsplittable) (left . 2) (top . 0) (right-divider-width . 0) (bottom-divider-width . 0) (icon-name) (visibility . t) (display . "Jeremys-MacBook-Pro-279.local") (explicit-name) (tool-bar-position . top)) ((min-height . 12) (min-width . 20) (min-height-ignore . 6) (min-width-ignore . 14) (min-height-safe . 3) (min-width-safe . 4) (min-pixel-height . 168) (min-pixel-width . 140) (min-pixel-height-ignore . 84) (min-pixel-width-ignore . 98) (min-pixel-height-safe . 42) (min-pixel-width-safe . 28)) vc (pixel-width . 1431) (pixel-height . 882) (total-width . 204) (total-height . 63) (normal-height . 1.0) (normal-width . 1.0) (combination-limit) (hc (pixel-width . 1431) (pixel-height . 434) (total-width . 204) (total-height . 31) (normal-height . 0.5) (normal-width . 1.0) (combination-limit) (vc (pixel-width . 717) (pixel-height . 434) (total-width . 102) (total-height . 31) (normal-height . 1.0) (normal-width . 0.5) (combination-limit) (leaf (pixel-width . 717) (pixel-height . 210) (total-width . 102) (total-height . 15) (normal-height . 0.5) (normal-width . 1.0) (buffer "test.txt" (selected) (hscroll . 0) (fringes 8 8 nil) (margins nil) (scroll-bars nil 3 t nil 0 nil) (vscroll . 0) (dedicated) (point . 15) (start . 1))) (leaf (last . t) (pixel-width . 717) (pixel-height . 224) (total-width . 102) (total-height . 16) (normal-height . 0.5) (normal-width . 1.0) (buffer "tutorial.el" (selected) (hscroll . 0) (fringes 8 8 nil) (margins nil) (scroll-bars nil 3 t nil 0 nil) (vscroll . 0) (dedicated) (point . 437) (start . 108)))) (leaf (last . t) (pixel-width . 714) (pixel-height . 434) (total-width . 102) (total-height . 31) (normal-height . 1.0) (normal-width . 0.5) (buffer "calc-wy.el" (selected) (hscroll . 0) (fringes 8 8 nil) (margins nil) (scroll-bars nil 3 t nil 0 nil) (vscroll . 0) (dedicated) (point . 2290) (start . 1670)))) (hc (last . t) (pixel-width . 1431) (pixel-height . 448) (total-width . 204) (total-height . 32) (normal-height . 0.5) (normal-width . 1.0) (combination-limit) (leaf (pixel-width . 717) (pixel-height . 448) (total-width . 102) (total-height . 32) (normal-height . 1.0) (normal-width . 0.5) (buffer "calc.wy" (selected . t) (hscroll . 0) (fringes 8 8 nil) (margins nil) (scroll-bars nil 3 t nil 0 nil) (vscroll . 0) (dedicated) (point . 111) (start . 1))) (leaf (last . t) (pixel-width . 714) (pixel-height . 448) (total-width . 102) (total-height . 32) (normal-height . 1.0) (normal-width . 0.5) (buffer "*Messages*" (selected) (hscroll . 0) (fringes 8 8 nil) (margins nil) (scroll-bars nil 3 t nil 0 nil) (vscroll . 0) (dedicated) (point . 6988) (start . 6988))))))])
+(setq desktop-missing-file-warning nil)
+(setq tags-file-name nil)
+(setq tags-table-list nil)
+(setq search-ring nil)
+(setq regexp-search-ring nil)
+(setq register-alist nil)
+(setq file-name-history '("~/github/ync-capstone/tutorial/" "~/github/ync-capstone/tutorial/tutorial.el" "~/github/ync-capstone/tutorial/test.txt" "~/github/ync-capstone/tutorial/calc-wy.el" "~/github/ync-capstone/tutorial/calc.wy"))
+
+;; Buffer section -- buffers listed in same order as in buffer list:
+(desktop-create-buffer 208
+  "/Users/Macintosh/github/ync-capstone/tutorial/calc.wy"
+  "calc.wy"
+  'wisent-grammar-mode
+  nil
+  111
+  '(41 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix))
+  '((mark-ring (1 138 138 138 134 138 137 40 138 138 20 40 138 138 137 129))))
+
+(desktop-create-buffer 208
+  "/Users/Macintosh/github/ync-capstone/tutorial/test.txt"
+  "test.txt"
+  'text-mode
+  nil
+  15
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix))
+  '((mark-ring (1 1 1 1 1 1 1 1 2 2 2 2 2 2 16 2))))
+
+(desktop-create-buffer 208
+  "/Users/Macintosh/github/ync-capstone/tutorial/tutorial.el"
+  "tutorial.el"
+  'emacs-lisp-mode
+  nil
+  437
+  '(175 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . prefer-utf-8-unix))
+  '((mark-ring (175 85 107 159 420 421 421 175 139 438 159 350 20 159 139 437))))
+
+(desktop-create-buffer 208
+  "/Users/Macintosh/github/ync-capstone/tutorial/calc-wy.el"
+  "calc-wy.el"
+  'emacs-lisp-mode
+  nil
+  2290
+  '(2290 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . raw-text-unix))
+  '((mark-ring (1749 1 1 1 1 1 1 1 756 2456 2290 2464 1462 1749 2307 2290))))
+
