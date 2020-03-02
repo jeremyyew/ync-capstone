@@ -23,40 +23,45 @@ def preprocess(s: str) -> str:
 
 
 def is_terminal(label):
-    matches = GRAMMAR[label]
-    return len(matches) == 1 and matches[0] == PATTERNS[label]
+    _, items = GRAMMAR[label]
+    return items == ()
 
 
-def extract_val(s, label) -> (str, str):
+def extract_val(s, pattern) -> (str, str):
     # refactor this by extracting value from the regex match capture group
-    if label == LABEL_PROOF:
-        # remove label
-        pass
     return s, s
 
 
+PATTERN_PROOF = r"Proof\..+?Qed\."
+PATTERN_ASSERTION = r"Lemma [^\.]+?\."
+
+EMPTY = "EMPTY"
+
 GRAMMAR = {
-    LABEL_DOCUMENT: (LABEL_PROOF, LABEL_ASSERTION, EMPTY),
-    LABEL_PROOF: (PATTERN_PROOF,),
-    LABEL_ASSERTION: (PATTERN_ASSERTION,)
+    # RULE: PATTERN, (ITEM...ITEM)
+    # PATTERN == None: no pattern to apply.
+    # ITEMS == (): rule is terminal.
+    LABEL_DOCUMENT: (None, (LABEL_PROOF, LABEL_ASSERTION)),
+    LABEL_PROOF: (PATTERN_PROOF, ()),
+    LABEL_ASSERTION: (PATTERN_ASSERTION, ())
 }
+
+# Will need a constructor for non-collection nodes, e.g. tactics are made of fixed number of lements.
 
 
 def construct_node(s: str, label) -> Node:
-
     def construct_children(s: str, expected) -> List[Node]:
         if not s:
             return []
         LOG(f"\nWith node {label}, at:\n\"{s}\"\n")
-        for e in expected:
-            if e == EMPTY:
-                continue
-            LOG(f"Trying to match {e}...")
-            match = re.match(PATTERNS[e], s)
+        for item in expected:
+            pattern, _ = GRAMMAR[item]
+            LOG(f"Trying to match {item}...")
+            match = re.match(pattern, s)
             if match:
-                LOG(f"Matched: {e} on \"{match.group(0)}\".")
+                LOG(f"Matched: {item} on \"{match.group(0)}\".")
                 try:
-                    child = construct_node(s[match.start():match.end()], e)
+                    child = construct_node(s[match.start():match.end()], item)
                     LOG(f"Constructing other children of {label}...")
                     children = [child] + construct_children(
                         s[match.end():],
@@ -65,17 +70,17 @@ def construct_node(s: str, label) -> Node:
                     return children
                 except Exception as e:
                     LOG(
-                        f"""Failed constructing node {e} or children .
+                        f"""Failed constructing node {item} or children .
                         Backtracking from {label}...""")
                     if str(e) != "No match":
                         raise e
         raise Exception("No match")
     LOG(f"Constructing node {label}...")
-    val, s = extract_val(s, label)
+    pattern, expected = GRAMMAR[label]
+    val, s = extract_val(s, pattern)
     if is_terminal(label):
         LOG("is terminal")
         return Node(label, val)
-    expected = GRAMMAR[LABEL_DOCUMENT]
     children = construct_children(s, expected)
     node = Node(label, val)
     node.children = children
