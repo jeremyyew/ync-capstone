@@ -4,6 +4,7 @@ import utils
 from typing import List, Dict
 import logging
 import sys
+import arity_db
 sys.setrecursionlimit(1000)
 
 LOG = logging.debug
@@ -39,21 +40,53 @@ GRAMMAR = {
     LABEL_INTRO: (r"intro (.+?)\.",
                   []),
 
-    LABEL_EXACT: (r"exact (\(.+\)).",  # We disambiguate the module separator period from sentence period by matching on parenthesis, it is required. This is a bug for Check, since Coq will accept Check <term> without parenthesis.
-                  [LABEL_TERM_WITH_ARGS]),
-    LABEL_TERM: (r"([^\s]+)\s?",
-                 [LABEL_TERM_WITH_ARGS,
-                  LABEL_IDENT]),
-    LABEL_TERM_WITH_ARGS: (r"\((.+)\)\s?",
-                           [LABEL_TERM_WITH_ARGS, LABEL_TERM]),
-    LABEL_IDENT: (r"\(?(.+)\)?",
-                  [])
+    LABEL_EXACT: (r"exact (\(.+?\))\.",  # We disambiguate the module separator period from sentence period by matching on parenthesis, it is required. This is a bug for Check, since Coq will accept Check <term> without parenthesis.
+                  [LABEL_TERM]),
+    LABEL_TERM: (r"(.+)", []),
 }
 
 # Will need a constructor for non-collection nodes, e.g. tactics are made of fixed number of lements.
 
+# (lemma_b_2 (lemma_a_1 a1) (lemma_b_2 b1 b2))
+# lemma_b_2 (lemma_a_1 a1) (lemma_b_2 b1 b2)
 
-# def validate_terms() -> bool:
+
+def get_next_subterm(s: str) -> str:
+    k = 0
+    term = ""
+    remaining = ""
+    for i, c in enumerate(s):
+        if c == " " and k == 0:
+            remaining = s[i+1:]
+            break
+        elif c == '(':
+            k += 1
+        elif c == ')':
+            k -= 1
+        term += c
+    if k != 0:
+        raise Exception("Invalid parentheses.")
+    return term, remaining
+
+
+def construct_term(term: str) -> Node:
+    def construct_subterms(s: str) -> List[Node]:
+        if s == "":
+            return []
+        subterm, remaining = get_next_subterm(s)
+        child = construct_term(subterm)
+        LOG(f"Constructing other children of {s} with \"{remaining}\"...")
+        children = [child] + construct_subterms(remaining)
+        return children
+    LOG(f"Constructing node TERM:{term}...")
+    if term and term[0] == "(" and term[-1] == ")":
+        term = term[1:-1]
+    node = Node(LABEL_TERM, term)
+    if re.fullmatch(r"[^\s]+", term):
+        LOG("TERMINAL")
+        return node
+    node.children = construct_subterms(term)
+    return node
 
 
 def construct_node(s: str, rule) -> Node:
@@ -64,12 +97,12 @@ def construct_node(s: str, rule) -> Node:
         LOG("Attemping matches, expecting: [" + ", ".join(expected) + "]")
         for item in expected:
             pattern, _ = GRAMMAR[item]
-            # if item in (LABEL_INTRO, LABEL_EXACT):
-            #     for match in re.finditer("\.", s):
-            #         match.start()
             match = re.match(pattern, s)
             if match:
                 LOG(f"Matched: {item} on \"{match.group(0)}\".")
+                if item == LABEL_TERM:
+                    child = construct_term(s)
+                    return [child]
                 try:
                     pattern, _ = GRAMMAR[item]
                     child = construct_node(match.group(1), item)
@@ -112,21 +145,57 @@ Restart.
 intros P[n H_Pn].
 """
 
-coq_test_period = """
+coq_test1 = """
 Lemma A.
 Proof.
 intro n1.
 intro n2.
 intro n3.
-exact (Nat.lemma1 (Nat.lemma2 (Nat.lemma3 arg3_1) arg2_2) arg1_3).
+exact (lemma_a_1).
+exact (lemma_a_1 a1 a2).
+exact (lemma_b_2).
+exact (lemma_b_2 b1).
+exact (lemma_b_2 b1 b2 b3).
+exact (lemma_b_2 (lemma_a_1)).
+exact (lemma_b_2 b1 (lemma_a_1)).
+
+exact (lemma_a_1 a1).
+exact (lemma_b_2 b1 b2).
+exact (lemma_b_2 (lemma_a_1 a1) (lemma_b_2 b1 b2)).
 Qed.
 Lemma B.
 """
-s = preprocess(coq_test_period)
+
+coq_test2 = """
+Lemma A.
+Proof.
+exact (lemma_b_2 (lemma_a_1 a1) (lemma_b_2 b1 b2)).
+Qed.
+"""
+s = preprocess(coq_test2)
 root = construct_node(s, LABEL_DOCUMENT)
 utils.pretty(root)
 
-# print(re.match(r"exact \((.+?)\)\.", "exact (Nat.add_comm 0 n).").group(1))
-# ms = re.finditer(r"\.", "12.34.5678.")
-# for m in ms:
-#     print(m.start(0))
+ARITY = {
+    "lemma_a_1": 1,
+    "lemma_b_2": 2,
+}
+
+
+def check_arity(t) -> bool:
+    if t.label == LABEL_TERM and t.children:
+        first_term = t.children[0].val
+        arity_expected = ARITY[first_term]
+        arity = len(t.children) - 1
+        arg_strings = ",".join([f"({c.val})" for c in t.children[1:]])
+        if arity == arity_expected:
+            print(
+                f"Term ({first_term}) with arity {arity_expected} correctly applied to {arity} terms {arg_strings}.")
+        else:
+            print(
+                f"WARNING: Term ({first_term}) with arity {arity_expected} incorrectly applied to {arity} terms {arg_strings}.")
+    for child in t.children:
+        check_arity(child)
+
+
+check_arity(root)
