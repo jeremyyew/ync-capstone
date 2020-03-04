@@ -45,11 +45,6 @@ GRAMMAR = {
     LABEL_TERM: (r"(.+)", []),
 }
 
-# Will need a constructor for non-collection nodes, e.g. tactics are made of fixed number of lements.
-
-# (lemma_b_2 (lemma_a_1 a1) (lemma_b_2 b1 b2))
-# lemma_b_2 (lemma_a_1 a1) (lemma_b_2 b1 b2)
-
 
 def get_next_subterm(s: str) -> str:
     k = 0
@@ -166,13 +161,7 @@ Qed.
 Lemma B.
 """
 
-coq_test2 = """
-Lemma A.
-Proof.
-exact (lemma_b_2 (lemma_a_1 a1) (lemma_b_2 b1 b2)).
-Qed.
-"""
-s = preprocess(coq_test2)
+s = preprocess(coq_test1)
 root = construct_node(s, LABEL_DOCUMENT)
 utils.pretty(root)
 
@@ -182,20 +171,31 @@ ARITY = {
 }
 
 
-def check_arity(t) -> bool:
-    if t.label == LABEL_TERM and t.children:
-        first_term = t.children[0].val
+def check_arity(t, parent=None):
+    def check_arity_terms(terms, parent):
+        if terms == []:
+            return
+        first_term = terms[0].val
+        if first_term not in ARITY:
+            return
         arity_expected = ARITY[first_term]
-        arity = len(t.children) - 1
-        arg_strings = ",".join([f"({c.val})" for c in t.children[1:]])
+        arity = len(terms) - 1
+        arg_strings = ",".join([f"({term.val})" for term in terms[1:]])
         if arity == arity_expected:
             print(
-                f"Term ({first_term}) with arity {arity_expected} correctly applied to {arity} terms {arg_strings}.")
+                f"In term ({parent}):\n Term ({first_term}) with arity {arity_expected} correctly applied to {arity} terms {arg_strings}.\n")
         else:
             print(
-                f"WARNING: Term ({first_term}) with arity {arity_expected} incorrectly applied to {arity} terms {arg_strings}.")
-    for child in t.children:
-        check_arity(child)
+                f"WARNING: In term ({parent}):\n Term ({first_term}) with arity {arity_expected} incorrectly applied to {arity} terms {arg_strings}.\n")
+        for term in terms[1:]:
+            check_arity(term, parent)
+    if t.label == LABEL_TERM:
+        # Refactor to only check at first level.
+        check_arity_terms([t], parent or t.val)
+        check_arity_terms(t.children, t.val)
+    else:
+        for child in t.children:
+            check_arity(child, parent)
 
 
 check_arity(root)
