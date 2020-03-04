@@ -1,3 +1,5 @@
+from terminals import *
+
 
 def pretty(node, _prefix="", _last=True):
     print(_prefix,  "|- " if _last else "|- ", node.label,
