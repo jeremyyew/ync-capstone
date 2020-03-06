@@ -5,10 +5,21 @@ from typing import List, Dict
 import logging
 import sys
 import arity_db
+from tests import *
 sys.setrecursionlimit(1000)
 
 LOG = logging.debug
 logging.basicConfig(filename='parser-backtrack.log', level=logging.DEBUG)
+
+# TODO:
+# 1. Define assertion and collect arity signatures.
+# 2. Only collect for those that have been proven.
+# 2. Define  rewrite.
+# 3. Define intros, check, compute, induction, assert, destruct, reflexivity, unfold, apply.
+# 3. Emacs command to call program.
+# 4. Send back warning messages and display them.
+# 5. Line number would be nice.
+# 6. Fold-unfold lemmas?
 
 
 class Node:
@@ -126,40 +137,6 @@ def construct_node(s: str, rule) -> Node:
     # try again but search for next period with substring starting index i + 1
     # create node, make recursive call.
 
-
-coq_test = """Lemma truism:
-    forall P: nat -> Prop,
-    (exists n: nat,
-    P n) ->
-    exists n: nat,
-    P n.
-Proof.
-intros P H_P.
-Qed.
-Restart.
-intros P[n H_Pn].
-"""
-
-coq_test1 = """
-Lemma A.
-Proof.
-intro n1.
-intro n2.
-intro n3.
-exact (lemma_a_1).
-exact (lemma_a_1 a1 a2).
-exact (lemma_b_2).
-exact (lemma_b_2 b1).
-exact (lemma_b_2 b1 b2 b3).
-exact (lemma_b_2 (lemma_a_1)).
-exact (lemma_b_2 b1 (lemma_a_1)).
-
-exact (lemma_a_1 a1).
-exact (lemma_b_2 b1 b2).
-exact (lemma_b_2 (lemma_a_1 a1) (lemma_b_2 b1 b2)).
-Qed.
-Lemma B.
-"""
 
 s = preprocess(coq_test1)
 root = construct_node(s, LABEL_DOCUMENT)
