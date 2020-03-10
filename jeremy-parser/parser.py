@@ -3,10 +3,12 @@ import re
 from typing import List, Dict
 import logging
 import sys
+import datetime
 sys.setrecursionlimit(1000)
 
-LOG = logging.debug
-logging.basicConfig(filename='parser.log', level=logging.DEBUG)
+logging.basicConfig(
+    filename=f'logs/log_{datetime.datetime.now().strftime("%H%M_%d-%m")}.txt', level=logging.DEBUG)
+logger = logging.getLogger()
 
 # TODO:
 # 1. Define assertion and collect arity signatures.
@@ -28,6 +30,7 @@ class Node:
 
 def preprocess(s: str) -> str:
     # Remove tab, FF, CR, LF.
+    s = s.strip()
     s = re.sub(r"\t|\f|\r|\n", "", s)
     s = re.sub(r"\.\s+", ".", s)
     return s
@@ -37,10 +40,6 @@ def preprocess(s: str) -> str:
 # List of RULE: Try matching each child rule (in order) on the contents of the current pattern's captured group. If empty, rule is a terminal and there are no children.
 
 
-# binder       ::=  name
-#               ( name … name : term )
-#               ( name [: term] := term )
-#               ' pattern
 GRAMMAR = {
     LABEL_DOCUMENT:
         (None,
@@ -120,15 +119,16 @@ def construct_term(term: str) -> Node:
             return []
         subterm, remaining = get_next_subterm(s)
         child = construct_term(subterm)
-        LOG(f"Constructing other children of {s} with \"{remaining}\"...")
+        logger.info(
+            f"Constructing other children of {s} with \"{remaining}\"...")
         children = [child] + construct_subterms(remaining)
         return children
-    LOG(f"Constructing node TERM:{term}...")
+    logger.info(f"Constructing node TERM:{term}...")
     if term and term[0] == "(" and term[-1] == ")":
         term = term[1:-1]
     node = Node(LABEL_TERM, term)
     if re.fullmatch(r"[^\s]+", term):
-        LOG("TERMINAL")
+        logger.info("TERMINAL")
         return node
     node.children = construct_subterms(term)
     return node
@@ -138,20 +138,21 @@ def construct_node(s: str, rule) -> Node:
     def construct_children(s: str, expected) -> List[Node]:
         if not s:
             return []
-        LOG(f"\n\nWith node {rule}, at:\n\"{s}\"\n")
-        LOG("Attemping matches, expecting: [" + ", ".join(expected) + "]")
+        logger.info(f"\n\nWith node {rule}, at:\n\"{s}\"")
+        logger.info(
+            "Attemping matches, expecting: [" + ", ".join(expected) + "]")
         for item in expected:
             pattern, _ = GRAMMAR[item]
             match = re.match(pattern, s)
             if match:
-                LOG(f"Matched: {item} on \"{match.group(0)}\".")
+                logger.info(f"Matched: {item} on \"{match.group(0)}\".")
                 if item == LABEL_TERM:
                     child = construct_term(s)
                     return [child]
                 try:
                     pattern, _ = GRAMMAR[item]
                     child = construct_node(match.group(1), item)
-                    LOG(
+                    logger.info(
                         f"Constructing other children of {rule} on \"{s[match.end():]}\"...")
                     children = [child] + construct_children(
                         s[match.end():],
@@ -161,11 +162,11 @@ def construct_node(s: str, rule) -> Node:
                 except Exception as e:
                     if str(e) != "No match":
                         raise e
-                    LOG(
+                    logger.info(
                         f"""Failed constructing node {item} or children.
                         Backtracking from {rule}...""")
         raise Exception("No match")
-    LOG(f"Constructing node {rule}...")
+    logger.info(f"Constructing node {rule}...")
     _, expected = GRAMMAR[rule]
     node = Node(rule, s)
     if expected == []:
@@ -179,12 +180,12 @@ errors = {}
 
 
 def log_warning(parent, first_term, arity_expected, arity, arg_strings):
-    LOG(
+    logger.info(
         f"WARNING: In term ({parent}):\n Term ({first_term}) with arity {arity_expected} incorrectly applied to {arity} terms {arg_strings}.\n")
 
 
 def log_correct(parent, first_term, arity_expected, arity, arg_strings):
-    LOG(
+    logger.info(
         f"In term ({parent}):\n Term ({first_term}) with arity {arity_expected} correctly applied to {arity} terms {arg_strings}.\n")
 
 
