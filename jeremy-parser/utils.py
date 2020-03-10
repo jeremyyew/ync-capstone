@@ -1,9 +1,15 @@
 from terminals import *
+from parser import logger
 
 
 def pretty(node, _prefix="", _last=True):
-    print(_prefix,  "|- " if _last else "|- ", node.label,
-          ":", (f"\n   {_prefix}\"{node.val}\"" if node.val else ""), sep="")
+    logger.info("".join((_prefix,
+                         "|- " if _last else "|- ",
+                         node.label,
+                         ":",
+                         (f"\n   {_prefix}\"{node.val}\""
+                          if node.val else "")
+                         )))
     _prefix += "      "
     child_count = len(node.children)
     for i, child in enumerate(node.children):
