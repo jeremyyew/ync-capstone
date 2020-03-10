@@ -175,28 +175,50 @@ def construct_node(s: str, rule) -> Node:
     return node
 
 
+errors = {}
+
+
+def log_warning(parent, first_term, arity_expected, arity, arg_strings):
+    LOG(
+        f"WARNING: In term ({parent}):\n Term ({first_term}) with arity {arity_expected} incorrectly applied to {arity} terms {arg_strings}.\n")
+
+
+def log_correct(parent, first_term, arity_expected, arity, arg_strings):
+    LOG(
+        f"In term ({parent}):\n Term ({first_term}) with arity {arity_expected} correctly applied to {arity} terms {arg_strings}.\n")
+
+
 def check_arity(t, arity_db, parent=None):
-    def check_arity_terms(terms, parent):
-        if terms == []:
-            return
-        first_term = terms[0].val
-        if first_term not in arity_db:
-            return
-        arity_expected = arity_db[first_term]
-        arity = len(terms) - 1
-        arg_strings = ",".join([f"({term.val})" for term in terms[1:]])
-        if arity == arity_expected:
-            print(
-                f"In term ({parent}):\n Term ({first_term}) with arity {arity_expected} correctly applied to {arity} terms {arg_strings}.\n")
+    warnings = []
+
+    def check_arity_helper(t, arity_db, parent=None):
+        def check_arity_terms(terms, parent):
+            if terms == []:
+                return
+            first_term = terms[0].val
+            if first_term not in arity_db:
+                return
+            arity_expected = arity_db[first_term]
+            arity = len(terms) - 1
+            args = [term.val for term in terms[1:]]
+            arg_strings = ",".join([f"({arg})" for arg in args])
+            if arity == arity_expected:
+                pass
+                # log_correct(parent, first_term,
+                #             arity_expected, arity, arg_strings)
+            else:
+                warnings.append((parent, first_term,
+                                 arity_expected, arity, arg_strings))
+                log_warning(parent, first_term,
+                            arity_expected, arity, arg_strings)
+            for term in terms[1:]:
+                check_arity_helper(term, arity_db, parent)
+        if t.label == LABEL_TERM:
+            # Refactor to only check at first level.
+            check_arity_terms([t], parent or t.val)
+            check_arity_terms(t.children, t.val)
         else:
-            print(
-                f"WARNING: In term ({parent}):\n Term ({first_term}) with arity {arity_expected} incorrectly applied to {arity} terms {arg_strings}.\n")
-        for term in terms[1:]:
-            check_arity(term, arity_db, parent)
-    if t.label == LABEL_TERM:
-        # Refactor to only check at first level.
-        check_arity_terms([t], parent or t.val)
-        check_arity_terms(t.children, t.val)
-    else:
-        for child in t.children:
-            check_arity(child, arity_db, parent)
+            for child in t.children:
+                check_arity_helper(child, arity_db, parent)
+    check_arity_helper(t, arity_db, parent)
+    return warnings
