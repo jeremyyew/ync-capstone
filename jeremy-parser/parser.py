@@ -11,9 +11,9 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 # TODO:
-# 1. Define assertion and collect arity signatures.
-# 2. Only collect for those that have been proven.
-# 2. Define  rewrite.
+# X1. Define assertion and collect arity signatures.
+# X2. Only collect for those that have been proven.
+# 2. Define rewrite.
 # 3. Define intros, check, compute, induction, assert, destruct, reflexivity, unfold, apply.
 # 3. Emacs command to call program.
 # 4. Send back warning messages and display them.
@@ -189,37 +189,59 @@ def log_correct(parent, first_term, arity_expected, arity, arg_strings):
         f"In term ({parent}):\n Term ({first_term}) with arity {arity_expected} correctly applied to {arity} terms {arg_strings}.\n")
 
 
-def check_arity(t, arity_db, parent=None):
+def check_arity(t, arity_db):
     warnings = []
 
-    def check_arity_helper(t, arity_db, parent=None):
-        def check_arity_terms(terms, parent):
-            if terms == []:
-                return
-            first_term = terms[0].val
-            if first_term not in arity_db:
-                return
-            arity_expected = arity_db[first_term]
-            arity = len(terms) - 1
-            args = [term.val for term in terms[1:]]
+    def check_subterms(subterms, parent_term):
+        if not subterms:
+            return
+        first_term = subterms[0]
+        if first_term.val in arity_db:
+            arity_expected = arity_db[first_term.val]
+            arity = len(subterms) - 1
+            args = [term.val for term in subterms[1:]]
             arg_strings = ",".join([f"({arg})" for arg in args])
-            if arity == arity_expected:
-                pass
-                # log_correct(parent, first_term,
-                #             arity_expected, arity, arg_strings)
+            if arity != arity_expected:
+                warnings.append((parent_term.val, first_term.val,
+                                 arity_expected, arity, args))
+                log_warning(parent_term.val, first_term.val,
+                            arity_expected, arity, args)
+
+        if not first_term.children and first_term.val not in arity_db:
+            # Primitive term, but can't tell if its unregistered or its a value (arity zero).
+            logger.info(
+                f"In {parent_term.val},direct term {first_term.val} not seen or registered.")
+
+        assert((not first_term.children or len(subterms) == 1))
+
+        check_subterms(first_term.children, parent_term)
+        for subterm in subterms[1:]:
+            if not subterm.children:
+                # Primitive term. Check arity by itself.
+                check_subterms([subterm], parent_term)
             else:
-                warnings.append((parent, first_term,
-                                 arity_expected, arity, arg_strings))
-                log_warning(parent, first_term,
-                            arity_expected, arity, arg_strings)
-            for term in terms[1:]:
-                check_arity_helper(term, arity_db, parent)
-        if t.label == LABEL_TERM:
-            # Refactor to only check at first level.
-            check_arity_terms([t], parent or t.val)
-            check_arity_terms(t.children, t.val)
-        else:
+                check_subterms(subterm.children, parent_term)
+
+    def collect_arity(assertion):
+        ident = assertion.children[1]
+        assert(ident.label == LABEL_ASSERTION_IDENT)
+        forall = assertion.children[2]
+        assert(forall.label == LABEL_FORALL)
+        binders = [c for c in forall.children if c.label == LABEL_BINDER]
+        arity = len(binders)
+        arity_db[ident.val] = arity
+        logger.info(f"New term {ident.val} arity added in db: {arity_db}.")
+
+    def traverse(t):
+        logger.info(f"TRAVERSING {t.label}")
+        if t.label in [LABEL_DOCUMENT, LABEL_PROOF]:
             for child in t.children:
-                check_arity_helper(child, arity_db, parent)
-    check_arity_helper(t, arity_db, parent)
+                traverse(child)
+        elif t.label in [LABEL_EXACT]:
+            # There should be exactly one child in a well-formed syntax tree.
+            # It is either a parent term with child subterms to be verified, or a single term with zero arguments.
+            check_subterms(t.children, t.children[0])
+        elif t.label == LABEL_ASSERTION:
+            collect_arity(t)
+    traverse(t)
     return warnings
