@@ -55,48 +55,91 @@ class TestParser(unittest.TestCase):
         self.parser_helper("assertion1", assertion1)
 
     def test_term1(self):
-        term1 = """Proof.
-        intro n1.
-        intro n2.
-        intro n3.
+        term1 = """
+        Proof.
         exact (lemma_a_2 (lemma_a_1 n1 n2) n3 n4).
         exact (lemma_b_2 (lemma_a_1 a1) (lemma_b_2 b1 b2)).
         Qed.
         """
         self.parser_helper("term1", term1)
 
+    def test_tactic1(self):
+        tactic1 = """
+        Proof.
+        intro n1.
+        exact (lemma_a_2 (lemma_a_1 n1 n2) n3 n4).
+        Qed. 
+        """
+        self.parser_helper("tactic1", tactic1)
+
 
 class TestParityCheck(unittest.TestCase):
-    def arity_helper(self, code, arity_db, expected_warnings):
+    def arity_helper(self, name, code, arity, expected_warnings):
         s = preprocess(code)
         t = construct_node(s, LABEL_DOCUMENT)
-        warnings = check_arity(t, arity_db, None)
-        self.assertEqual(warnings,
-                         expected_warnings)
+        logger.info(f"\n*********\nTREE OF {name}:\n*********\n")
+        utils.pretty(t)
+        warnings = check_arity(t, arity)
+        logger.info(
+            f"Parity check warnings: {warnings}")
+        self.assertEqual(warnings, expected_warnings)
 
     def test_arity_pos(self):
-        arity_db = {
+        expected_warnings = []
+        arity1 = {
             "lemma_a_1": 1,
             "lemma_a_2": 2,
             "lemma_a_3": 3,
         }
-        test = """Proof.
+        aritypos1 = """
+        Proof.
         exact (lemma_a_1 n1).
         exact (lemma_a_2 n1 n2).
         exact (lemma_a_3 n1 n2 n3).
         exact (lemma_a_3 (lemma_a_2 n1 n2) (lemma_a_1 n1) n3).
         Qed.
         """
-        expected_warnings = []
-        self.arity_helper(test,
-                          arity_db, expected_warnings)
+        arity2 = {}
+        aritypos2 = """
+        Lemma lemma_a_1: forall (n1: nat), n1 = n1. 
+        Lemma lemma_a_2: forall (n1 n2 : nat), n1 + n2 = n1 + n2. 
+        Lemma lemma_a_3: forall (n1 n2 n3 : nat), n1 + n2 + n3 = n1 + n2 + n3. 
+        Proof.
+        exact (lemma_a_1 n1).
+        exact (lemma_a_2 n1 n2).
+        exact (lemma_a_3 n1 n2 n3).
+        exact (lemma_a_3 (lemma_a_2 n1 n2) (lemma_a_1 n1) n3).
+        Qed.
+        """
+        self.arity_helper("aritypos1", aritypos1, arity1, expected_warnings)
+        self.arity_helper("aritypos2", aritypos2, arity2, expected_warnings)
 
     def test_arity_neg(self):
-        arity_db = {
+        expected_warnings = [
+            ('lemma_a_1',
+                'lemma_a_1', 1, 0, []),
+            ('lemma_a_1 n1 n2',
+                'lemma_a_1', 1, 2, ['n1', 'n2']),
+            ('lemma_a_2',
+                'lemma_a_2', 2, 0, []),
+            ('lemma_a_2 n1',
+                'lemma_a_2', 2, 1, ['n1']),
+            ('lemma_a_2 n1 n2 n3',
+                'lemma_a_2', 2, 3, ['n1', 'n2', 'n3']),
+            ('lemma_a_2 (lemma_a_1)',
+                'lemma_a_2', 2, 1, ['lemma_a_1']),
+            ('lemma_a_2 (lemma_a_1)',
+                'lemma_a_1', 1, 0, []),
+            ('lemma_a_2 (lemma_a_1 n1 n2) n3 n4',
+                'lemma_a_2', 2, 3, ['lemma_a_1 n1 n2', 'n3', 'n4']),
+            ('lemma_a_2 (lemma_a_1 n1 n2) n3 n4',
+                'lemma_a_1', 1, 2, ['n1', 'n2'])]
+        arity1 = {
             "lemma_a_1": 1,
             "lemma_a_2": 2,
         }
-        test = """Proof.
+        arityneg1 = """
+        Proof.
         exact (lemma_a_1).
         exact (lemma_a_1 n1 n2).
         exact (lemma_a_2).
@@ -106,20 +149,23 @@ class TestParityCheck(unittest.TestCase):
         exact (lemma_a_2 (lemma_a_1 n1 n2) n3 n4).
         Qed.
         """
-        # parent, first_term, arity_expected, arity, arg_strings
-        expected_warnings = [
-            ('lemma_a_1', 'lemma_a_1', 1, 0, ''),
-            ('lemma_a_1 n1 n2', 'lemma_a_1', 1, 2, '(n1),(n2)'),
-            ('lemma_a_2', 'lemma_a_2', 2, 0, ''),
-            ('lemma_a_2 n1', 'lemma_a_2', 2, 1, '(n1)'),
-            ('lemma_a_2 n1 n2 n3', 'lemma_a_2', 2, 3, '(n1),(n2),(n3)'),
-            ('lemma_a_2 (lemma_a_1)', 'lemma_a_2', 2, 1, '(lemma_a_1)'),
-            ('lemma_a_2 (lemma_a_1)', 'lemma_a_1', 1, 0, ''),
-            ('lemma_a_2 (lemma_a_1 n1 n2) n3 n4', 'lemma_a_2',
-             2, 3, '(lemma_a_1 n1 n2),(n3),(n4)'),
-            ('lemma_a_1 n1 n2', 'lemma_a_1', 1, 2, '(n1),(n2)')]
-        self.arity_helper(test,
-                          arity_db, expected_warnings)
+        # parent_term.val, first_term.val, arity_expected, arity, arg_strings
+        arity2 = {}
+        arityneg2 = """
+        Lemma lemma_a_1: forall (n1: nat), n1 = n1.
+        Lemma lemma_a_2: forall (n1 n2 : nat), n1 + n2 = n1 + n2.
+        Proof.
+        exact (lemma_a_1).
+        exact (lemma_a_1 n1 n2).
+        exact (lemma_a_2).
+        exact (lemma_a_2 n1).
+        exact (lemma_a_2 n1 n2 n3).
+        exact (lemma_a_2 (lemma_a_1)).
+        exact (lemma_a_2 (lemma_a_1 n1 n2) n3 n4).
+        Qed.
+        """
+        self.arity_helper("arityneg1", arityneg1, arity1, expected_warnings)
+        self.arity_helper("arityneg2", arityneg2, arity2, expected_warnings)
 
 
 unittest.main()
