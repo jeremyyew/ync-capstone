@@ -23,25 +23,33 @@ class TestParser(unittest.TestCase):
         diff = deepdiff.DeepDiff(t, pickled)
         try:
             self.assertEqual(diff, {})
+            logger.info(f"\n*********\nTREE OF {name}:\n*********\n")
             utils.pretty(t)
-        except AssertionError:
-            print(
+        except AssertionError as e:
+            logger.info(
                 f"\n*********\nPARSER OUTPUT FOR TESTCASE: {name}\n*********\n")
             utils.pretty(t)
-            print(
+            logger.info(
                 f"\n*********\nEXPECTED FOR TESTCASE: {name}\n*********\n")
             utils.pretty(pickled)
+            raise e
 
     def test_assertion1(self):
         assertion1 = """
         Lemma A_1 :
         forall a b : nat,
         a + b = a + b.
-        Lemma A_1 :
-        forall a b : nat,
+        Lemma A_2 :
+        forall (a b : nat),
         a + b = a + b.
-        Lemma A_1 :
-        forall a b : nat,
+        Lemma A_3 :
+        forall a b:nat,
+        a + b = a + b.
+        Lemma A_4 :
+        forall (a b:nat),
+        a + b = a + b.
+        Lemma A_5 :
+        forall a b,
         a + b = a + b.
         """
         self.parser_helper("assertion1", assertion1)
@@ -51,6 +59,7 @@ class TestParser(unittest.TestCase):
         intro n1.
         intro n2.
         intro n3.
+        exact (lemma_a_2 (lemma_a_1 n1 n2) n3 n4).
         exact (lemma_b_2 (lemma_a_1 a1) (lemma_b_2 b1 b2)).
         Qed.
         """

@@ -7,7 +7,7 @@ import datetime
 sys.setrecursionlimit(1000)
 
 logging.basicConfig(
-    filename=f'logs/log_{datetime.datetime.now().strftime("%H%M_%d-%m")}.txt', level=logging.DEBUG)
+    filename=f'logs/log_{datetime.datetime.now().strftime("%H-%M-%S_%d-%m")}.txt', level=logging.DEBUG)
 logger = logging.getLogger()
 
 # TODO:
