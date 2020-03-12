@@ -24,14 +24,14 @@ class TestParser(unittest.TestCase):
         try:
             self.assertEqual(diff, {})
             logger.info(f"\n*********\nTREE OF {name}:\n*********\n")
-            utils.pretty(t)
+            utils.pretty_log(t, logger)
         except AssertionError as e:
             logger.info(
                 f"\n*********\nPARSER OUTPUT FOR TESTCASE: {name}\n*********\n")
-            utils.pretty(t)
+            utils.pretty_log(t, logger)
             logger.info(
                 f"\n*********\nEXPECTED FOR TESTCASE: {name}\n*********\n")
-            utils.pretty(pickled)
+            utils.pretty_log(pickled, logger)
             raise e
 
     def test_assertion1(self):
@@ -78,8 +78,8 @@ class TestParityCheck(unittest.TestCase):
         s = preprocess(code)
         t = construct_node(s, LABEL_DOCUMENT)
         logger.info(f"\n*********\nTREE OF {name}:\n*********\n")
-        utils.pretty(t)
-        warnings = check_arity(t, arity)
+        utils.pretty_log(t, logger)
+        warnings, _ = check_arity(t, arity)
         logger.info(
             f"Parity check warnings: {warnings}")
         self.assertEqual(warnings, expected_warnings)
@@ -116,24 +116,24 @@ class TestParityCheck(unittest.TestCase):
 
     def test_arity_neg(self):
         expected_warnings = [
-            ('lemma_a_1',
-                'lemma_a_1', 1, 0, []),
-            ('lemma_a_1 n1 n2',
-                'lemma_a_1', 1, 2, ['n1', 'n2']),
-            ('lemma_a_2',
-                'lemma_a_2', 2, 0, []),
-            ('lemma_a_2 n1',
-                'lemma_a_2', 2, 1, ['n1']),
-            ('lemma_a_2 n1 n2 n3',
-                'lemma_a_2', 2, 3, ['n1', 'n2', 'n3']),
-            ('lemma_a_2 (lemma_a_1)',
-                'lemma_a_2', 2, 1, ['lemma_a_1']),
-            ('lemma_a_2 (lemma_a_1)',
-                'lemma_a_1', 1, 0, []),
-            ('lemma_a_2 (lemma_a_1 n1 n2) n3 n4',
-                'lemma_a_2', 2, 3, ['lemma_a_1 n1 n2', 'n3', 'n4']),
-            ('lemma_a_2 (lemma_a_1 n1 n2) n3 n4',
-                'lemma_a_1', 1, 2, ['n1', 'n2'])]
+            ['lemma_a_1',
+                'lemma_a_1', 1, 0, []],
+            ['lemma_a_1 n1 n2',
+                'lemma_a_1', 1, 2, ['n1', 'n2']],
+            ['lemma_a_2',
+                'lemma_a_2', 2, 0, []],
+            ['lemma_a_2 n1',
+                'lemma_a_2', 2, 1, ['n1']],
+            ['lemma_a_2 n1 n2 n3',
+                'lemma_a_2', 2, 3, ['n1', 'n2', 'n3']],
+            ['lemma_a_2 (lemma_a_1)',
+                'lemma_a_2', 2, 1, ['lemma_a_1']],
+            ['lemma_a_2 (lemma_a_1)',
+                'lemma_a_1', 1, 0, []],
+            ['lemma_a_2 (lemma_a_1 n1 n2) n3 n4',
+                'lemma_a_2', 2, 3, ['lemma_a_1 n1 n2', 'n3', 'n4']],
+            ['lemma_a_2 (lemma_a_1 n1 n2) n3 n4',
+                'lemma_a_1', 1, 2, ['n1', 'n2']]]
         arity1 = {
             "lemma_a_1": 1,
             "lemma_a_2": 2,
