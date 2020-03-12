@@ -1,11 +1,15 @@
+import argparse
 from terminals import *
 import re
 from typing import List, Dict
 import logging
 import sys
 import datetime
-sys.setrecursionlimit(1000)
+import os
+import utils
+import grammar
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 logging.basicConfig(
     filename=f'logs/log_{datetime.datetime.now().strftime("%H-%M-%S_%d-%m")}.txt', level=logging.DEBUG)
 logger = logging.getLogger()
@@ -34,65 +38,6 @@ def preprocess(s: str) -> str:
     s = re.sub(r"\t|\f|\r|\n", "", s)
     s = re.sub(r"\.\s+", ".", s)
     return s
-
-# RULE: PATTERN, [RULE...RULE]
-# PATTERN: A regexp pattern applied to the current string to check if it can return a match for this rule.
-# List of RULE: Try matching each child rule (in order) on the contents of the current pattern's captured group. If empty, rule is a terminal and there are no children.
-
-
-GRAMMAR = {
-    LABEL_DOCUMENT:
-        (None,
-         [LABEL_PROOF,
-          LABEL_ASSERTION]),
-
-        LABEL_PROOF:
-            (r"Proof\.(.*?)Qed\.",
-             [LABEL_INTRO,
-              LABEL_EXACT]),
-
-            LABEL_INTRO:
-                (r"intro (.+?)\.",
-                 []),
-
-            LABEL_EXACT:
-                (r"exact (\(.+?\))\.",  # We disambiguate the module separator period from sentence period by matching on parenthesis, it is required. This is a bug for Check, since Coq will accept Check <term> without parenthesis.
-                 [LABEL_TERM]),
-
-                LABEL_TERM:
-                    (r"(.+)",
-                     []),
-
-        LABEL_ASSERTION:
-            ("(" + ASSERTION_KEYWORDS + r" .+?)\.",
-             [LABEL_ASSERTION_KEYWORD,
-              LABEL_ASSERTION_IDENT,
-              LABEL_FORALL,
-              LABEL_ASSERTION_TERM]),
-
-            LABEL_ASSERTION_KEYWORD:
-                ("(" + ASSERTION_KEYWORDS + ")",
-                 []),
-
-            LABEL_ASSERTION_IDENT:
-                (r"\s*([^\s]+?)\s*:\s*",
-                 []),
-            LABEL_FORALL:
-                (r"forall \(?(.+?)\)?,\s*",
-                 [LABEL_BINDER, LABEL_TYPE]),
-
-                LABEL_BINDER:
-                    (r"([^:\s]+)\s*",
-                     []),
-
-                LABEL_TYPE:
-                    (r":\s*(.+)",
-                     []),
-
-            LABEL_ASSERTION_TERM:
-                (r"(.+)",
-                 [])
-}
 
 
 def get_next_subterm(s: str) -> str:
@@ -142,7 +87,7 @@ def construct_node(s: str, rule) -> Node:
         logger.info(
             "Attemping matches, expecting: [" + ", ".join(expected) + "]")
         for item in expected:
-            pattern, _ = GRAMMAR[item]
+            pattern, _ = grammar.GRAMMAR[item]
             match = re.match(pattern, s)
             if match:
                 logger.info(f"Matched: {item} on \"{match.group(0)}\".")
@@ -150,7 +95,7 @@ def construct_node(s: str, rule) -> Node:
                     child = construct_term(s)
                     return [child]
                 try:
-                    pattern, _ = GRAMMAR[item]
+                    pattern, _ = grammar.GRAMMAR[rule]
                     child = construct_node(match.group(1), item)
                     logger.info(
                         f"Constructing other children of {rule} on \"{s[match.end():]}\"...")
@@ -167,7 +112,7 @@ def construct_node(s: str, rule) -> Node:
                         Backtracking from {rule}...""")
         raise Exception("No match")
     logger.info(f"Constructing node {rule}...")
-    _, expected = GRAMMAR[rule]
+    _, expected = grammar.GRAMMAR[rule]
     node = Node(rule, s)
     if expected == []:
         return node
@@ -176,21 +121,9 @@ def construct_node(s: str, rule) -> Node:
     return node
 
 
-errors = {}
-
-
-def log_warning(parent, first_term, arity_expected, arity, arg_strings):
-    logger.info(
-        f"WARNING: In term ({parent}):\n Term ({first_term}) with arity {arity_expected} incorrectly applied to {arity} terms {arg_strings}.\n")
-
-
-def log_correct(parent, first_term, arity_expected, arity, arg_strings):
-    logger.info(
-        f"In term ({parent}):\n Term ({first_term}) with arity {arity_expected} correctly applied to {arity} terms {arg_strings}.\n")
-
-
 def check_arity(t, arity_db):
     warnings = []
+    warnings_output = []
 
     def check_subterms(subterms, parent_term):
         if not subterms:
@@ -202,10 +135,13 @@ def check_arity(t, arity_db):
             args = [term.val for term in subterms[1:]]
             arg_strings = ",".join([f"({arg})" for arg in args])
             if arity != arity_expected:
-                warnings.append((parent_term.val, first_term.val,
-                                 arity_expected, arity, args))
-                log_warning(parent_term.val, first_term.val,
-                            arity_expected, arity, args)
+                warnings.append([parent_term.val, first_term.val,
+                                 arity_expected, arity, args])
+                warning_str = utils.warning_format(
+                    parent_term.val, first_term.val,
+                    arity_expected, arity, arg_strings)
+                warnings_output.append(warning_str)
+                logger.info(warning_str)
 
         if not first_term.children and first_term.val not in arity_db:
             # Primitive term, but can't tell if its unregistered or its a value (arity zero).
@@ -244,4 +180,20 @@ def check_arity(t, arity_db):
         elif t.label == LABEL_ASSERTION:
             collect_arity(t)
     traverse(t)
-    return warnings
+    return warnings, "\n".join(warnings_output)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", help="string input")
+    args = parser.parse_args()
+    if args.input:
+        s = preprocess(args.input)
+        try:
+            t = construct_node(s, LABEL_DOCUMENT)
+            # print(utils.pretty2str(t))
+            _, warnings_output = check_arity(t, {})
+            print(warnings_output or "No warnings.")
+        except Exception as e:
+            if str(e) == "No match":
+                print("Parser error: Unrecognized tokens found.")
