@@ -9,20 +9,37 @@ import os
 import utils
 import grammar
 
+# Change directory so we can write log files in the correct folder, instead of from where emacs calls the shell command.
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 logging.basicConfig(
     filename=f'logs/log_{datetime.datetime.now().strftime("%H-%M-%S_%d-%m")}.txt', level=logging.DEBUG)
 logger = logging.getLogger()
 
 # TODO:
-# X1. Define assertion and collect arity signatures.
-# X2. Only collect for those that have been proven.
-# 2. Define rewrite.
-# 3. Define intros, check, compute, induction, assert, destruct, reflexivity, unfold, apply.
-# 3. Emacs command to call program.
-# 4. Send back warning messages and display them.
-# 5. Line number would be nice.
-# 6. Fold-unfold lemmas?
+# X Define assertion and collect arity signatures.
+# X Only collect for those that have been proven. (accept admitted).
+# X Emacs command to call program.
+# X Send back warning messages and display them.
+# - Warnings:
+#   rewrite: missing arrow
+#   intro/intros: no args.
+# - Accept:
+#   require
+#   intros
+#   rewrite
+#   comment
+#   abort
+#   check
+#   compute
+#   induction
+#   assert
+#   destruct
+# X reflexivity
+# X exact (with or without parenthesis)
+#   unfold
+#   apply.
+# - Line number would be nice.
+# - Fold-unfold lemmas?
 
 
 class Node:
@@ -95,7 +112,6 @@ def construct_node(s: str, rule) -> Node:
                     child = construct_term(s)
                     return [child]
                 try:
-                    pattern, _ = grammar.GRAMMAR[rule]
                     child = construct_node(match.group(1), item)
                     logger.info(
                         f"Constructing other children of {rule} on \"{s[match.end():]}\"...")
