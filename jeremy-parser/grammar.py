@@ -20,6 +20,7 @@ GRAMMAR = {
              [LABEL_INTROS,
               LABEL_INTRO,
               LABEL_EXACT,
+              LABEL_REWRITE,
               LABEL_REFLEXIVITY]),
 
             LABEL_INTROS:
@@ -31,12 +32,22 @@ GRAMMAR = {
                  []),
 
             LABEL_EXACT:
-                (r"exact (\(.+?\)|[^\s\.]+\.?[^\s\.]+(?=\.reflexivity)|[^\s\.]+\.?[^\s\.]+)\.",  # We disambiguate the module separator period from sentence period by matching on parenthesis, it is required. This is a bug for Check, since Coq will accept Check <term> without parenthesis.
+                (r"exact\s?(\(?.+?\)?)\.(?={}|$)".format(TACTIC_KEYWORDS),
+                 # (r"""exact (\(.+?\)|[^\s\.]+\.?[^\s\.]+(?=\.reflexivity)|[^\s\.]+\.?[^\s\.]+)\.""",
+                 # We disambiguate the module separator period from sentence period by matching on parenthesis, it is required. This is a bug for Check, since Coq will accept Check <term> without parenthesis.
                  [LABEL_TERM]),
 
+            LABEL_REWRITE:
+                (r"rewrite\s?((?:->|<-)?\s?\(?.+?\)?)\.(?={}|$)".format(TACTIC_KEYWORDS),
+                 # (r"rewrite(\s?(?:->|<-)\s?(:?\(.+?\)|[^\s\.]+\.?[^\s\.]+(?=\.reflexivity)|[^\s\.]+\.?[^\s\.]+))\.",
+                 [LABEL_REWRITE_ARROW, LABEL_TERM]),
+
+                LABEL_REWRITE_ARROW:
+                    (r"(->|<-)\s?",
+                     []),
                 LABEL_TERM:
                     (r"(.+)",
-                     []),
+                        []),
 
             LABEL_REFLEXIVITY:
                 (r"(reflexivity\.)", []),
