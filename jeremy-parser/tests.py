@@ -99,6 +99,29 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("exact1", exact1)
 
+    def test_rewrite1(self):
+        rewrite1 = """
+        Proof.
+        rewrite->lemma_a_1.
+        rewrite<-lemma_a_1.
+        rewrite-> lemma_a_1.
+        rewrite<- lemma_a_1.
+        rewrite ->lemma_a_1.
+        rewrite <-lemma_a_1.
+        rewrite -> lemma_a_1.
+        rewrite <- lemma_a_1.
+        rewrite -> (Nat.add_comm (lemma_a_1 n1) n2).
+        rewrite lemma_a_1.
+        rewrite Nat.add_comm.
+        rewrite (Nat.add_comm).
+        rewrite (Nat.add_comm n1).
+        rewrite (Nat.add_comm n1 n2).
+        rewrite (lemma_a_2 (lemma_a_1 n1) n2).
+        rewrite (Nat.add_comm (lemma_a_1 n1) n2).
+        Qed.
+        """
+        self.parser_helper("rewrite1", rewrite1)
+
     def test_reflexivity1(self):
         reflexivity1 = """
         Proof.
@@ -127,7 +150,7 @@ class TestParityCheck(unittest.TestCase):
             f"Parity check warnings: {warnings}")
         self.assertEqual(warnings, expected_warnings)
 
-    def test_arity_pos(self):
+    def test_aritypos(self):
         expected_warnings = []
         arity1 = {
             "lemma_a_1": 1,
@@ -160,7 +183,7 @@ class TestParityCheck(unittest.TestCase):
         self.arity_helper("aritypos1", aritypos1, arity1, expected_warnings)
         self.arity_helper("aritypos2", aritypos2, arity2, expected_warnings)
 
-    def test_arity_neg(self):
+    def test_arityneg12(self):
         # parent_term.val, first_term.val,  arity_expected, arity, args
         expected_warnings = [
             ['Nat.add_comm',
@@ -230,6 +253,36 @@ class TestParityCheck(unittest.TestCase):
         """
         self.arity_helper("arityneg1", arityneg1, arity1, expected_warnings)
         self.arity_helper("arityneg2", arityneg2, arity2, expected_warnings)
+
+    def test_arityneg3(self):
+        # parent_term.val, first_term.val,  arity_expected, arity, args
+        expected_warnings = [
+            ['Nat.add_comm',
+                'Nat.add_comm', 2, 0, []],
+            ['Nat.add_comm',
+                'Nat.add_comm', 2, 0, []],
+            ['Nat.add_comm',
+                'Nat.add_comm', 2, 0, []],
+            ['Nat.add_comm',
+                'Nat.add_comm', 2, 0, []],
+            ['Nat.add_comm (Nat.add_comm)',
+                'Nat.add_comm', 2, 1, ['Nat.add_comm']],
+            ['Nat.add_comm (Nat.add_comm)',
+                'Nat.add_comm', 2, 0, []]]
+        arity3 = {
+            "Nat.add_comm": 2
+        }
+        arityneg3 = """
+        Proof.
+        exact Nat.add_comm.
+        exact (Nat.add_comm).
+        rewrite <- Nat.add_comm.
+        rewrite <- (Nat.add_comm).
+        rewrite <- (Nat.add_comm (Nat.add_comm)).
+        Qed.
+        """
+        # parent_term.val, first_term.val, arity_expected, arity, arg_strings
+        self.arity_helper("arityneg3", arityneg3, arity3, expected_warnings)
 
 
 unittest.main()
