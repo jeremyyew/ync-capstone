@@ -9,6 +9,7 @@ import utils
 class TestParser(unittest.TestCase):
     def parser_helper(self, name, code):
         s = preprocess(code)
+        logger.info(f"\n*********\nCONSTRUCTING TREE OF {name}:\n*********\n")
         t = construct_node(s, LABEL_DOCUMENT)
 
         try:
@@ -36,21 +37,16 @@ class TestParser(unittest.TestCase):
 
     def test_assertion1(self):
         assertion1 = """
-        Lemma A_1 :
-        forall a b : nat,
-        a + b = a + b.
-        Lemma A_2 :
-        forall (a b : nat),
-        a + b = a + b.
-        Lemma A_3 :
-        forall a b:nat,
-        a + b = a + b.
-        Lemma A_4 :
-        forall (a b:nat),
-        a + b = a + b.
-        Lemma A_5 :
-        forall a b,
-        a + b = a + b.
+        Lemma A_1 : forall a b : nat,
+        a + b = a + b. Proof. Admitted.
+        Lemma A_2 : forall (a b : nat),
+        a + b = a + b. Proof. Admitted.
+        Lemma A_3 : forall a b:nat,
+        a + b = a + b. Proof. Admitted.
+        Lemma A_4 : forall (a b:nat),
+        a + b = a + b. Proof. Admitted.
+        Lemma A_5 : forall a b,
+        a + b = a + b. Proof. Admitted.
         """
         self.parser_helper("assertion1", assertion1)
 
@@ -63,19 +59,48 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("term1", term1)
 
-    def test_tactic1(self):
-        tactic1 = """
+    def test_intro1(self):
+        intro1 = """
         Proof.
         intro n1.
-        exact (lemma_a_2 (lemma_a_1 n1 n2) n3 n4).
-        Qed. 
+        Qed.
         """
-        self.parser_helper("tactic1", tactic1)
+        self.parser_helper("intro1", intro1)
+
+    def test_exact1(self):
+        exact1 = """
+        Proof.
+        exact lemma_a_1.
+        exact Nat.add_comm.
+        exact (Nat.add_comm).
+        exact (Nat.add_comm n1).
+        exact (Nat.add_comm n1 n2).
+        exact (lemma_a_2 (lemma_a_1 n1) n2).
+        exact (Nat.add_comm (lemma_a_1 n1) n2).
+        Qed.
+        """
+        self.parser_helper("exact1", exact1)
+
+    def test_reflexivity1(self):
+        reflexivity1 = """
+        Proof.
+        reflexivity.
+        intro n.reflexivity.
+        exact lemma_a_1.reflexivity.
+        exact Nat.add_comm.reflexivity.
+        exact (lemma_a_1).reflexivity.
+        exact (Nat.add_comm).reflexivity.
+        exact (Nat.add_comm n1).reflexivity.
+        reflexivity.
+        Qed.
+        """
+        self.parser_helper("reflexivity1", reflexivity1)
 
 
 class TestParityCheck(unittest.TestCase):
     def arity_helper(self, name, code, arity, expected_warnings):
         s = preprocess(code)
+        logger.info(f"\n*********\nCONSTRUCTING TREE OF {name}:\n*********\n")
         t = construct_node(s, LABEL_DOCUMENT)
         logger.info(f"\n*********\nTREE OF {name}:\n*********\n")
         utils.pretty_log(t, logger)
@@ -90,21 +115,24 @@ class TestParityCheck(unittest.TestCase):
             "lemma_a_1": 1,
             "lemma_a_2": 2,
             "lemma_a_3": 3,
+            "Nat.add_comm": 2
         }
         aritypos1 = """
         Proof.
+        exact (Nat.add_comm n1 n2).
         exact (lemma_a_1 n1).
         exact (lemma_a_2 n1 n2).
         exact (lemma_a_3 n1 n2 n3).
         exact (lemma_a_3 (lemma_a_2 n1 n2) (lemma_a_1 n1) n3).
         Qed.
         """
-        arity2 = {}
+        arity2 = {"Nat.add_comm": 2}
         aritypos2 = """
-        Lemma lemma_a_1: forall (n1: nat), n1 = n1. 
-        Lemma lemma_a_2: forall (n1 n2 : nat), n1 + n2 = n1 + n2. 
-        Lemma lemma_a_3: forall (n1 n2 n3 : nat), n1 + n2 + n3 = n1 + n2 + n3. 
+        Lemma lemma_a_1: forall (n1: nat), n1 = n1. Proof. Admitted.
+        Lemma lemma_a_2: forall (n1 n2 : nat), n1 + n2 = n1 + n2. Proof. Admitted.
+        Lemma lemma_a_3: forall (n1 n2 n3 : nat), n1 + n2 + n3 = n1 + n2 + n3. Proof. Admitted.
         Proof.
+        exact (Nat.add_comm n1 n2).
         exact (lemma_a_1 n1).
         exact (lemma_a_2 n1 n2).
         exact (lemma_a_3 n1 n2 n3).
@@ -115,7 +143,16 @@ class TestParityCheck(unittest.TestCase):
         self.arity_helper("aritypos2", aritypos2, arity2, expected_warnings)
 
     def test_arity_neg(self):
+        # parent_term.val, first_term.val,  arity_expected, arity, args
         expected_warnings = [
+            ['Nat.add_comm',
+                'Nat.add_comm', 2, 0, []],
+            ['Nat.add_comm',
+                'Nat.add_comm', 2, 0, []],
+            ['Nat.add_comm n1',
+                'Nat.add_comm', 2, 1, ['n1']],
+            ['lemma_a_1',
+                'lemma_a_1', 1, 0, []],
             ['lemma_a_1',
                 'lemma_a_1', 1, 0, []],
             ['lemma_a_1 n1 n2',
@@ -137,9 +174,14 @@ class TestParityCheck(unittest.TestCase):
         arity1 = {
             "lemma_a_1": 1,
             "lemma_a_2": 2,
+            "Nat.add_comm": 2
         }
         arityneg1 = """
         Proof.
+        exact Nat.add_comm.
+        exact (Nat.add_comm).
+        exact (Nat.add_comm n1).
+        exact lemma_a_1.
         exact (lemma_a_1).
         exact (lemma_a_1 n1 n2).
         exact (lemma_a_2).
@@ -150,11 +192,15 @@ class TestParityCheck(unittest.TestCase):
         Qed.
         """
         # parent_term.val, first_term.val, arity_expected, arity, arg_strings
-        arity2 = {}
+        arity2 = {"Nat.add_comm": 2}
         arityneg2 = """
-        Lemma lemma_a_1: forall (n1: nat), n1 = n1.
-        Lemma lemma_a_2: forall (n1 n2 : nat), n1 + n2 = n1 + n2.
+        Lemma lemma_a_1: forall (n1: nat), n1 = n1. Proof. Admitted.
+        Lemma lemma_a_2: forall (n1 n2 : nat), n1 + n2 = n1 + n2. Proof. Admitted.
         Proof.
+        exact Nat.add_comm.
+        exact (Nat.add_comm).
+        exact (Nat.add_comm n1).
+        exact lemma_a_1.
         exact (lemma_a_1).
         exact (lemma_a_1 n1 n2).
         exact (lemma_a_2).
