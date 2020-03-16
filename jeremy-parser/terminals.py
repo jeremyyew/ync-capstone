@@ -14,7 +14,9 @@ LABEL_TYPE = "TYPE"
 LABEL_BINDER = "BINDER"
 LABEL_REQUIRE_IMPORT = "REQUIRE_IMPORT"
 LABEL_REWRITE = "REWRITE"
+LABEL_REWRITE_ARROW = "REWRITE_ARROW"
 LABEL_REFLEXIVITY = "REFLEXIVITY"
+
 # KEYWORDS
 KW_PROOF = "Proof"
 KW_QED = "Qed"
@@ -28,7 +30,13 @@ KW_PROPOSITION = "Proposition"
 KW_DEFINITION = "Definition"
 KW_EXAMPLE = "Example"
 
-ASSERTION_KEYWORDS = "(?:" + "|".join([
+KW_INTRO = "intro"
+KW_INTROS = "intros"
+KW_REWRITE = "rewrite"
+KW_EXACT = "exact"
+KW_REFLEXIVITY = "reflexivity"
+
+ASSERTION_KEYWORDS = r"(?:" + "|".join([
     KW_THEOREM,
     KW_LEMMA,
     KW_REMARK,
@@ -39,3 +47,12 @@ ASSERTION_KEYWORDS = "(?:" + "|".join([
     KW_DEFINITION,
     KW_EXAMPLE
 ]) + ")"
+
+
+TACTIC_KEYWORDS = r"(?:" + "|".join([
+    KW_INTRO,
+    KW_INTROS,
+    KW_REWRITE,
+    KW_EXACT,
+    KW_REFLEXIVITY
+]) + r"(?:\s|\(|\.|\s?<-|/s?->))"
