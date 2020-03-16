@@ -25,14 +25,14 @@ class TestParser(unittest.TestCase):
         try:
             self.assertEqual(diff, {})
             logger.info(f"\n*********\nTREE OF {name}:\n*********\n")
-            utils.pretty_log(t, logger)
+            logger.info("\n"+utils.pretty2str(t))
         except AssertionError as e:
             logger.info(
                 f"\n*********\nPARSER OUTPUT FOR TESTCASE: {name}\n*********\n")
-            utils.pretty_log(t, logger)
+            logger.info("\n"+utils.pretty2str(t))
             logger.info(
                 f"\n*********\nEXPECTED FOR TESTCASE: {name}\n*********\n")
-            utils.pretty_log(pickled, logger)
+            logger.info("\n"+utils.pretty2str(pickled))
             raise e
 
     def test_require_import1(self):
@@ -121,7 +121,7 @@ class TestParityCheck(unittest.TestCase):
         logger.info(f"\n*********\nCONSTRUCTING TREE OF {name}:\n*********\n")
         t = construct_node(s, LABEL_DOCUMENT)
         logger.info(f"\n*********\nTREE OF {name}:\n*********\n")
-        utils.pretty_log(t, logger)
+        logger.info("\n"+utils.pretty2str(t))
         warnings, _ = check_arity(t, arity)
         logger.info(
             f"Parity check warnings: {warnings}")
