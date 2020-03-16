@@ -35,6 +35,13 @@ class TestParser(unittest.TestCase):
             utils.pretty_log(pickled, logger)
             raise e
 
+    def test_require_import1(self):
+        require_import1 = """
+        Require Import Arith.
+        Require Import Arith Bool.
+        """
+        self.parser_helper("require_import1", require_import1)
+
     def test_assertion1(self):
         assertion1 = """
         Lemma A_1 : forall a b : nat,
@@ -62,10 +69,21 @@ class TestParser(unittest.TestCase):
     def test_intro1(self):
         intro1 = """
         Proof.
+        intro.
         intro n1.
         Qed.
         """
         self.parser_helper("intro1", intro1)
+
+    def test_intros1(self):
+        intros1 = """
+        Proof.
+        intros.
+        intros n1.
+        intros n1 n2.
+        Qed.
+        """
+        self.parser_helper("intros1", intros1)
 
     def test_exact1(self):
         exact1 = """

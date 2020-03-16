@@ -24,8 +24,8 @@ logger = logging.getLogger()
 #   rewrite: missing arrow
 #   intro/intros: no args.
 # - Accept:
-#   require
-#   intros
+# X require
+# X  intros
 #   rewrite
 #   comment
 #   abort

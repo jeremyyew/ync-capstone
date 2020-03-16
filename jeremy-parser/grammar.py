@@ -7,17 +7,27 @@ from terminals import *
 GRAMMAR = {
     LABEL_DOCUMENT:
         (None,
-         [LABEL_PROOF,
+         [LABEL_REQUIRE_IMPORT,
+          LABEL_PROOF,
           LABEL_ASSERTION]),
+
+        LABEL_REQUIRE_IMPORT:
+            (r"Require Import (.+?)\.",
+             []),
 
         LABEL_PROOF:
             (r"Proof\.(.*?)(?:Qed|Admitted)\.",
-             [LABEL_INTRO,
+             [LABEL_INTROS,
+              LABEL_INTRO,
               LABEL_EXACT,
               LABEL_REFLEXIVITY]),
 
+            LABEL_INTROS:
+                (r"intros\s?(.*?)\.",
+                 []),
+
             LABEL_INTRO:
-                (r"intro (.+?)\.",
+                (r"intro\s?(.*?)\.",
                  []),
 
             LABEL_EXACT:
@@ -27,6 +37,7 @@ GRAMMAR = {
                 LABEL_TERM:
                     (r"(.+)",
                      []),
+
             LABEL_REFLEXIVITY:
                 (r"(reflexivity\.)", []),
             # LABEL_REWRITE:
@@ -48,6 +59,7 @@ GRAMMAR = {
             LABEL_ASSERTION_IDENT:
                 (r"\s*([^\s]+?)\s*:\s*",
                  []),
+
             LABEL_FORALL:
                 (r"forall \(?(.+?)\)?,\s*",
                  [LABEL_BINDER, LABEL_TYPE]),
