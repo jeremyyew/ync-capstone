@@ -172,6 +172,28 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("comment1", comment1)
 
+    def test_check1(self):
+        check1 = """
+        Proof.
+        Check lemma_a_1.
+        Check Nat.add_comm.
+        Check (lemma_a_1).
+        Check (Nat.add_comm).
+        Check(Nat.add_comm).
+        Check(lemma_a_1).
+        intro n. 
+        Check (Nat.add_comm (lemma_a_1 n1) n2).Check(Nat.add_comm (lemma_a_1 n1) n2).
+        Qed.
+        Check lemma_a_1.
+        Check Nat.add_comm.
+        Check (lemma_a_1).
+        Check (Nat.add_comm).
+        Check(Nat.add_comm).
+        Check(lemma_a_1).
+        Check (Nat.add_comm (lemma_a_1 n1) n2).Check(Nat.add_comm (lemma_a_1 n1) n2).
+        """
+        self.parser_helper("check1", check1)
+
 
 class TestParityCheck(unittest.TestCase):
     def arity_helper(self, name, code, arity, expected_warnings):

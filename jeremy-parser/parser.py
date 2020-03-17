@@ -30,7 +30,7 @@ logger = logging.getLogger()
 # X comment
 # X Abort
 # X Restart
-#   check
+#   Check
 #   compute
 #   induction
 #   assert

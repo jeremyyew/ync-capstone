@@ -10,7 +10,8 @@ GRAMMAR = {
          [LABEL_REQUIRE_IMPORT,
           LABEL_PROOF,
           LABEL_ASSERTION,
-          LABEL_COMMENT]),
+          LABEL_COMMENT,
+          LABEL_CHECK]),
 
         LABEL_REQUIRE_IMPORT:
             (r"Require Import (.+?)\.",
@@ -24,7 +25,8 @@ GRAMMAR = {
               LABEL_REWRITE,
               LABEL_REFLEXIVITY,
               LABEL_COMMENT,
-              LABEL_RESTART]),
+              LABEL_RESTART,
+              LABEL_CHECK]),
 
             LABEL_INTROS:
                 (r"intros\s?(.*?)\.",
@@ -85,8 +87,14 @@ GRAMMAR = {
             LABEL_ASSERTION_TERM:
                 (r"(.+)",
                  []),
+
+    LABEL_CHECK:
+        (r"Check\s?(\(?.+?\)?)\.(?={}|{}|$)".format(TACTIC_KEYWORDS,
+                                                    ASSERTION_KEYWORDS),
+         []),
     LABEL_COMMENT:
         # Note: Will not parse nested comments properly!
         (r"\s?(\(\*.+?\*\))\s?",
+         #  r"(?:\s?\(\*.+?\*\)\s?)"
          [])
 }
