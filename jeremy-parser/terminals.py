@@ -19,7 +19,7 @@ LABEL_REFLEXIVITY = "REFLEXIVITY"
 LABEL_COMMENT = "COMMENT"
 LABEL_RESTART = "RESTART"
 LABEL_CHECK = "CHECK"
-# LABEL_COMPUTE = "COMPUTE"
+LABEL_COMPUTE = "COMPUTE"
 
 # KEYWORDS
 KW_PROOF = "Proof"
@@ -39,10 +39,11 @@ KW_INTROS = "intros"
 KW_REWRITE = "rewrite"
 KW_EXACT = "exact"
 KW_REFLEXIVITY = "reflexivity"
+KW_CHECK = "Check"
+KW_COMPUTE = "Compute"
 
 # REGEXPs
 REGEXP_COMMENT = r"\(\*.+?\*\)"
-REGEXP_CHECK = r"Check"
 
 ASSERTION_KEYWORDS = r"(?:" + "|".join([
     KW_THEOREM,
@@ -64,5 +65,6 @@ TACTIC_KEYWORDS = r"(?:" + "|".join([
     KW_EXACT,
     KW_REFLEXIVITY,
     REGEXP_COMMENT,
-    REGEXP_CHECK,
+    KW_CHECK,
+    KW_COMPUTE
 ]) + r"(?:\s|\(|\.|\s?<-|/s?->|$)?)"

@@ -11,7 +11,8 @@ GRAMMAR = {
           LABEL_PROOF,
           LABEL_ASSERTION,
           LABEL_COMMENT,
-          LABEL_CHECK]),
+          LABEL_CHECK,
+          LABEL_COMPUTE]),
 
         LABEL_REQUIRE_IMPORT:
             (r"Require Import (.+?)\.",
@@ -26,7 +27,8 @@ GRAMMAR = {
               LABEL_REFLEXIVITY,
               LABEL_COMMENT,
               LABEL_RESTART,
-              LABEL_CHECK]),
+              LABEL_CHECK,
+              LABEL_COMPUTE]),
 
             LABEL_INTROS:
                 (r"intros\s?(.*?)\.",
@@ -37,11 +39,13 @@ GRAMMAR = {
                  []),
 
             LABEL_EXACT:
-                (r"exact\s?(\(?.+?\)?)\.(?={}|$)".format(TACTIC_KEYWORDS),
+                (r"{}\s?(\(?.+?\)?)\.(?={}|$)".format(KW_EXACT,
+                                                      TACTIC_KEYWORDS),
                  [LABEL_TERM]),
 
             LABEL_REWRITE:
-                (r"rewrite\s?((?:->|<-)?\s?\(?.+?\)?)\.(?={}|$)".format(TACTIC_KEYWORDS),
+                (r"{}\s?((?:->|<-)?\s?\(?.+?\)?)\.(?={}|$)".format(KW_REWRITE,
+                                                                   TACTIC_KEYWORDS),
                  [LABEL_REWRITE_ARROW, LABEL_TERM]),
 
                 LABEL_REWRITE_ARROW:
@@ -89,8 +93,14 @@ GRAMMAR = {
                  []),
 
     LABEL_CHECK:
-        (r"Check\s?(\(?.+?\)?)\.(?={}|{}|$)".format(TACTIC_KEYWORDS,
-                                                    ASSERTION_KEYWORDS),
+        (r"{}\s?(\(?.+?\)?)\.(?={}|{}|$)".format(KW_CHECK,
+                                                 TACTIC_KEYWORDS,
+                                                 ASSERTION_KEYWORDS),
+         []),
+    LABEL_COMPUTE:
+        (r"{}\s?(\(?.+?\)?)\.(?={}|{}|$)".format(KW_COMPUTE,
+                                                 TACTIC_KEYWORDS,
+                                                 ASSERTION_KEYWORDS),
          []),
     LABEL_COMMENT:
         # Note: Will not parse nested comments properly!

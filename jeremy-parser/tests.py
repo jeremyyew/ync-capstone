@@ -194,6 +194,28 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("check1", check1)
 
+    def test_compute1(self):
+        compute1 = """
+        Proof.
+        Compute lemma_a_1.
+        Compute Nat.add_comm.
+        Compute (lemma_a_1).
+        Compute (Nat.add_comm).
+        Compute(Nat.add_comm).
+        Compute(lemma_a_1).
+        intro n. 
+        Compute (Nat.add_comm (lemma_a_1 n1) n2).Compute(Nat.add_comm (lemma_a_1 n1) n2).
+        Qed.
+        Compute lemma_a_1.
+        Compute Nat.add_comm.
+        Compute (lemma_a_1).
+        Compute (Nat.add_comm).
+        Compute(Nat.add_comm).
+        Compute(lemma_a_1).
+        Compute (Nat.add_comm (lemma_a_1 n1) n2).Check(Nat.add_comm (lemma_a_1 n1) n2).
+        """
+        self.parser_helper("compute1", compute1)
+
 
 class TestParityCheck(unittest.TestCase):
     def arity_helper(self, name, code, arity, expected_warnings):
