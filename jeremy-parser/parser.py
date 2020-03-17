@@ -28,7 +28,8 @@ logger = logging.getLogger()
 # X  intros
 # X rewrite
 # X comment
-#   abort
+# X Abort
+# X Restart
 #   check
 #   compute
 #   induction

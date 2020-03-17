@@ -17,13 +17,14 @@ GRAMMAR = {
              []),
 
         LABEL_PROOF:
-            (r"Proof\.(.*?)(?:Qed|Admitted)\.",
+            (r"Proof\.(.*?)(?:Qed|Admitted|Abort)\.",
              [LABEL_INTROS,
               LABEL_INTRO,
               LABEL_EXACT,
               LABEL_REWRITE,
               LABEL_REFLEXIVITY,
-              LABEL_COMMENT]),
+              LABEL_COMMENT,
+              LABEL_RESTART]),
 
             LABEL_INTROS:
                 (r"intros\s?(.*?)\.",
@@ -50,10 +51,9 @@ GRAMMAR = {
 
             LABEL_REFLEXIVITY:
                 (r"(reflexivity\.)", []),
-            # LABEL_REWRITE:
-            #     (r"rewrite (\(.+?\))\.",  # We disambiguate the module separator period from sentence period by matching on parenthesis, it is required. This is a bug for Check, since Coq will accept Check <term> without parenthesis.
-            #      [LABEL_TERM]),
 
+            LABEL_RESTART:
+                (r"(Restart\.)", []),
 
         LABEL_ASSERTION:
             ("(" + ASSERTION_KEYWORDS + r" .+?)\.",

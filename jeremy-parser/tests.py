@@ -66,6 +66,25 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("term1", term1)
 
+    def test_proof1(self):
+        proof1 = """
+        Proof. Qed.
+        Proof. Admitted.
+        Proof. Abort. 
+        Proof. intro n. Qed.
+        Proof. intro n. Admitted.
+        Proof. intro n. Abort.
+        """
+        self.parser_helper("proof1", proof1)
+
+    def test_restart1(self):
+        restart1 = """
+        Proof. intro n. Restart. Qed. 
+        Proof. Restart. intro n. Qed.
+        Proof. Restart. Restart. Qed.
+        """
+        self.parser_helper("restart1", restart1)
+
     def test_intro1(self):
         intro1 = """
         Proof.
