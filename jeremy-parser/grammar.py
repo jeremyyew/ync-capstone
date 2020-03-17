@@ -9,7 +9,8 @@ GRAMMAR = {
         (None,
          [LABEL_REQUIRE_IMPORT,
           LABEL_PROOF,
-          LABEL_ASSERTION]),
+          LABEL_ASSERTION,
+          LABEL_COMMENT]),
 
         LABEL_REQUIRE_IMPORT:
             (r"Require Import (.+?)\.",
@@ -21,7 +22,8 @@ GRAMMAR = {
               LABEL_INTRO,
               LABEL_EXACT,
               LABEL_REWRITE,
-              LABEL_REFLEXIVITY]),
+              LABEL_REFLEXIVITY,
+              LABEL_COMMENT]),
 
             LABEL_INTROS:
                 (r"intros\s?(.*?)\.",
@@ -33,13 +35,10 @@ GRAMMAR = {
 
             LABEL_EXACT:
                 (r"exact\s?(\(?.+?\)?)\.(?={}|$)".format(TACTIC_KEYWORDS),
-                 # (r"""exact (\(.+?\)|[^\s\.]+\.?[^\s\.]+(?=\.reflexivity)|[^\s\.]+\.?[^\s\.]+)\.""",
-                 # We disambiguate the module separator period from sentence period by matching on parenthesis, it is required. This is a bug for Check, since Coq will accept Check <term> without parenthesis.
                  [LABEL_TERM]),
 
             LABEL_REWRITE:
                 (r"rewrite\s?((?:->|<-)?\s?\(?.+?\)?)\.(?={}|$)".format(TACTIC_KEYWORDS),
-                 # (r"rewrite(\s?(?:->|<-)\s?(:?\(.+?\)|[^\s\.]+\.?[^\s\.]+(?=\.reflexivity)|[^\s\.]+\.?[^\s\.]+))\.",
                  [LABEL_REWRITE_ARROW, LABEL_TERM]),
 
                 LABEL_REWRITE_ARROW:
@@ -85,5 +84,9 @@ GRAMMAR = {
 
             LABEL_ASSERTION_TERM:
                 (r"(.+)",
-                 [])
+                 []),
+    LABEL_COMMENT:
+        # Note: Will not parse nested comments properly!
+        (r"\s?(\(\*.+?\*\))\s?",
+         [])
 }

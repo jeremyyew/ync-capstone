@@ -137,6 +137,22 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("reflexivity1", reflexivity1)
 
+    def test_comment1(self):
+        comment1 = """
+        Require Import Arith.(*hello*)(*hello*)
+        Proof.(*hello*)
+        reflexivity.(*hello*)
+        intro n.(*hello*)
+        exact lemma_a_1.(*hello*)
+        exact Nat.add_comm.(*hello*)
+        exact (lemma_a_1).    (*hello*)
+        exact (Nat.add_comm).  (*hello*)
+        exact (Nat.add_comm n1).         (*hello*)
+        Qed.(*hello*)
+        (*hello*)
+        """
+        self.parser_helper("comment1", comment1)
+
 
 class TestParityCheck(unittest.TestCase):
     def arity_helper(self, name, code, arity, expected_warnings):

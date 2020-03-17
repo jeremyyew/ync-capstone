@@ -16,6 +16,7 @@ LABEL_REQUIRE_IMPORT = "REQUIRE_IMPORT"
 LABEL_REWRITE = "REWRITE"
 LABEL_REWRITE_ARROW = "REWRITE_ARROW"
 LABEL_REFLEXIVITY = "REFLEXIVITY"
+LABEL_COMMENT = "COMMENT"
 
 # KEYWORDS
 KW_PROOF = "Proof"
@@ -54,5 +55,6 @@ TACTIC_KEYWORDS = r"(?:" + "|".join([
     KW_INTROS,
     KW_REWRITE,
     KW_EXACT,
-    KW_REFLEXIVITY
-]) + r"(?:\s|\(|\.|\s?<-|/s?->))"
+    KW_REFLEXIVITY,
+    r"(?:\s?\(\*.+?\*\)\s?)"
+]) + r"(?:\s|\(|\.|\s?<-|/s?->|$)?)"

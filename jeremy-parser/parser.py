@@ -26,8 +26,8 @@ logger = logging.getLogger()
 # - Accept:
 # X require
 # X  intros
-#   rewrite
-#   comment
+# X rewrite
+# X comment
 #   abort
 #   check
 #   compute
@@ -53,6 +53,7 @@ def preprocess(s: str) -> str:
     # Remove tab, FF, CR, LF.
     s = s.strip()
     s = re.sub(r"\t|\f|\r|\n", "", s)
+    s = re.sub(r"\s{2,}", " ", s)
     s = re.sub(r"\.\s+", ".", s)
     return s
 
