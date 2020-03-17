@@ -44,6 +44,7 @@ KW_COMPUTE = "Compute"
 
 # REGEXPs
 REGEXP_COMMENT = r"\(\*.+?\*\)"
+REGEXP_TACTIC_END = r"[\.;]"
 
 ASSERTION_KEYWORDS = r"(?:" + "|".join([
     KW_THEOREM,
@@ -67,4 +68,4 @@ TACTIC_KEYWORDS = r"(?:" + "|".join([
     REGEXP_COMMENT,
     KW_CHECK,
     KW_COMPUTE
-]) + r"(?:\s|\(|\.|\s?<-|/s?->|$)?)"
+]) + r"(?:\s|\(|\.|;|\s?<-|/s?->|$)?)"

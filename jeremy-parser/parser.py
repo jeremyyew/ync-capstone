@@ -31,8 +31,8 @@ logger = logging.getLogger()
 # X Abort
 # X Restart
 # X Check
-# X compute
-#   induction
+# X Compute
+#  induction
 #   assert
 #   destruct
 # X reflexivity

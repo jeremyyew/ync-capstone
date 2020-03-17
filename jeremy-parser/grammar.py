@@ -31,20 +31,22 @@ GRAMMAR = {
               LABEL_COMPUTE]),
 
             LABEL_INTROS:
-                (r"intros\s?(.*?)\.",
+                (r"intros\s?(.*?){}".format(REGEXP_TACTIC_END),
                  []),
 
             LABEL_INTRO:
-                (r"intro\s?(.*?)\.",
+                (r"intro\s?(.*?){}".format(REGEXP_TACTIC_END),
                  []),
 
             LABEL_EXACT:
-                (r"{}\s?(\(?.+?\)?)\.(?={}|$)".format(KW_EXACT,
+                (r"{}\s?(\(?.+?\)?){}(?={}|$)".format(KW_EXACT,
+                                                      REGEXP_TACTIC_END,
                                                       TACTIC_KEYWORDS),
                  [LABEL_TERM]),
 
             LABEL_REWRITE:
-                (r"{}\s?((?:->|<-)?\s?\(?.+?\)?)\.(?={}|$)".format(KW_REWRITE,
+                (r"{}\s?((?:->|<-)?\s?\(?.+?\)?){}(?={}|$)".format(KW_REWRITE,
+                                                                   REGEXP_TACTIC_END,
                                                                    TACTIC_KEYWORDS),
                  [LABEL_REWRITE_ARROW, LABEL_TERM]),
 
@@ -56,7 +58,7 @@ GRAMMAR = {
                         []),
 
             LABEL_REFLEXIVITY:
-                (r"(reflexivity\.)", []),
+                (r"(reflexivity{})".format(REGEXP_TACTIC_END), []),
 
             LABEL_RESTART:
                 (r"(Restart\.)", []),
