@@ -35,6 +35,7 @@
     (setq jeremy-error-hook-active t)
     (goto-char (point-min))
     (proof-goto-point)
+    (sit-for 0.05)
     (proof-process-buffer)
     (if jeremy-coq-error-found
 	(message "Coq error raised. Please correct and try again.")
