@@ -15,38 +15,14 @@ logging.basicConfig(
     filename=f'logs/log_{datetime.datetime.now().strftime("%H-%M-%S_%d-%m")}.txt', level=logging.DEBUG)
 logger = logging.getLogger()
 
-# TODO:
-# X Define assertion and collect arity signatures.
-# X Only collect for those that have been proven. (accept admitted).
-# X Emacs command to call program.
-# X Send back warning messages and display them.
-# - Warnings:
-#   rewrite: missing arrow
-#   intro/intros: no args.
-# - Accept:
-# X require
-# X  intros
-# X rewrite
-# X comment
-# X Abort
-# X Restart
-# X Check
-# X Compute
-#  induction
-#   assert
-#   destruct
-# X reflexivity
-# X exact (with or without parenthesis)
-#   unfold
-#   apply.
-# - Line number would be nice.
-# - Fold-unfold lemmas?
-
 
 class Node:
     def __init__(self, label, val=None, children=None):
+        # We label every node by its 'type', for evaluation purposes.
         self.label = label
+        # The node's actual value (e.g. the identifier of a term) is not needed for evaluation, but is used for logging and displaying warning messages.
         self.val = val
+        # Each node has a list of children, or subcomponents.
         self.children = children or []
 
 
