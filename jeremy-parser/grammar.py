@@ -1,8 +1,36 @@
 from terminals import *
+
+# TODO:
+# X Define assertion and collect arity signatures.
+# X Only collect for those that have been proven. (accept admitted).
+# X Emacs command to call program.
+# X Send back warning messages and display them.
+# - Warnings:
+#   rewrite: missing arrow
+#   intro/intros: no args.
+# - Accept:
+# X require
+# X  intros
+# X rewrite
+# X comment
+# X Abort
+# X Restart
+# X Check
+# X Compute
+#  induction
+#   assert
+#   destruct
+# X reflexivity
+# X exact (with or without parenthesis)
+#   unfold
+#   apply.
+# - Line number would be nice.
+# - Fold-unfold lemmas?
+
+
 # RULE: PATTERN, [RULE...RULE]
 # PATTERN: A regexp pattern applied to the current string to check if it can return a match for this rule.
 # List of RULE: Try matching each child rule (in order) on the contents of the current pattern's captured group. If empty, rule is a terminal and there are no children.
-
 
 GRAMMAR = {
     LABEL_DOCUMENT:
@@ -22,6 +50,7 @@ GRAMMAR = {
             (r"Proof\.(.*?)(?:Qed|Admitted|Abort)\.",
              [LABEL_INTROS,
               LABEL_INTRO,
+              LABEL_INDUCTION,
               LABEL_EXACT,
               LABEL_REWRITE,
               LABEL_REFLEXIVITY,
@@ -38,6 +67,11 @@ GRAMMAR = {
                 (r"intro\s?(.*?){}".format(REGEXP_TACTIC_END),
                  []),
 
+            LABEL_INDUCTION:
+                (r"{}\s(.*?){}(?={}|$)".format(KW_INDUCTION,
+                                               REGEXP_TACTIC_END,
+                                               TACTIC_KEYWORDS),
+                 []),
             LABEL_EXACT:
                 (r"{}\s?(\(?.+?\)?){}(?={}|$)".format(KW_EXACT,
                                                       REGEXP_TACTIC_END,
@@ -58,10 +92,12 @@ GRAMMAR = {
                         []),
 
             LABEL_REFLEXIVITY:
-                (r"(reflexivity{})".format(REGEXP_TACTIC_END), []),
+                (r"({}){}".format(KW_REFLEXIVITY,
+                                  REGEXP_TACTIC_END),
+                 []),
 
             LABEL_RESTART:
-                (r"(Restart\.)", []),
+                (r"({}\.)".format(KW_RESTART), []),
 
         LABEL_ASSERTION:
             ("(" + ASSERTION_KEYWORDS + r" .+?)\.",
