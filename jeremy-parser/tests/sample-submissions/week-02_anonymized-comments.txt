@@ -1,0 +1,220 @@
+Hi [...],
+
+Thanks for your handin.  Here are some comments.
+
+----------
+
+week-02_anonymized-handin.v
+
+-----
+
+Proposition disjunction_distributes_over_conjunction_on_the_left :
+Proposition disjunction_distributes_over_conjunction_on_the_right :
+
+It is good to experiment various forms of formatting the proof,
+but this particular one is quite unreadable.
+It really works better to separate subgoals as you go,
+either with a blank line,
+or using the items -, +, *, etc.
+or using braces.
+
+All occurrences of
+  exact (H_A).
+with parens can be written without parens, i.e., as
+  exact H_A.
+
+-----
+
+Proposition contrapositive_of_implication :
+  forall A B : Prop,
+    (A -> B) -> ~B -> ~A.
+  intros A B.
+  intros H_A_then_H_B not_H_B.
+
+The next line works, but conflates 2 proof steps and therefore looks like magic.
+You are requested to use one step at a time, and so instead of writing
+
+  intro H_A.
+
+you should first write
+
+  unfold not.
+
+Also, what is
+
+  Proof.
+
+doing in the middle of the proof?
+
+Another small but significant point: don't invent new names, go for what is standard,
+so that you can be read by others, which includes you in the future.
+
+All in all, the proof should read:
+
+(* Exercise 12 *)
+Proposition contrapositive_of_implication :
+  forall A B : Prop,
+    (A -> B) -> ~B -> ~A.
+Proof.
+  intros A B.
+  unfold not.
+  intros H_A_implies_B H_B_implies_false H_A.
+  apply H_B_implies_false.
+  apply H_A_implies_B.
+  exact H_A.
+Qed.
+
+Besides, there should be more versions of this proof,
+to convey your versatility.  For example,
+
+Proposition contrapositive_of_implication' :
+  forall A B : Prop,
+    (A -> B) -> ~B -> ~A.
+Proof.
+  intros A B.
+  unfold not.
+  intros H_A_implies_B H_B_implies_false H_A.
+  Check (H_A_implies_B H_A).
+  Check (H_B_implies_false (H_A_implies_B H_A)).
+  exact (H_B_implies_false (H_A_implies_B H_A)).
+Qed.
+
+More importantly, the proof can be expressed
+in terms of the modus ponens rule of inference,
+which conveys that you connect pieces in your learning
+(plus, it's fun):
+
+Proposition modus_ponens :
+  forall A B : Prop,
+    A -> (A -> B) -> B.
+Proof.
+  intros A B.
+  intros H_A H_A_implies_B.
+  Check (H_A_implies_B H_A).
+  exact (H_A_implies_B H_A).
+Qed.
+
+Proposition contrapositive_of_implication'' :
+  forall A B : Prop,
+    (A -> B) -> ~B -> ~A.
+Proof.
+  intros A B.
+  unfold not.
+  intros H_A_implies_B H_B_implies_false H_A.
+  apply H_B_implies_false.
+  Check (modus_ponens).
+  Check (modus_ponens A B).
+  Check (modus_ponens A B H_A).
+  Check (modus_ponens A B H_A H_A_implies_B).
+  exact (modus_ponens A B H_A H_A_implies_B).
+Qed.
+
+-----
+
+Proposition contrapositive_of_contrapositive_of_implication :
+
+is similarly put together quickly instead of thought out,
+with idiosyncratic names and a creative way of locating "Proof.".
+Besides, come on, it is an instance of the previous proposition:
+
+Proposition contrapositive_of_contrapositive_of_implication' :
+  forall A B : Prop,
+    (~B -> ~A) -> ~~A -> ~~B.
+Proof.
+  intros A B.
+  Check (contrapositive_of_implication (~ B) (~ A)).
+  exact (contrapositive_of_implication (~ B) (~ A)).
+Qed.
+
+-----
+
+Proposition double_negation :
+
+Coq accepts the proof, but the proof doesn't satisfy the tenets of FPP:
+one proof step at time, and what we see is what we get.
+
+Namely:
+
+Proposition double_negation' :
+  forall A : Prop,
+    A -> ~~A.
+Proof.
+  intros A H_A.
+  unfold not.
+  intro H_A_implies_False.
+  apply H_A_implies_False.
+  exact H_A.
+
+  Restart.
+
+  intros A H_A.
+  unfold not.
+  intro H_A_implies_False.
+  Check (H_A_implies_False H_A).
+  exact (H_A_implies_False H_A).
+Qed.
+
+-----
+
+For future reference, better send me a preview of your .v file
+so that I can filter out your beginner's mistakes
+so that your grade reflects your understanding
+instead of your beginner's mistakes.
+
+----------
+
+week-02_anonymized-handin.pdf
+
+-----
+
+front page, etc.: good
+
+-----
+
+introduction
+
+good
+
+Excellent idea to mention relevant terms in the introduction.
+(Next time, use "Glossary", because that is what you wrote.)
+
+-----
+
+Chapter 2
+
+good
+
+-----
+
+Chapter 3
+
+good, but you could also have done as at
+  https://delimited-continuation.github.io/YSC3236/2019-2020_Sem1/week-02_proving-logical-properties.html#improved-solution-for-exercise-4
+
+i.e., write one helping lemma, and use it to prove both implications.
+
+-----
+
+Chapter 4 and Chapter 5
+
+Good and clear (unlike in the .v file).
+
+-----
+
+Conclusion
+
+Very nice!
+
+"Above exercises proved"
+->
+"The above exercises proved"
+
+----------
+
+Overall conclusion:
+
+The report is clear and good, but the .v file is on the minimal side.
+I encourage you to reflect more on each proof steps,
+as I am trying to do in the lecture notes.
+
+\Olivier

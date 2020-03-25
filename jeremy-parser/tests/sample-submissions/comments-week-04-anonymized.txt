@@ -1,0 +1,169 @@
+Hi [...],
+
+Thanks for your handin.  Here are some comments.
+
+----------
+
+week-04_equational-reasoning-about-arithmetical-functions.v
+
+-----
+
+Property O_is_left_neutral_wrt_add_v1 :
+  forall y : nat,
+    add_v1 0 y = y.
+Proof.
+  
+  intro y.
+  rewrite (fold_unfold_add_v1_O y).
+  reflexivity.  
+
+Qed.
+
+Not quite: the right arrow is missing in the rewrite line,
+and also the proof can be simpler:
+
+Property O_is_left_neutral_wrt_add_v1 :
+  forall y : nat,
+    add_v1 0 y = y.
+Proof.
+  
+  intro y.
+  rewrite (fold_unfold_add_v1_O y).
+  reflexivity.  
+
+  Restart.
+
+  intro y.
+  rewrite -> (fold_unfold_add_v1_O y).
+  reflexivity.  
+
+  Restart.
+
+  Check fold_unfold_add_v1_O.
+  exact fold_unfold_add_v1_O.
+
+Qed.
+
+-----
+
+Property O_is_left_neutral_wrt_add_v2 :
+  forall y : nat,
+    add_v2 0 y = y.
+Proof.
+  intro y.
+  unfold add_v2.
+  reflexivity.
+Qed.
+
+It is a bad idea in general to use the unfold tactic over a recursive function.
+fold-unfold lemmas are to be preferred:
+
+Property O_is_left_neutral_wrt_add_v2 :
+  forall y : nat,
+    add_v2 0 y = y.
+Proof.
+  intro y.
+  unfold add_v2.
+  reflexivity.
+
+  Restart.
+
+  intro y.
+  rewrite -> (fold_unfold_add_v2_O y).
+  reflexivity.  
+
+  Restart.
+
+  Check fold_unfold_add_v2_O.
+  exact fold_unfold_add_v2_O.
+
+Qed.
+
+-----
+
+(*Exercise 7*)
+
+Good.
+
+-----
+
+(* Exercise 11 *)
+
+Good.
+
+-----
+
+Property add_v2_is_associative :
+
+OK, but the proof is too convoluted.
+
+  Restart.
+
+  intro x.
+  induction x as [| x' IHx'].
+
+  * intros y z.
+    Check (O_is_left_neutral_wrt_add_v2 (add_v2 y z)).
+    rewrite -> (O_is_left_neutral_wrt_add_v2 (add_v2 y z)).
+    rewrite -> (O_is_left_neutral_wrt_add_v2 y).
+    reflexivity.
+
+
+  * intros y z. 
+    Check (fold_unfold_add_v2_S x' (add_v2 y z)).
+    rewrite -> (fold_unfold_add_v2_S x' (add_v2 y z)).
+    Check (about_add_v2).
+    Check (about_add_v2 x' (add_v2 y z)).
+    rewrite -> (about_add_v2 x' (add_v2 y z)).
+    rewrite -> (fold_unfold_add_v2_S x' y).
+    Check (about_add_v2 x' y).
+    rewrite -> (about_add_v2 x' y).
+    rewrite -> (fold_unfold_add_v2_S (add_v2 x' y) z).
+    rewrite -> (about_add_v2 (add_v2 x' y) z).
+    rewrite -> (IHx' y z).
+    reflexivity.
+
+Qed.
+
+-----
+
+Theorem equivalence_of_mul_v11_and_mul_v12 :
+  forall i j : nat,
+    mul_v11 i j = mul_v12 i j.
+
+Theorem equivalence_of_mul_v21_and_mul_v22 :
+  forall i j : nat,
+    mul_v21 i j = mul_v22 i j.
+
+But what about the equivalence of (either mul_v11 or mul_v12)
+and (either mul_v21 and mul_v22)?
+
+-----
+
+And no recommended exercises.  Too bad, you would have discovered that
+in a striking coincidence with
+
+https://delimited-continuation.github.io/YSC1212/2018-2019_Sem2/week-06_induction-and-recursion-over-natural-numbers.html#aftermath
+
+it could have been a better idea to define mul_v11 as
+
+Fixpoint mul_v11' (x y : nat) : nat :=
+  match x with
+  | O =>
+    O
+  | S x' =>
+    add_v1 y (mul_v11' x' y)
+  end.
+
+because, for example to prove Property mul_v11_is_right_distributive_over_addition,
+one doesn't need to use add_v1_is_commutative.
+
+----------
+
+Week_4_hw.pdf
+
+-----
+
+[...]
+
+\Olivier

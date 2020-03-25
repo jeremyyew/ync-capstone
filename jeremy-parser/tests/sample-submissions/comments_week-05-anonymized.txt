@@ -1,0 +1,377 @@
+Hi [...],
+
+Thanks for your handin.  Here are some comments.
+
+----------
+
+week-05_mystery-functions.v
+
+-----
+
+Definition specification_of_mystery_function_11 (mf : nat -> nat) :=
+
+Line 227:
+    apply plus_reg_l in H_tmp.
+The arguments of plus_reg_l are missing: this line should read
+    apply (plus_reg_l 0 (f 0) (f 0)) in H_tmp.
+
+Ditto for Line 235.
+
+The rest is fine.
+
+-----
+
+Lemma equivalence_of_successor_and_add_one :
+
+Check Nat.add_1_r.
+but you know that, witness the report.
+
+Lines 317 and 318:
+  rewrite -> Nat.mul_add_distr_r.
+  rewrite -> Nat.mul_add_distr_l.
+The arguments are missing.
+
+Ditto for
+    rewrite -> equivalence_of_successor_and_add_one.
+and
+    rewrite -> distributive_law_l_r.
+
+The rest is fine.
+
+-----
+
+Definition specification_of_mystery_function_15 (mf : nat -> nat * nat) :=
+
+Fixpoint fac (n : nat) : nat :=
+
+Good, but where are the associated fold-unfold lemmas?
+Using unfold and fold tactics for calls to recursively defined functions does not work in general:
+use what you know until you know better.  (Rules are also made to be broken.)
+
+The rest is fine.
+
+-----
+
+Definition specification_of_mystery_function_16 (mf : nat -> nat * nat) :=
+
+Fixpoint fib (n : nat) : nat :=
+
+Good, but where are the associated fold-unfold lemmas?
+
+-----
+
+Lemma triple_induction (P : nat -> Prop) :
+
+You are going faster than the music: these exercices are supposed to make you become secure in your knowledge.
+Keeping looking for out-of-scope things to solve exercises can only keep you off balance and insecure.
+
+  enough (P n /\ P (S n) /\ P (S (S n))) as [H [H_S H_SS]].
+
+What is "enough"?
+
+  - (* an induction proof *)
+Abort.
+
+Which induction proof?
+
+-----
+
+Definition specification_of_mystery_function_17 (mf : nat -> nat) :=
+Definition specification_of_mystery_function_18 (mf : nat -> nat) :=
+
+  - (* an induction proof *)
+Abort.
+
+Which induction proof?
+
+-----
+
+Definition specification_of_mystery_function_03 (mf : nat -> nat -> nat) :=
+
+Fixpoint mystery_function_03 (i j : nat) : nat :=
+Lemma fold_unfold_mystery_function_03_O :
+Lemma fold_unfold_mystery_function_03_S :
+
+Good.
+
+But in words, what *is* this mystery function?
+
+-----
+
+Definition specification_of_mystery_function_42 (mf : nat -> nat) :=
+
+Good.
+
+-----
+
+Definition specification_of_mystery_function_07 (mf : nat -> nat -> nat) :=
+
+Good.
+
+-----
+
+Definition specification_of_mystery_function_08 (mf : nat -> nat -> bool) :=
+
+Good.
+
+-----
+
+Definition specification_of_mystery_function_23 (mf : nat -> nat) :=
+
+OK
+
+-----
+
+Definition specification_of_mystery_function_24 (mf : nat -> nat) :=
+
+Definition mystery_function_24 (n : nat) : nat :=
+  (n + 1) / 2.
+
+it would simpler to write (S n) / 2.
+
+-----
+
+Definition specification_of_mystery_function_13 (mf : nat -> nat) :=
+
+OK
+
+-----
+
+Definition specification_of_mystery_function_25 (mf : nat -> nat) :=
+
+(* log *)
+
+Yes.
+
+-----
+
+Definition specification_of_mystery_function_20 (mf : nat -> nat -> nat) :=
+
+OK
+
+-----
+
+Definition specification_of_mystery_function_21 (mf : nat -> nat -> nat) :=
+
+OK
+
+-----
+
+Definition specification_of_mystery_function_22 (mf : nat -> nat -> nat) :=
+
+OK
+
+-----
+
+> Theorem there_is_at_least_one_mystery_function_19 :
+>   specification_of_mystery_function_19 mystery_function_19.
+> Proof.
+>   unfold specification_of_mystery_function_19, mystery_function_19.
+>   unfold mystery_function_19_aux.
+>   split.
+>   - intro n.
+>     reflexivity.
+> 
+>   - split.
+>     * reflexivity.
+>     * reflexivity.
+> Qed.
+
+Yes it works here, but
+
+(1) it doesn't correspond to what you would do by hand, and
+
+(2) it doesn't work in general.
+
+The proper thing to do here was to write fold-unfold lemmas
+and use them.
+
+-----
+
+And you didn't pursue specifications of mystery functions that are
+vacuous or ambiguous?
+
+----------
+
+week-05_report.pdf
+
+-----
+
+[...]
+
+-----
+
+"By trying to apply consecutive natural number,"
+-> [often]
+"By trying to apply the mystery function to consecutive natural numbers,"
+
+-----
+
+2
+
+You apparently missed the Aha! moment that the specification is Newton's
+binary expansion at rank 2?
+
+(x + y)^2 = x^2 + 2 * x * y + y^2
+
+And likewise when y = 1.
+
+-----
+
+3
+
+"By trying to apply consecutive natural number, we make educated guess that the mystery
+function is factorial."
+Not exactly.
+
+-----
+
+4
+
+"By trying to apply consecutive natural number, we make educated guess that the mystery
+function produces a pair of Fibonacci numbers."
+Not exactly.
+
+-----
+
+5
+
+"By trying to apply consecutive natural number, we make educated guess that the mystery
+function produces a Fibonacci number."
+It's surprising how you guys can be so fluent and gifted with style and even panache,
+and on the occasion not precise enough:
+the mystery function is the traditional Fibonacci function
+that, given the index of Fibonacci number, yields this Fibonacci number.
+
+-----
+
+"I am also unsure about the syntax of only unfolding the fib s that
+deals with the base case but not the other ones."
+
+Seriously?  How about fold-unfold lemmas?
+
+-----
+
+6
+
+"By trying to apply consecutive natural number, we make a guess that the mystery function
+produces a pair Fibonacci number again."
+->
+"By trying to apply consecutive natural number, we make a guess that the mystery function
+produces a Fibonacci number again."
+
+-----
+
+7
+
+OK, the addition function.  But you defined your own addition function
+rather than using Nat.add?  (You used Nat.max to define mystery_function_07.)
+
+You didn't identify plus_Sn_m and plus_n_Sm?
+(alias: the induction case for the recursive addition function
+and the tail-recursive addition function with an accumulator)
+
+-----
+
+8
+
+"We write a unit test to make sure that the mystery function does what have defined."
+This sentence missing words.
+
+-----
+
+9
+
+OK
+
+-----
+
+10
+
+It is of course good to take initiatives.
+
+-----
+
+12
+
+OK
+
+-----
+
+13
+
+OK
+
+-----
+
+14
+
+OK
+
+-----
+
+15 / 16
+
+You are a bit blinded by now: the specifications are that of the recursive
+addition function and of the tail-recursive addition function.
+A touch of mutatis mutandis would have been in order here.
+
+-----
+
+17
+
+The point of this specification was to connect it with the previous one,
+and to realize that it is an instance of universal quantification
+distributing over conjunctions.
+
+-----
+
+18
+
+The point here is that the specification does not follow the inductive structure
+of binary trees, and therefore is not inductive, which is why at the critical
+juncture, we can't apply the induction hypothesis: it couldn't be coded in Coq
+or expressed with fold_binary_tree.
+
+In contrast, the functions are structurally recursive, which is why the proof
+can go through.
+
+-----
+
+Conclusion
+
+OK
+
+----------
+
+Overall conclusion
+
+You are definitely on top of things, and you are clearly having fun.
+That is very good.
+
+I'd like to continue to encourage you
+
+* to trust more than your knowledge is actionable,
+  so that you can become secure in it
+  (for all your posturing, you don't really feel secure, do you?);
+
+* to remember to use what you are supposed to know
+  (the fold-unfold lemmas spring to the mind here);
+  make this part of your muscle memory,
+  so that you can rely on it when the going gets tough;
+
+* to reflect more: each mystery function was supposed to elicit
+  levels of Aha! moments, not just the thrill of figuring them out;
+
+* to be wary of rabbits out of hats,
+  for they tend to multiply at a Fibonacci rate;
+
+* to seek things out: you haven't exercised the ability to show
+  that specifications are vacuous or ambiguous -- a useful skill to acquire.
+
+I have added the paper about mystery functions in the lecture notes,
+you might want to peruse it to see what I was trying to convey with them.
+
+Thanks for attending FPP,
+
+\Olivier
