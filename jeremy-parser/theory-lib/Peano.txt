@@ -1,0 +1,402 @@
+IsSucc:
+  nat ->
+  Prop
+gt:
+  nat ->
+  nat ->
+  Prop
+ge:
+  nat ->
+  nat ->
+  Prop
+lt:
+  nat ->
+  nat ->
+  Prop
+le:
+  nat ->
+  nat ->
+  Prop
+le_n:
+  forall
+   n : nat,
+  n <=
+  n
+Peano.le_0_n:
+  forall
+   n : nat,
+  0 <=
+  n
+plus_O_n:
+  forall
+   n : nat,
+  0 +
+  n =
+  n
+plus_n_O:
+  forall
+   n : nat,
+  n =
+  n +
+  0
+mult_n_O:
+  forall
+   n : nat,
+  0 =
+  n *
+  0
+n_Sn:
+  forall
+   n : nat,
+  n <>
+  S n
+pred_Sn:
+  forall
+   n : nat,
+  n =
+  pred
+   (S
+   n)
+le_S:
+  forall
+   n
+   m : nat,
+  n <=
+  m ->
+  n <=
+  S m
+Peano.le_n_S:
+  forall
+   n
+   m : nat,
+  n <=
+  m ->
+  S n <=
+  S m
+Peano.le_pred:
+  forall
+   n
+   m : nat,
+  n <=
+  m ->
+  pred
+   n <=
+  pred
+   m
+Peano.le_S_n:
+  forall
+   n
+   m : nat,
+  S n <=
+  S m ->
+  n <=
+  m
+O_S:
+  forall
+   n : nat,
+  0 <>
+  S n
+eq_add_S:
+  forall
+   n
+   m : nat,
+  S n =
+  S m ->
+  n =
+  m
+f_equal_pred:
+  forall
+   x
+   y : nat,
+  x =
+  y ->
+  pred
+   x =
+  pred
+   y
+eq_S:
+  forall
+   x
+   y : nat,
+  x =
+  y ->
+  S x =
+  S y
+max_l:
+  forall
+   n
+   m : nat,
+  m <=
+  n ->
+  max
+   n
+   m =
+  n
+min_r:
+  forall
+   n
+   m : nat,
+  m <=
+  n ->
+  min
+   n
+   m =
+  m
+min_l:
+  forall
+   n
+   m : nat,
+  n <=
+  m ->
+  min
+   n
+   m =
+  n
+max_r:
+  forall
+   n
+   m : nat,
+  n <=
+  m ->
+  max
+   n
+   m =
+  m
+nat_case:
+  forall
+   (n : nat)
+   (P : 
+   nat ->
+   Prop),
+  P 0 ->
+  (forall
+   m : nat,
+   P
+   (S
+   m)) ->
+  P n
+plus_Sn_m:
+  forall
+   n
+   m : nat,
+  S n +
+  m =
+  S
+   (n +
+   m)
+plus_n_Sm:
+  forall
+   n
+   m : nat,
+  S
+   (n +
+   m) =
+  n +
+  S m
+f_equal_nat:
+  forall
+   (B : Type)
+   (f : 
+   nat ->
+   B)
+   (x
+   y : nat),
+  x =
+  y ->
+  f x =
+  f y
+not_eq_S:
+  forall
+   n
+   m : nat,
+  n <>
+  m ->
+  S n <>
+  S m
+mult_n_Sm:
+  forall
+   n
+   m : nat,
+  n *
+  m +
+  n =
+  n *
+  S m
+f_equal2_mult:
+  forall
+   x1
+   y1
+   x2
+   y2 : nat,
+  x1 =
+  y1 ->
+  x2 =
+  y2 ->
+  x1 *
+  x2 =
+  y1 *
+  y2
+f_equal2_plus:
+  forall
+   x1
+   y1
+   x2
+   y2 : nat,
+  x1 =
+  y1 ->
+  x2 =
+  y2 ->
+  x1 +
+  x2 =
+  y1 +
+  y2
+f_equal2_nat:
+  forall
+   (B : Type)
+   (f : 
+   nat ->
+   nat ->
+   B)
+   (x1
+   y1
+   x2
+   y2 : nat),
+  x1 =
+  y1 ->
+  x2 =
+  y2 ->
+  f
+   x1
+   x2 =
+  f
+   y1
+   y2
+le_ind:
+  forall
+   (n : nat)
+   (P : 
+   nat ->
+   Prop),
+  P n ->
+  (forall
+   m : nat,
+   n <=
+   m ->
+   P
+   m ->
+   P
+   (S
+   m)) ->
+  forall
+   n0 : nat,
+  n <=
+  n0 ->
+  P
+   n0
+nat_rect_succ_r:
+  forall
+   (A : Type)
+   (f : 
+   A ->
+   A)
+   (x : A)
+   (n : nat),
+  nat_rect
+   (fun
+   _ : nat
+   =>
+   A)
+   x
+   (fun
+   _ : nat
+   =>
+   f)
+   (S
+   n) =
+  nat_rect
+   (fun
+   _ : nat
+   =>
+   A)
+   (f
+   x)
+   (fun
+   _ : nat
+   =>
+   f)
+   n
+nat_double_ind:
+  forall
+   R : 
+   nat ->
+   nat ->
+   Prop,
+  (forall
+   n : nat,
+   R
+   0
+   n) ->
+  (forall
+   n : nat,
+   R
+   (S
+   n)
+   0) ->
+  (forall
+   n
+   m : nat,
+   R
+   n
+   m ->
+   R
+   (S
+   n)
+   (S
+   m)) ->
+  forall
+   n
+   m : nat,
+  R n
+   m
+nat_rect_plus:
+  forall
+   (n
+   m : nat)
+   (A : Type)
+   (f : 
+   A ->
+   A)
+   (x : A),
+  nat_rect
+   (fun
+   _ : nat
+   =>
+   A)
+   x
+   (fun
+   _ : nat
+   =>
+   f)
+   (n +
+   m) =
+  nat_rect
+   (fun
+   _ : nat
+   =>
+   A)
+   (nat_rect
+   (fun
+   _ : nat
+   =>
+   A)
+   x
+   (fun
+   _ : nat
+   =>
+   f)
+   m)
+   (fun
+   _ : nat
+   =>
+   f)
+   n

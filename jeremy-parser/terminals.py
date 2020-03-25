@@ -61,6 +61,12 @@ ASSERTION_KEYWORDS = r"(?:" + "|".join([
     KW_EXAMPLE
 ]) + ")"
 
+TOPLEVEL_KEYWORDS = r"(?:" + "|".join([
+    KW_PROOF,
+    KW_CHECK,
+    KW_COMPUTE
+]) + ")"
+
 
 TACTIC_KEYWORDS = r"(?:" + "|".join([
     KW_INTRO,

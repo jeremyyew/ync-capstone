@@ -8,6 +8,7 @@ import datetime
 import os
 import utils
 import grammar
+import pickle
 
 # Change directory so we can write log files in the correct folder, instead of from where emacs calls the shell command.
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -115,6 +116,24 @@ def construct_node(s: str, rule) -> Node:
     return node
 
 
+def collect_arity(t, arity_db):
+    assert(t.label == LABEL_DOCUMENT)
+    for child in t.children:
+        if child.label != LABEL_ASSERTION:
+            continue
+        assertion = child
+        ident = assertion.children[1]
+        assert(ident.label == LABEL_ASSERTION_IDENT)
+        forall = assertion.children[2]
+        if forall.label != LABEL_FORALL:
+            continue
+        binders = [c for c in forall.children if c.label == LABEL_BINDER]
+        arity = len(binders)
+        arity_db[ident.val] = arity
+        logger.info(f"New term {ident.val} arity added in db: {arity_db}.")
+    return arity_db
+
+
 def check_arity(t, arity_db):
     warnings = []
     warnings_output = []
@@ -186,10 +205,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.input:
         s = preprocess(args.input)
+        with open(f'theory-lib/arity_db', 'rb') as f:
+            arity_db = pickle.load(f)
+            logger.info(f"Loaded arity_db with {len(arity_db)} entries.")
         try:
             t = construct_node(s, LABEL_DOCUMENT)
             # print(utils.pretty2str(t))
-            _, warnings_output = check_arity(t, {})
+            _, warnings_output = check_arity(t, arity_db)
             print(warnings_output or "No warnings.")
         except Exception as e:
             if str(e) == "No match":

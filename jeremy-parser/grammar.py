@@ -79,9 +79,10 @@ GRAMMAR = {
                  [LABEL_TERM]),
 
             LABEL_REWRITE:
-                (r"{}\s?((?:->|<-)?\s?\(?.+?\)?){}(?={}|$)".format(KW_REWRITE,
-                                                                   REGEXP_TACTIC_END,
-                                                                   TACTIC_KEYWORDS),
+                (r"{}\s?((?:->|<-)?\s?\(?.+?\)?){}(?={}|$)".format(
+                    KW_REWRITE,
+                    REGEXP_TACTIC_END,
+                    TACTIC_KEYWORDS),
                  [LABEL_REWRITE_ARROW, LABEL_TERM]),
 
                 LABEL_REWRITE_ARROW:
@@ -100,7 +101,10 @@ GRAMMAR = {
                 (r"({}\.)".format(KW_RESTART), []),
 
         LABEL_ASSERTION:
-            ("(" + ASSERTION_KEYWORDS + r" .+?)\.",
+            (r"({} .+?:.+?)\.(?={}|{}|$)".format(
+                ASSERTION_KEYWORDS,
+                ASSERTION_KEYWORDS,
+                TOPLEVEL_KEYWORDS),
              [LABEL_ASSERTION_KEYWORD,
               LABEL_ASSERTION_IDENT,
               LABEL_FORALL,
@@ -130,11 +134,11 @@ GRAMMAR = {
                 (r"(.+)",
                  []),
 
-    LABEL_CHECK:
-        (r"{}\s?(\(?.+?\)?)\.(?={}|{}|$)".format(KW_CHECK,
-                                                 TACTIC_KEYWORDS,
-                                                 ASSERTION_KEYWORDS),
-         []),
+        LABEL_CHECK:
+            (r"{}\s?(\(?.+?\)?)\.(?={}|{}|$)".format(KW_CHECK,
+                                                     TACTIC_KEYWORDS,
+                                                     ASSERTION_KEYWORDS),
+             []),
     LABEL_COMPUTE:
         (r"{}\s?(\(?.+?\)?)\.(?={}|{}|$)".format(KW_COMPUTE,
                                                  TACTIC_KEYWORDS,

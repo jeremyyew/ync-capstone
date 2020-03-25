@@ -1,0 +1,1147 @@
+Is_true:
+  bool ->
+  Prop
+reflect:
+  Prop ->
+  bool ->
+  Set
+Bool.eqb:
+  bool ->
+  bool ->
+  bool
+Bool.leb:
+  bool ->
+  bool ->
+  Prop
+ifb:
+  bool ->
+  bool ->
+  bool ->
+  bool
+ReflectT:
+  forall
+   P : Prop,
+  P ->
+  reflect
+   P
+   true
+eqb_refl:
+  forall
+   x : bool,
+  Is_true
+   (Bool.eqb
+   x
+   x)
+orb_diag:
+  forall
+   b : bool,
+  b
+  || b =
+  b
+ReflectF:
+  forall
+   P : Prop,
+  ~ P ->
+  reflect
+   P
+   false
+andb_diag:
+  forall
+   b : bool,
+  b &&
+  b =
+  b
+negb_involutive_reverse:
+  forall
+   b : bool,
+  b =
+  negb
+   (negb
+   b)
+negb_involutive:
+  forall
+   b : bool,
+  negb
+   (negb
+   b) =
+  b
+absurd_eq_bool:
+  forall
+   b
+   b' : bool,
+  False ->
+  b =
+  b'
+absurd_eq_true:
+  forall
+   b : bool,
+  False ->
+  b =
+  true
+orb_false_r:
+  forall
+   b : bool,
+  b
+  || false =
+  b
+andb_false_l:
+  forall
+   b : bool,
+  false &&
+  b =
+  false
+xorb_false_l:
+  forall
+   b : bool,
+  xorb
+   false
+   b =
+  b
+xorb_false_r:
+  forall
+   b : bool,
+  xorb
+   b
+   false =
+  b
+andb_true_l:
+  forall
+   b : bool,
+  true &&
+  b =
+  b
+orb_true_l:
+  forall
+   b : bool,
+  true
+  || b =
+  true
+andb_false_r:
+  forall
+   b : bool,
+  b &&
+  false =
+  false
+xorb_nilpotent:
+  forall
+   b : bool,
+  xorb
+   b
+   b =
+  false
+eqb_reflx:
+  forall
+   b : bool,
+  Bool.eqb
+   b
+   b =
+  true
+orb_false_l:
+  forall
+   b : bool,
+  false
+  || b =
+  b
+diff_false_true:
+  false <>
+  true
+diff_true_false:
+  true <>
+  false
+orb_true_r:
+  forall
+   b : bool,
+  b
+  || true =
+  true
+andb_true_r:
+  forall
+   b : bool,
+  b &&
+  true =
+  b
+Is_true_eq_left:
+  forall
+   x : bool,
+  x =
+  true ->
+  Is_true
+   x
+Is_true_eq_right:
+  forall
+   x : bool,
+  true =
+  x ->
+  Is_true
+   x
+no_fixpoint_negb:
+  forall
+   b : bool,
+  negb
+   b <>
+  b
+Is_true_eq_true:
+  forall
+   x : bool,
+  Is_true
+   x ->
+  x =
+  true
+xorb_comm:
+  forall
+   b
+   b' : bool,
+  xorb
+   b
+   b' =
+  xorb
+   b'
+   b
+andb_comm:
+  forall
+   b1
+   b2 : bool,
+  b1 &&
+  b2 =
+  b2 &&
+  b1
+orb_comm:
+  forall
+   b1
+   b2 : bool,
+  b1
+  || b2 =
+  b2
+  || b1
+negb_prop_involutive:
+  forall
+   b : bool,
+  Is_true
+   b ->
+  ~
+  Is_true
+   (negb
+   b)
+negb_prop_classical:
+  forall
+   b : bool,
+  ~
+  Is_true
+   (negb
+   b) ->
+  Is_true
+   b
+negb_prop_intro:
+  forall
+   b : bool,
+  ~
+  Is_true
+   b ->
+  Is_true
+   (negb
+   b)
+negb_prop_elim:
+  forall
+   b : bool,
+  Is_true
+   (negb
+   b) ->
+  ~
+  Is_true
+   b
+absorption_andb:
+  forall
+   b1
+   b2 : bool,
+  b1 &&
+  (b1
+   || b2) =
+  b1
+reflect_dec:
+  forall
+   (P : Prop)
+   (b : bool),
+  reflect
+   P
+   b ->
+  {P}
+  +
+  {~
+   P}
+eqb_negb1:
+  forall
+   b : bool,
+  Bool.eqb
+   (negb
+   b)
+   b =
+  false
+xorb_true_l:
+  forall
+   b : bool,
+  xorb
+   true
+   b =
+  negb
+   b
+eqb_spec:
+  forall
+   b
+   b' : bool,
+  reflect
+   (b =
+   b')
+   (Bool.eqb
+   b
+   b')
+eqb_negb2:
+  forall
+   b : bool,
+  Bool.eqb
+   b
+   (negb
+   b) =
+  false
+xorb_true_r:
+  forall
+   b : bool,
+  xorb
+   b
+   true =
+  negb
+   b
+andb_negb_r:
+  forall
+   b : bool,
+  b &&
+  negb
+   b =
+  false
+orb_negb_r:
+  forall
+   b : bool,
+  b
+  || 
+  negb
+   b =
+  true
+absorption_orb:
+  forall
+   b1
+   b2 : bool,
+  b1
+  || 
+  b1 &&
+  b2 =
+  b1
+negb_sym:
+  forall
+   b
+   b' : bool,
+  b' =
+  negb
+   b ->
+  b =
+  negb
+   b'
+eqb_eq:
+  forall
+   x
+   y : bool,
+  Is_true
+   (Bool.eqb
+   x
+   y) ->
+  x =
+  y
+trans_eq_bool:
+  forall
+   x
+   y
+   z : bool,
+  x =
+  y ->
+  y =
+  z ->
+  x =
+  z
+bool_dec:
+  forall
+   b1
+   b2 : bool,
+  {b1 =
+   b2}
+  +
+  {b1 <>
+   b2}
+eq_true_false_abs:
+  forall
+   b : bool,
+  b =
+  true ->
+  b =
+  false ->
+  False
+xorb_eq:
+  forall
+   b
+   b' : bool,
+  xorb
+   b
+   b' =
+  false ->
+  b =
+  b'
+eqb_prop:
+  forall
+   a
+   b : bool,
+  Bool.eqb
+   a
+   b =
+  true ->
+  a =
+  b
+andb_false_intro1:
+  forall
+   b1
+   b2 : bool,
+  b1 =
+  false ->
+  b1 &&
+  b2 =
+  false
+eq_bool_prop_elim:
+  forall
+   b1
+   b2 : bool,
+  b1 =
+  b2 ->
+  Is_true
+   b1 <->
+  Is_true
+   b2
+eq_bool_prop_intro:
+  forall
+   b1
+   b2 : bool,
+  Is_true
+   b1 <->
+  Is_true
+   b2 ->
+  b1 =
+  b2
+not_false_is_true:
+  forall
+   b : bool,
+  b <>
+  false ->
+  b =
+  true
+not_true_is_false:
+  forall
+   b : bool,
+  b <>
+  true ->
+  b =
+  false
+andb_false_intro2:
+  forall
+   b1
+   b2 : bool,
+  b2 =
+  false ->
+  b1 &&
+  b2 =
+  false
+andb_lazy_alt:
+  forall
+   a
+   b : bool,
+  a &&
+  b =
+  (if
+   a
+   then
+   b
+   else
+   false)
+orb_lazy_alt:
+  forall
+   a
+   b : bool,
+  a
+  || b =
+  (if
+   a
+   then
+   true
+   else
+   b)
+andb_prop_intro:
+  forall
+   b1
+   b2 : bool,
+  Is_true
+   b1 /\
+  Is_true
+   b2 ->
+  Is_true
+   (b1 &&
+   b2)
+orb_prop_intro:
+  forall
+   a
+   b : bool,
+  Is_true
+   a \/
+  Is_true
+   b ->
+  Is_true
+   (a
+   || b)
+orb_prop_elim:
+  forall
+   a
+   b : bool,
+  Is_true
+   (a
+   || b) ->
+  Is_true
+   a \/
+  Is_true
+   b
+xorb_negb_negb:
+  forall
+   b
+   b' : bool,
+  xorb
+   (negb
+   b)
+   (negb
+   b') =
+  xorb
+   b
+   b'
+negb_xorb_r:
+  forall
+   b
+   b' : bool,
+  negb
+   (xorb
+   b
+   b') =
+  xorb
+   b
+   (negb
+   b')
+negb_xorb_l:
+  forall
+   b
+   b' : bool,
+  negb
+   (xorb
+   b
+   b') =
+  xorb
+   (negb
+   b)
+   b'
+andb_prop_elim:
+  forall
+   a
+   b : bool,
+  Is_true
+   (a &&
+   b) ->
+  Is_true
+   a /\
+  Is_true
+   b
+xorb_move_l_r_1:
+  forall
+   b
+   b'
+   b'' : bool,
+  xorb
+   b
+   b' =
+  b'' ->
+  b' =
+  xorb
+   b
+   b''
+orb_assoc:
+  forall
+   b1
+   b2
+   b3 : bool,
+  b1
+  || 
+  (b2
+   || b3) =
+  b1
+  || b2
+  || b3
+iff_reflect:
+  forall
+   (P : Prop)
+   (b : bool),
+  P <->
+  b =
+  true ->
+  reflect
+   P
+   b
+andb_assoc:
+  forall
+   b1
+   b2
+   b3 : bool,
+  b1 &&
+  (b2 &&
+   b3) =
+  b1 &&
+  b2 &&
+  b3
+xorb_assoc_reverse:
+  forall
+   b
+   b'
+   b'' : bool,
+  xorb
+   (xorb
+   b
+   b')
+   b'' =
+  xorb
+   b
+   (xorb
+   b'
+   b'')
+eq_true_not_negb:
+  forall
+   b : bool,
+  b <>
+  true ->
+  negb
+   b =
+  true
+xorb_move_r_l_1:
+  forall
+   b
+   b'
+   b'' : bool,
+  b =
+  xorb
+   b'
+   b'' ->
+  xorb
+   b'
+   b =
+  b''
+xorb_move_r_l_2:
+  forall
+   b
+   b'
+   b'' : bool,
+  b =
+  xorb
+   b'
+   b'' ->
+  xorb
+   b
+   b'' =
+  b'
+eq_true_negb_classical:
+  forall
+   b : bool,
+  negb
+   b <>
+  true ->
+  b =
+  true
+reflect_iff:
+  forall
+   (P : Prop)
+   (b : bool),
+  reflect
+   P
+   b ->
+  P <->
+  b =
+  true
+xorb_move_l_r_2:
+  forall
+   b
+   b'
+   b'' : bool,
+  xorb
+   b
+   b' =
+  b'' ->
+  b =
+  xorb
+   b''
+   b'
+not_true_iff_false:
+  forall
+   b : bool,
+  b <>
+  true <->
+  b =
+  false
+negb_false_iff:
+  forall
+   b : bool,
+  negb
+   b =
+  false <->
+  b =
+  true
+eq_true_iff_eq:
+  forall
+   b1
+   b2 : bool,
+  b1 =
+  true <->
+  b2 =
+  true ->
+  b1 =
+  b2
+not_false_iff_true:
+  forall
+   b : bool,
+  b <>
+  false <->
+  b =
+  true
+eqb_true_iff:
+  forall
+   a
+   b : bool,
+  Bool.eqb
+   a
+   b =
+  true <->
+  a =
+  b
+negb_true_iff:
+  forall
+   b : bool,
+  negb
+   b =
+  true <->
+  b =
+  false
+eq_iff_eq_true:
+  forall
+   b1
+   b2 : bool,
+  b1 =
+  b2 <->
+  (b1 =
+   true <->
+   b2 =
+   true)
+if_negb:
+  forall
+   (A : Type)
+   (b : bool)
+   (x
+   y : A),
+  (if
+   negb
+   b
+   then
+   x
+   else
+   y) =
+  (if
+   b
+   then
+   y
+   else
+   x)
+negb_andb:
+  forall
+   b1
+   b2 : bool,
+  negb
+   (b1 &&
+   b2) =
+  negb
+   b1
+  || 
+  negb
+   b2
+negb_orb:
+  forall
+   b1
+   b2 : bool,
+  negb
+   (b1
+   || b2) =
+  negb
+   b1 &&
+  negb
+   b2
+negb_if:
+  forall
+   (A : Type)
+   (a
+   a' : A)
+   (b : bool),
+  (if
+   negb
+   b
+   then
+   a
+   else
+   a') =
+  (if
+   b
+   then
+   a'
+   else
+   a)
+orb_false_intro:
+  forall
+   b1
+   b2 : bool,
+  b1 =
+  false ->
+  b2 =
+  false ->
+  b1
+  || b2 =
+  false
+leb_implb:
+  forall
+   b1
+   b2 : bool,
+  Bool.leb
+   b1
+   b2 <->
+  implb
+   b1
+   b2 =
+  true
+eqb_subst:
+  forall
+   (P : 
+   bool ->
+   Prop)
+   (b1
+   b2 : bool),
+  Bool.eqb
+   b1
+   b2 =
+  true ->
+  P
+   b1 ->
+  P
+   b2
+orb_andb_distrib_l:
+  forall
+   b1
+   b2
+   b3 : bool,
+  b1 &&
+  b2
+  || b3 =
+  (b1
+   || b3) &&
+  (b2
+   || b3)
+andb_orb_distrib_r:
+  forall
+   b1
+   b2
+   b3 : bool,
+  b1 &&
+  (b2
+   || b3) =
+  b1 &&
+  b2
+  || 
+  b1 &&
+  b3
+orb_andb_distrib_r:
+  forall
+   b1
+   b2
+   b3 : bool,
+  b1
+  || 
+  b2 &&
+  b3 =
+  (b1
+   || b2) &&
+  (b1
+   || b3)
+andb_orb_distrib_l:
+  forall
+   b1
+   b2
+   b3 : bool,
+  (b1
+   || b2) &&
+  b3 =
+  b1 &&
+  b3
+  || 
+  b2 &&
+  b3
+eqb_false_iff:
+  forall
+   a
+   b : bool,
+  Bool.eqb
+   a
+   b =
+  false <->
+  a <>
+  b
+orb_false_elim:
+  forall
+   b1
+   b2 : bool,
+  b1
+  || b2 =
+  false ->
+  b1 =
+  false /\
+  b2 =
+  false
+andb_true_eq:
+  forall
+   a
+   b : bool,
+  true =
+  a &&
+  b ->
+  true =
+  a /\
+  true =
+  b
+orb_prop:
+  forall
+   a
+   b : bool,
+  a
+  || b =
+  true ->
+  a =
+  true \/
+  b =
+  true
+orb_true_intro:
+  forall
+   b1
+   b2 : bool,
+  b1 =
+  true \/
+  b2 =
+  true ->
+  b1
+  || b2 =
+  true
+orb_true_elim:
+  forall
+   b1
+   b2 : bool,
+  b1
+  || b2 =
+  true ->
+  {b1 =
+   true}
+  +
+  {b2 =
+   true}
+andb_false_elim:
+  forall
+   b1
+   b2 : bool,
+  b1 &&
+  b2 =
+  false ->
+  {b1 =
+   false}
+  +
+  {b2 =
+   false}
+orb_true_iff:
+  forall
+   b1
+   b2 : bool,
+  b1
+  || b2 =
+  true <->
+  b1 =
+  true \/
+  b2 =
+  true
+andb_false_iff:
+  forall
+   b1
+   b2 : bool,
+  b1 &&
+  b2 =
+  false <->
+  b1 =
+  false \/
+  b2 =
+  false
+andb_true_iff:
+  forall
+   b1
+   b2 : bool,
+  b1 &&
+  b2 =
+  true <->
+  b1 =
+  true /\
+  b2 =
+  true
+orb_false_iff:
+  forall
+   b1
+   b2 : bool,
+  b1
+  || b2 =
+  false <->
+  b1 =
+  false /\
+  b2 =
+  false
+andb_if:
+  forall
+   (A : Type)
+   (a
+   a' : A)
+   (b
+   b' : bool),
+  (if
+   b &&
+   b'
+   then
+   a
+   else
+   a') =
+  (if
+   b
+   then
+   if
+   b'
+   then
+   a
+   else
+   a'
+   else
+   a')
+reflect_ind:
+  forall
+   (P : Prop)
+   (P0 : 
+   forall
+   b : bool,
+   reflect
+   P
+   b ->
+   Prop),
+  (forall
+   p : P,
+   P0
+   true
+   (ReflectT
+   P
+   p)) ->
+  (forall
+   n : 
+   ~
+   P,
+   P0
+   false
+   (ReflectF
+   P
+   n)) ->
+  forall
+   (b : bool)
+   (r : 
+   reflect
+   P
+   b),
+  P0
+   b
+   r
+reflect_rect:
+  forall
+   (P : Prop)
+   (P0 : 
+   forall
+   b : bool,
+   reflect
+   P
+   b ->
+   Type),
+  (forall
+   p : P,
+   P0
+   true
+   (ReflectT
+   P
+   p)) ->
+  (forall
+   n : 
+   ~
+   P,
+   P0
+   false
+   (ReflectF
+   P
+   n)) ->
+  forall
+   (b : bool)
+   (r : 
+   reflect
+   P
+   b),
+  P0
+   b
+   r
+reflect_rec:
+  forall
+   (P : Prop)
+   (P0 : 
+   forall
+   b : bool,
+   reflect
+   P
+   b ->
+   Set),
+  (forall
+   p : P,
+   P0
+   true
+   (ReflectT
+   P
+   p)) ->
+  (forall
+   n : 
+   ~
+   P,
+   P0
+   false
+   (ReflectF
+   P
+   n)) ->
+  forall
+   (b : bool)
+   (r : 
+   reflect
+   P
+   b),
+  P0
+   b
+   r
