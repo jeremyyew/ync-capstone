@@ -1,3 +1,4 @@
+import re
 # LABELS
 LABEL_DOCUMENT = "DOCUMENT"
 LABEL_PROOF = "PROOF"
@@ -80,3 +81,21 @@ TACTIC_KEYWORDS = r"(?:" + "|".join([
     KW_CHECK,
     KW_COMPUTE
 ]) + r"(?:\s|\(|\.|;|\s?<-|/s?->|$)?)"
+
+# EXCEPTIONS
+
+
+class UnmatchedTactic(Exception):
+    def __init__(self, remaining):
+        self.remaining = remaining
+        self.tactic = None
+        match = re.match(r"(.+?){}(?={}|$)".format(REGEXP_TACTIC_END,
+                                                   TACTIC_KEYWORDS),
+                         self.remaining)
+        if match:
+            self.tactic = match.group(1)
+
+
+class UnmatchedToken(Exception):
+    def __init__(self, remaining):
+        self.remaining = remaining

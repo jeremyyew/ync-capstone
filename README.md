@@ -25,7 +25,7 @@ For the parser implementation, please see [jeremy-parser/parser.py](jeremy-parse
 - [X] **Usability: Add arity of Nat, Bool, Peano modules.**
 - [X] **Usability: Write setup instructions for Mac**.
 - [ ] **Development: Accept remaining syntax.**
-- [ ] **Feature: Warn user of unpermitted tactics (currently ignores them).**
+- [X] **Feature: Warn user of unpermitted tactics (currently ignores them).**
 - [ ] **Usability: ‘Freeze’ Python files into binary for interoperable usage. Test on Windows machine.**
 - [ ] Report: Shorten Context and Motivation.
 - [ ] Report: Migrate to Latex.

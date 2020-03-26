@@ -1,7 +1,7 @@
 import pickle
 import unittest
 import deepdiff
-from terminals import LABEL_DOCUMENT
+from terminals import *
 from parser import preprocess, construct_node, check_arity, logger
 import utils
 
@@ -34,6 +34,19 @@ class TestParser(unittest.TestCase):
                 f"\n*********\nEXPECTED FOR TESTCASE: {name}\n*********\n")
             logger.info("\n"+utils.pretty2str(pickled))
             raise e
+
+    def unpermitted_tactic_helper(self, name, code, expected_tactic, expected_remaining):
+        s = preprocess(code)
+        try:
+            logger.info(
+                f"\n*********\nCONSTRUCTING TREE OF {name}:\n*********\n")
+            t = construct_node(s, LABEL_DOCUMENT)
+        except UnmatchedTactic as e:
+            if e.tactic != expected_tactic or \
+                    e.remaining != expected_remaining:
+                print(f"\ntactic captured:{e.tactic}")
+                print(f"\nremaining string:{e.remaining}")
+                raise e
 
     def test_require_import1(self):
         require_import1 = """
@@ -70,7 +83,7 @@ class TestParser(unittest.TestCase):
         proof1 = """
         Proof. Qed.
         Proof. Admitted.
-        Proof. Abort. 
+        Proof. Abort.
         Proof. intro n. Qed.
         Proof. intro n. Admitted.
         Proof. intro n. Abort.
@@ -79,7 +92,7 @@ class TestParser(unittest.TestCase):
 
     def test_restart1(self):
         restart1 = """
-        Proof. intro n. Restart. Qed. 
+        Proof. intro n. Restart. Qed.
         Proof. Restart. intro n. Qed.
         Proof. Restart. Restart. Qed.
         """
@@ -181,7 +194,7 @@ class TestParser(unittest.TestCase):
         Check (Nat.add_comm).
         Check(Nat.add_comm).
         Check(lemma_a_1).
-        intro n. 
+        intro n.
         Check (Nat.add_comm (lemma_a_1 n1) n2).Check(Nat.add_comm (lemma_a_1 n1) n2).
         Qed.
         Check lemma_a_1.
@@ -203,7 +216,7 @@ class TestParser(unittest.TestCase):
         Compute (Nat.add_comm).
         Compute(Nat.add_comm).
         Compute(lemma_a_1).
-        intro n. 
+        intro n.
         Compute (Nat.add_comm (lemma_a_1 n1) n2).Compute(Nat.add_comm (lemma_a_1 n1) n2).
         Qed.
         Compute lemma_a_1.
@@ -215,6 +228,30 @@ class TestParser(unittest.TestCase):
         Compute (Nat.add_comm (lemma_a_1 n1) n2).Check(Nat.add_comm (lemma_a_1 n1) n2).
         """
         self.parser_helper("compute1", compute1)
+
+    def test_unpermitted_tactic1(self):
+        code = """
+            Proof.
+            trivial.
+            reflexivity. 
+            exact (lemma_a n1).
+            Qed.
+            """
+        self.unpermitted_tactic_helper("unpermitted1",
+                                       code,
+                                       "trivial",
+                                       "trivial.reflexivity.exact (lemma_a n1).")
+
+    def test_unpermitted_tactic2(self):
+        code = """
+            Proof.
+            auto.
+            Qed.
+            """
+        self.unpermitted_tactic_helper("unpermitted2",
+                                       code,
+                                       "auto",
+                                       "auto.")
 
 
 class TestParityCheck(unittest.TestCase):

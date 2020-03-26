@@ -76,43 +76,45 @@ def construct_term(term: str) -> Node:
 
 
 def construct_node(s: str, rule) -> Node:
-    def construct_children(s: str, expected) -> List[Node]:
+    def construct_children(s: str, parent: str) -> List[Node]:
         if not s:
             return []
+        _, expected = grammar.GRAMMAR[parent]
         logger.info(f"\n\nWith node {rule}, at:\n\"{s}\"")
         logger.info(
             "Attemping matches, expecting: [" + ", ".join(expected) + "]")
+        exception = None
         for item in expected:
             pattern, _ = grammar.GRAMMAR[item]
             match = re.match(pattern, s)
-            if match:
-                logger.info(f"Matched: {item} on \"{match.group(0)}\".")
-                if item == LABEL_TERM:
-                    child = construct_term(s)
-                    return [child]
-                try:
-                    child = construct_node(match.group(1), item)
-                    logger.info(
-                        f"Constructing other children of {rule} on \"{s[match.end():]}\"...")
-                    children = [child] + construct_children(
-                        s[match.end():],
-                        expected
-                    )
-                    return children
-                except Exception as e:
-                    if str(e) != "No match":
-                        raise e
-                    logger.info(
-                        f"""Failed constructing node {item} or children.
-                        Backtracking from {rule}...""")
-        raise Exception("No match")
+            if not match:
+                continue
+            logger.info(f"Matched: {item} on \"{match.group(0)}\".")
+            if item == LABEL_TERM:
+                return [construct_term(s)]
+            try:
+                child = construct_node(match.group(1), item)
+                logger.info(
+                    f"Constructing other children of {rule} on \"{s[match.end():]}\"...")
+                children = [child] + \
+                    construct_children(s[match.end():], parent)
+                return children
+            except (UnmatchedToken, UnmatchedTactic) as e:
+                exception = e
+                logger.info(
+                    f"""Failed constructing node {item} or children.
+                    Backtracking from {rule}...""")
+        if exception:
+            raise exception
+        if parent == LABEL_PROOF:
+            raise UnmatchedTactic(s)
+        raise UnmatchedToken
+
     logger.info(f"Constructing node {rule}...")
-    _, expected = grammar.GRAMMAR[rule]
     node = Node(rule, s)
-    if expected == []:
-        return node
-    children = construct_children(s, expected)
-    node.children = children
+    _, expected = grammar.GRAMMAR[rule]
+    if expected:
+        node.children = construct_children(s, rule)
     return node
 
 
@@ -213,6 +215,14 @@ if __name__ == "__main__":
             # print(utils.pretty2str(t))
             _, warnings_output = check_arity(t, arity_db)
             print(warnings_output or "No warnings.")
-        except Exception as e:
-            if str(e) == "No match":
-                print("Parser error: Unrecognized tokens found.")
+        except UnmatchedToken as e:
+            print(
+                f"Parser error: No matching tokens for: \"{e.remaining}\". This syntax may not be currently supported.")
+        except UnmatchedTactic as e:
+            if e.tactic:
+                print(
+                    f"Parser error: There seems to be an unpermitted tactic \
+                    \"{e.tactic}\" in:\n \"{e.remaining}]\".")
+            else:
+                print(
+                    f"Parser error: No matching tokens for: \"{e.remaining}\". This syntax may not be currently supported.")
