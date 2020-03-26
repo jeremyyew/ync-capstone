@@ -1,15 +1,11 @@
 [TOC]
-Goal: 6500 words, excluding refs, including appendix.
-
 # Learning Support for Writing Proofs in Coq
-
-# Abstract  (TODO)
 
 # Context  (TODO)
 
 ## Introduction
 
-The goal of this research project is to provide learning support for stu- dents enrolled in YSC3216: Functional Programming and Proving (FPP), by building a tool that checks for syntax issues in student’s proof submis- sions.
+The goal of this research project is to provide learning support for students enrolled in YSC3216: Functional Programming and Proving (FPP), by building a tool that checks for syntax issues in student’s proof submissions.
 
 FPP is a course in Yale-NUS College taught by Professor Olivier Danvy, under the Mathematical, Computational and Statistical Sciences major. FPP introduces students to the Coq proof assistant, which is a system for writing and verifying formal proofs.
 
@@ -86,7 +82,7 @@ Therefore, in the first half of the course, students complete rigorous, progress
 
 With programming languages, there are usually many ways to write the same program. In the same way, there are many equivalent represen- tations of a Coq proof, because Coq is flexible and allows you to take shortcuts. However, for new learners, this flexibility can be counterpro- ductive. In the context of FPP, several issues arise.
 
-### Abuse of tactics
+### 1. Abuse of tactics
 
 First, students may abuse tactics that have not been introduced in the course.
 
@@ -112,12 +108,11 @@ Proof.
   rewrite <- (plus_Sn_m 2 n).
   reflexivity.
 Qed.
-
 ```
 
 Yet these tactics still appear in student submissions, because they might still have the bad programmer mindset of "if it works, its fine". This causes time between resubmissions to be wasted on superficial feedback.
 
-### Misuse of tactics
+### 2. Misuse of tactics
 
 Second, even when students use tactics that have been introduced, they may misuse them by taking shortcuts. For instance, the rewrite tactic is used to apply a rule to the current formula. A rewrite rule is a function that expects specific terms in the formula as arguments; Coq will rewrite the given terms. For example, the rewrite rule below accepts three arguments, n, m, p.
 
@@ -135,9 +130,9 @@ a+b+c+d+e=
     a + (b + (c + (d + e))).
 Proof.
   intros a b c d e.
-  rewrite -> (Nat.add_assoc a b (c + (d + e)) ).
-  rewrite -> (Nat.add_assoc (a + b) c (d + e) ).
-  rewrite -> (Nat.add_assoc (a + b + c) d e ).
+  rewrite -> (Nat.add_assoc a b (c + (d + e))).
+  rewrite -> (Nat.add_assoc (a + b) c (d + e)).
+  rewrite -> (Nat.add_assoc (a + b + c) d e).
   reflexivity.
 Qed.
 Proposition add_assoc_nested :
@@ -146,8 +141,8 @@ Proposition add_assoc_nested :
   a + (b + (c + (d + e))).
 Proof.
   intros a b c d e.
-  rewrite -> (Nat.add_assoc a b )
-  rewrite -> (Nat.add_assoc (a + b) ).
+  rewrite -> (Nat.add_assoc a b).
+  rewrite -> (Nat.add_assoc (a+b)).
   rewrite -> Nat.add_assoc.
   reflexivity.
 Qed.
@@ -161,41 +156,55 @@ These two issues - abuse and misuse of tactics - correspond to issues of **abstr
 
 Therefore, it would be nice to have a system that can anticipate and identify both abstract and concrete syntax issues, to save both students and the Lecturer’s time and help achieve the learning goals of the course.
 
-### Not utilizing unfold lemmas
+### 3. Not utilizing unfold lemmas
 
 - Content of unfold lemmas is derived directly from the theorem to be proved, and style should be consistent. Therefore writing unfold lemmas is mechanical. 
 - It could be automated but that defeats the purpose, because its part of the training to understand why it's important. Instead we'll check if they do it correctly, or at all. 
 
 ###  The goal: automated intervention on formal issues to build muscle memory
 
-The idea is for the proposed tool to cut down on the amount of **’su- perficial’** feedback - e.g., ’don’t use this tactic, because...’, or ’this is bad style, please correct it in this way’, etc. - that the Lecturer must give re- peatedly to individual students, and instead automatically lead students towards solutions that only require **substantive** feedback - e.g., ideas to pursue, possible restructuring of the proof, etc. The less superficial feedback is required, the more time the Professor can spend on provid- ing substantive feedback. Also, students will spend less effort correcting style errors if they do so immediately.
+The idea is for the proposed tool to cut down on the amount of **’superficial’** feedback - e.g., ’don’t use this tactic, because...’, or ’this is bad style, please correct it in this way’, etc. - that the Lecturer must give re- peatedly to individual students, and instead automatically lead students towards solutions that only require **substantive** feedback - e.g., ideas to pursue, possible restructuring of the proof, etc. The less superficial feedback is required, the more time the Professor can spend on provid- ing substantive feedback. Also, students will spend less effort correcting style errors if they do so immediately.
 
 Yet, superficial feedback is not merely incidental. Superficial feedback reflects the formal concerns of the course and helps reinforces good pro- gramming habits, which will not only assist the learning experience of students, but benefit them in future endeavors. Therefore, the tool does not simply emphasize pedantic concerns; it makes concrete the formal training prescriptions of the course.
 
-# Solution
+# Solution: the `proof-reader` tool
 
-## `proofreader`: providing learning support by parsing student submissions
+## Parsing student submissions with `proof-reader`
 
-I implement a parser which provides learning support by checking student submissions. It has three core features corresponding to the three common mistakes described:
-1. (TBC) Warns user of instances where unpermitted tactics are used.
+I implement a parser which provides learning support by checking student submissions and warning them of the three common mistakes described above. Corresponding it has three main features: 
+
+1. Warns user of instances where unpermitted tactics are used (TODO).
+
 2. Warns user of instances of incorrect arity in terms supplied to “rewrite” and “exact” tactics.
-3. (TBC) Warns user of missing unfold lemmas when appropriate, and verifies the form of existing unfold lemmas.
+3. Warns user of missing unfold lemmas when appropriate, and verifies the form of existing unfold lemmas (TODO).
 
 ## Setup
 
-1. Make sure you have the file `jeremy-parser.el` - it is included in the binary download, but you can also copy or download it from the Github repository.
-2. Navigate to your Emacs initialization file, which might be one of three options: `~/.emacs, ~/.emacs.el, or ~/.emacs.d/init.el.`
-3. Insert this line anywhere in the init file: `load ("path/to/jeremy-parser.el")` . The file can be named and located as you like. 
-4. Restart Emacs. 
+1. Make sure you have the file `jeremy-parser.el` - it is included in the binary download, but you can also copy or download it from the Github repository. 
+
+2. In the script `jeremy-parser` function, change the file path to reflect the location of the Python parser script (TODO: package as binary): 
+
+   ```
+   (defun jeremy-parser (s)
+     "Call parser program in shell and display program output as message."
+     (message (shell-command-to-string
+   	    (format "python3 /Users/Macintosh/github/ync-capstone/jeremy-parser/parser.py --input \"%s\"" s))))
+   ```
+
+3. Navigate to your Emacs initialization file, which might be one of three options: `~/.emacs, ~/.emacs.el, or ~/.emacs.d/init.el.`
+
+4. Insert this line anywhere in the init file: `load ("path/to/jeremy-parser.el")` . The file can be named and located as you like. 
+
+5. Restart Emacs. The file will now be loaded whenever Emacs is started. 
 
 ## Usage
 
-To apply the parser to your proof script, simply execute the following Emacs command while in Proof General, with the editor focused on the buffer containing the script:
+To run `proof-reader` on your proof script, simply execute the following Emacs command while in Proof General, with the editor focused on the buffer containing the script: 
 ```
  M-x jeremy-parse-buffer
 ```
 
-If the script is syntactically correct, then the parser will evaluate the script and display any relevant warnings, for example:   
+The script will be re-run from the beginning by Proof General and if it is accepted by Coq, `proof-reader` will then evaluate the script and display any relevant warnings in the Emacs response buffer, for example:   
 ```
 WARNING: In term (add_comm n):
  Term (add_comm) with arity 2 incorrectly applied to 1 terms (n).
@@ -204,27 +213,49 @@ Or, if there are no warnings:
 ```
 No warnings.
 ```
-## Examples  (TODO)
+## Examples (TODO)
+
+### Example 1: Warning user of instances where unpermitted tactics are used (TODO)
+
+### Example 2: Warning user of instances of incorrect arity
+
+When `proof-reader` is applied to the example proof script in chapter XX, the output is: 
+
+```
+WARNING: In term (Nat.add_assoc a b):
+ Term (Nat.add_assoc) with arity 3 incorrectly applied to 2 terms (a),(b).
+
+WARNING: In term (Nat.add_assoc (a + b)):
+ Term (Nat.add_assoc) with arity 3 incorrectly applied to 1 terms (a + b).
+ 
+WARNING: In term (Nat.add_assoc):
+ Term (Nat.add_assoc) with arity 3 incorrectly applied to 0 terms .
+```
+
+### Example 3: Warning user of missing unfold lemmas, and verifying existing unfold lemmas (TODO).
 
 ## Possible errors
 
-Note: your proof script should be *self-contained* and *syntactically correct*. 
+The proof script should be syntactically correct Coq code. To confirm this, the parser will first trigger Proof General to reevaluate the entire buffer. As long as Proof General accepts it, the parser will accept it.
 
-- Self-contained: The parser only checks the arity of terms that have been defined in the input file, as well as modules that have been pre-registered (i.e. `Nat`). To avoid generating false positives (i.e. missing warnings), by design you cannot send only a selection of the script (TBC).
-
-- Syntactically correct: To confirm this, the parser will first send the entire buffer to Proof General's coqtop for evaluation. As long as Coq accepts it, the parser will accept it.
-
-If there are Coq syntax errors, the minibuffer will display:
+If there are Coq syntax errors, `proof-reader` will display:
 ```
-Processing buffer...done
 Coq error raised. Please correct and try again.
 ```
 The parser will then terminate without evaluating the script. The Coq errors will be in the response buffer, as usual. 
 
-If `Parser error: Unrecognized tokens found.` is displayed, then the script contains unsupported syntax, or there is a bug in the parser. See "Appendix/Supported syntax" for more details. 
+Furthermore, `proof-reader` only accepts a subset of Coq syntax, which has been pre-defined by the instructor (See "Appendix/Supported syntax"). Therefore, if the script contains unsupported syntax, `proof-reader` will display:
 
-To extend the supported syntax or modify the parser behaviour, see "Design and implementation/Extensibility".
-# Design and implementation 
+```
+Parser error: Unrecognized tokens found.
+```
+
+This means that the script should be rewritten without using the unsupported syntax. To extend the supported syntax or modify the parser behaviour, see "Design and implementation/Extensibility".
+
+Lastly, `proof-reader` only checks the arity of terms that have been directly defined in the script, as well as modules that have been pre-registered (i.e. the `Nat`, `Bool` and `Peano` modules). If the problem happens to call for built-in theorems outside of these modules, then this could be a source of false negatives (no warning for incorrect arity) as `proof-reader` will simply not have the arity signatures for those theorems, and will ignore them. But it is more likely that those theorems have not been taught and are not permitted. 
+
+# Design and implementation
+
 ## Parsing input to generate a syntax tree 
 
 The code referenced in this section can be found in `jeremy-parser/parser.py` unless otherwise specified. 
@@ -409,10 +440,11 @@ Here is the resulting syntax tree, pretty-printed:
 Observe: 
 - `TERM` subtrees have subterms as children, so the `check_arity` function simply has to validate the number of terms at each depth.
 - `ASSERTION` subtrees have `ASSERTION_IDENT` as well as `BINDER`s (args) so the `collect_arity` function simply has to store the identifier and count the number of args.  
-## A note on BNF grammar notation  (TODO)
+
+## BNF grammars  (TODO)
 
 - Explain what is BNF. 
-## BNF-like grammar module 
+## BNF-like grammar module
 
 The code referenced in this section can be found in `jeremy-parser/grammar.py` unless otherwise specified. 
 
@@ -423,20 +455,15 @@ Each key-value pair maps a grammar rule name to a tuple containing a regexp patt
   - `PATTERN`: A regexp pattern that the parser will try to match the beginning of the current string with. If successful, then the current string contains this syntactical construct, provided the parser can recursively consume the substring contained in the capture group using the children's rules.
   - `[RULE...RULE]`: A list of child rules that the parser will attempt to recursively match, in order, on the captured substring. If empty, this rule is a terminal/leaf node, i.e. a rule that is not defined in terms of other rules. 
 
-Here is a truncated version of the actual `GRAMMAR` map. Note the indentation does not correspond to actual nesting of data, but is intended to visual reflect the nested definitions.
+Here is a truncated version of the actual `GRAMMAR` map. Note the indentation does not correspond to actual nesting of data, but is intended to visually reflect the nested definitions.
 
 ```python
 GRAMMAR = {
     LABEL_DOCUMENT:
         (None,
-         [LABEL_REQUIRE_IMPORT,
-          LABEL_PROOF,
+         [LABEL_PROOF,
           LABEL_ASSERTION,
           ...]),
-
-        LABEL_REQUIRE_IMPORT:
-            (r"Require Import (.+?)\.",
-             []),
 
         LABEL_PROOF:
             (r"Proof\.(.*?)(?:Qed|Admitted|Abort)\.",
@@ -490,13 +517,7 @@ GRAMMAR = {
 
             LABEL_ASSERTION_TERM:
                 (r"(.+)",
-                 []),
-
-    LABEL_COMMENT:
-        # Note: Will not parse nested comments properly!
-        (r"\s?(\(\*.+?\*\))\s?",
-         #  r"(?:\s?\(\*.+?\*\)\s?)"
-         [])
+                 [])
     ...
 }
 ```
@@ -516,10 +537,11 @@ Observe:
 - Rules are identified by constants, which are given by `LABEL`-prefixed names.
 - `LABEL_DOCUMENT` is the root node, so it has no prerequisite matching pattern. Thus the first value is `None`.
 - For readability and code reuse, we inject constants into a regexp via the string method `format` (string interpolation/templating would be even more readable, but cannot be used together with Python's `r` regexp syntax highlighting.)
+- A terminal node has an empty rule list. For example, `LABEL_ASSERTION_TERM` is terminal, and thus the regex pattern simply captures the entire string as its content. 
 
 The `grammar` module is an abstraction over the branching logic that the constructor function follows as it recursively constructs the syntax tree, allowing new rules to be defined simply by adding a key-value pair, without modifying the constructor function. Without the abstraction, we would have one logical branch (with repeated branches for multiple references) for each rule, or one function definition for each rule, which would create significant code duplication.
 
-Having generated a syntax tree, we are now in a position to traverse it in order to provide our above-mentioned features. 
+Having generated a syntax tree, we are now in a position to traverse it in order to evaluate the input.
 
 ## Feature 1: Recognizing unpermitted tactics  (TODO)
 
@@ -589,22 +611,39 @@ def check_arity(t, arity_db):
     return warnings, "\n".join(warnings_output)
 ```
 Since the tree traversal is left-to-right, and assertions must be declared before they are referenced, we could collect arity signatures and check arity at the same time, in a single traversal instead of two traversals. This was the approach in an earlier implementation. However, I decided that two separate functions makes for more readable and maintanable code, with no change to big-O time complexity, and a negligible cost in actual performance. 
+
+### Collecting arity for built-in library theorems (TODO)
+
+- For each built-in theorem module, used command `Search _ inside Nat` to list all theorems in response buffer. 
+- Saved each list as a text file and preprocessed before parsing it using the same `construct_tree` and `collect_arity`, to generate `arity_db` dictionary, containing all the theorems' arity signatures. 
+- Pass `arity_db` into `check_arity` function so that it will recognize library theorems.
+
 ## Feature 3: Identify missing unfold lemmas, and verify existing ones  (TODO)
 
-## Extending the parser  (TODO)
+## Extending the parser  
 
-- 
+To extend the supported syntax - for example, adding a permitted tactic - the instructor simply has to add a rule definition to the grammar module, comprising of a regex pattern and the expected child rules. For consistency, new label and keyword constants should also be defined in `terminals.py`. 
 
-## Unit tests  (TODO)
+Refer to "Discussion/Limitations of the `grammar` module" to see if the intended syntax addition can be expressed in the current framework, or if the base recursion has to be modified.  
+
+## Unit tests
 
 The code referenced in this section can be found in `jeremy-parser/tests.py` unless otherwise specified. 
+
+For each unit test, the testing apparatus `TestParser` generates the syntax tree and compares it with the expected syntax tree. Each unit test verifies that variations of a particular syntactical unit is correctly parsed. 
+
+For each unit test, `TestParityCheck` generates the syntax tree and evaluates the tree to find instances of incorrect arity. It compares the output warnings with the expected warnings. We have both positive tests (there should be no warnings) and negative tests (there should be warnings), and each input contains variations of `exact` and `rewrite` syntax. Negative tests contain nested errors as well as errors with varying number of arguments. 
+
 ## Acceptance tests  (TODO)
+
+The code referenced in this section can be found in `jeremy-parser/tests.py` unless otherwise specified. 
 
 # Discussion
 
-## Time and space complexity  (TODO)
+## Time and space complexity 
 
 ### Regular expression matching in `construct_node`
+
 Regular expressions can be computationally expensive - for example, they might grow exponentially in complexity when catastrophic backtracking occurs. However:
 - All the regex patterns in the `grammar` module use lazy quantifiers, thus avoiding backtracking. 
 - Almost all matches are performed on Coq sentences or fragments of sentences, which are very short substrings. 
@@ -615,8 +654,17 @@ Therefore we can reasonably assume total `O(N)` time (where `N` is the length of
 
 Note that counting parentheses in `get_next_subterm` incurs `O(N)` time complexity as well. 
 
+### The recursive `construct_node ` function
+
+-  `O(N)` time to construct the entire tree
+- `O(N)` space on the callstack, since neither `construct_node` or `construct_children` is tail-recursive
+
+where `N` is total the number of nodes in the tree.
+
+Therefore python's recursion limit should be increased if long proofs are expected (default is 1000).
+
 ### Traversing the syntax tree in `check_arity`
-Since the syntax tree consists almost entirely of subtrees that need to be evaluated, the depth-first traversal will explore all nodes, incurring a `O(N)` time complexity, where `N` is the number of nodes, which is a constant fraction of the length of the input string. Since the iterative-style collection of warnings does not incur call-stack memory, the space complexity is `O(1)`. 
+The depth-first traversal will explore all nodes, incurring a `O(N)` time complexity, where `N` is the number of nodes, which is a constant fraction of the length of the input string. The space complexity is `O(1)`. 
 
 ### String slicing
 
@@ -627,6 +675,8 @@ This is sometimes a concern for processing long strings. In this case, the expec
 Furthermore, string slicing is only used on term substrings, which are expected to be short. 
 
 ### Overall complexity
+
+Therefore, the overall complexity for constructing and evaluating the syntax tree is O(N) time and O(N) space.  
 
 ## Performance  (TODO)
 
@@ -643,38 +693,54 @@ Furthermore, string slicing is only used on term substrings, which are expected 
   - Under the current system, if needed, we would construct a distinct rule for each alternate pattern and associated group of expected children, even though logically they may be the same syntactical unit.
   - Our sublanguage does not require this feature. 
   - If we needed to express this, we could define a rule as a list of pattern/rule list pairs, with each pair representing an additional matching option. 
-## Alternative approaches 
+
+## Alternative approaches
 
 ### Parsing techniques  (TODO)
 
 - bottom up vs top down
-### Modifying Coqtop source code  (TODO)
+### Modifying Coqtop source code
 
-Given that Coq's flexibility with term arity appears to be an additional feature of Coq, it seems intuitive that the solution for this project would be modifying the source code so that there is an option to turn the feature off.
+Given that Coq's ability to infer missing arguments is an additional feature, it seems natural to modify the source code to provide an option to turn the feature off, as opposed to building an external parser from scratch.
 
-There are three reasons why this approach is not taken: 
-1. Source code modification reduces usability and maintainability. 
-   1. Unless my changes are accepted into the master branch, the tool will be locked into the Coq version I started with. The changes will have to be re-merged into each new version of Coq that is released. 
-   2. Students would also have to download a version of Coq from a private repository, which might introduce installation complications. 
-   3. Furthermore, additional features (checking unfold lemmas) are prescriptive and highly specific to FPP, and thus not a natural addition to Coq - making it less likely to be accepted into the master branch.
-2. Navigating and understanding source code was difficult, because external-facing Coq developer documentation is sparse. 
-   1. Refactoring might involve wide-reaching changes, or worse, have invisible consequences.
-3. An external, custom-built parser gives us the power to explore additional features. It is easier to design features when we understand the syntax parsing process completely. 
+There are three reasons why this approach was not taken: 
 
-### Using a parser generator  (TODO)
+First, and most importantly, source code modification reduces usability and maintainability of the tool. Unless my changes are accepted into the master branch of the open-source Coq codebase on Github, students will be locked in to the Coq version I worked with. They would not benefit from updates to Coq and might have limited access to the Coq ecosystem.  
 
-Pros:
-- Quick, convenient.
-- High-level abstraction.
-- Highly performant.
+Indeed, there are many unpredictable factors that determine whether my proposed changes would be accepted - in particular, whether my features are appropriate for general use, which is quite subjective. The features described in this report are quite prescriptive and highly specific to FPP's learning goals. Therefore, I think the tool has broader applications as a possible approach to educators with similar goals, but its features may not be relevant to the average Coq user. 
 
-Cons: 
-- Abstraction too high-level.
-- If you can't explain it, you don't understand it. 
-  - Restriction to the framework might prevent the development of additional features. 
-  - Or it might be possible only by modifying source code, at which point we might as well build our own. 
-  - Sometimes development is difficult because debug messages are hard to understand. 
-## Reflections  (TODO) 
+Granted, we could maintain a modified branch in a separate repository, into which we merge Coq updates. But this involves long-term maintenance and might introduce dependency or installation issues. Furthermore, future changes to the internal structure or implementation of Coq might force a re-implementation of my modifications.  
+
+Second: source code modification might not be feasible. After spending some time exploring this option, I judged that working with source  might be out of scope for this project due to my limited experience and resources. Navigating and understanding the codebase was difficult primarily due to the sparseness of external-facing developer documentation. The sheer size and complexity of the codebase, coupled with my unfamiliarity with advanced OCaml programming constructs and engineering practices (testing frameworks, build process), contributed to my uncertainty. Even if I managed to get something working, the potential refactoring of existing code might involve wide-reaching changes with invisible consequences on other components.  
+
+I would like to emphasize that regardless of feasibility, the issues of usability and maintainability alone outweigh any benefits of the source-code approach. 
+
+Lastly, building a parser from scratch ensures that I have a complete of every component of my tool. This allowed me to explore additional features easily (e.g. checking of unfold lemmas), which might have been more difficult to work into an existing codebase. 
+
+### Using a parser generator
+
+Writing parsers for programming language is a well-understood problem, and parser generators automate the implementation of parsing algorithms.  A parser generator accepts a grammar specification and produces a parser that can evaluate the specified language. In the initial stages I explored using parser generators to build my tool. Using a parser generator was appealing because:
+
+- I did not want to 're-invent the wheel'. 
+
+- It promised quick development, high-level abstraction, and high performance. 
+
+I tried using several parser generators (e.g. CEDET's built-in Wisent, and the python package Lark). Each had their own issues. For example, I had some success specifying the grammar of my Coq sublanguage, but there were often bugs that I had to find workarounds for because I did not understand the error messages. The algorithms were quite complex and I did not have full visibility or understanding of what went wrong each time. Furthermore, there were certain functionalities (e.g. collecting and storing previous arity signatures) that did not seem possible in the existing frameworks - modifying the source code was possible but seemed to be more effort than it was worth.  
+
+Ultimately, like any tool, parser generators provided a high level of abstraction and fast development, at the cost of customizability and understanding. After all, if you can't explain it, you don't understand it, and obviously I should understand my own Capstone.  For the purposes of my project, I realized that writing a parser from scratch gave me full control of my development process and allowed me to make my own decisions on the level of abstraction for different components. 
+
+## Potential improvements (TODO)
+
+- More expressive grammar structure to make syntax more extensible. 
+- Tail recursion to avoid O(N) space complexity. 
+- Implementation in Emacs-lisp for direct execution in Emacs. 
+  - Likely faster performance. 
+  - Likely zero installation, dependency or interoperability issues.
+- Interaction between Proof General and `proof-reader`. 
+  - Allow for dynamic addition of new modules, or even for the arity of all terms to be checked dynamically by querying Coq with the "Check" command.
+  - Allow for arity checker to register induction hypotheses and other assumptions in the current goal, and check their arity when applied. They are currently ignored. 
+
+## Reflections
 
 # Acknowledgements  (TODO)
 
@@ -684,7 +750,7 @@ Cons:
 
 ## Supported syntax  
 
-# Questions for Prof Danvy
+## Questions
 
 - If my regex does not contain greedy quantifiers, does that mean the regex engine in theory never backtracks?
 - My parser allows for backtracking, but so far I have not encountered any backtracking scenarios.
