@@ -12,6 +12,8 @@ import pickle
 
 # Change directory so we can write log files in the correct folder, instead of from where emacs calls the shell command.
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+# Set logging config.
 logging.basicConfig(
     filename=f'logs/log_{datetime.datetime.now().strftime("%H-%M-%S_%d-%m")}.txt', level=logging.DEBUG)
 logger = logging.getLogger()
@@ -69,7 +71,7 @@ def construct_term(term: str) -> Node:
         term = term[1:-1]
     node = Node(LABEL_TERM, term)
     if re.fullmatch(r"[^\s]+", term):
-        logger.info("TERMINAL")
+        logger.info("Arrived at terminal.")
         return node
     node.children = construct_subterms(term)
     return node
@@ -102,8 +104,7 @@ def construct_node(s: str, rule) -> Node:
             except (UnmatchedToken, UnmatchedTactic) as e:
                 exception = e
                 logger.info(
-                    f"""Failed constructing node {item} or children.
-                    Backtracking from {rule}...""")
+                    f"""Failed constructing node {item} or children. Backtracking from {rule}...""")
         if exception:
             raise exception
         if parent == LABEL_PROOF:
@@ -192,7 +193,6 @@ def check_arity(t, arity_db):
             # There should be exactly one child in a well-formed syntax tree.
             # It is either a parent term with child subterms to be verified, or a single term with zero arguments.
             if t.children[0].label == LABEL_REWRITE_ARROW:
-                logger.info("removing rewrite arrow")
                 t.children = t.children[1:]
             check_subterms(t.children, t.children[0])
         elif t.label == LABEL_ASSERTION:
