@@ -94,10 +94,10 @@ GRAMMAR = {
                  []),
 
             LABEL_RESTART:
-                (fr"({KW_RESTART}\.)", []),
+                (fr"({KW_RESTART}){REGEXP_TACTIC_END}", []),
 
             LABEL_SPLIT:
-                (fr"({KW_SPLIT}\.)", []),
+                (fr"({KW_SPLIT}){REGEXP_TACTIC_END}", []),
 
         LABEL_ASSERTION:
             (fr"({REGEXP_ASSERTION} .+?:.+?)\.(?={REGEXP_ASSERTION}|{REGEXP_DOCUMENT}|$)",
