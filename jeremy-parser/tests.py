@@ -229,6 +229,14 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("compute1", compute1)
 
+    def test_split1(self):
+        split1 = """
+        Proof.
+        split.
+        Qed.
+        """
+        self.parser_helper("split1", split1)
+
     def test_unpermitted_tactic1(self):
         code = """
             Proof.
