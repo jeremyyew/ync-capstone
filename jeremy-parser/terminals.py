@@ -24,6 +24,7 @@ LABEL_CHECK = "CHECK"
 LABEL_COMPUTE = "COMPUTE"
 LABEL_INDUCTION = "INDUCTION"
 LABEL_SPLIT = "SPLIT"
+LABEL_BULLET = "BULLET"
 
 # KEYWORDS
 KW_PROOF = "Proof"
@@ -93,6 +94,7 @@ def regx_non_capture_alt(grp):
     return f"(?:{'|'.join(grp)})"
 
 
+REGEXP_BULLET = r"[\+\-\*]+\s*"
 REGEXP_TACTIC_END = r"[\.;]"
 REGEXP_TACTIC = regx_non_capture_alt(KW_GRP_TACTIC)
 REGEXP_TACTIC_LOOKAHEAD = f"(?={REGEXP_TACTIC}|$)"

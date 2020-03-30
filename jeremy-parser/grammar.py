@@ -19,7 +19,7 @@ from terminals import *
 # X Compute
 # X reflexivity
 # X exact (with or without parenthesis)
-# split + bullet point
+# X split + bullet point
 # intro patterns?
 # Ltac fold_unfold_tactic name := intros; unfold name; fold name; reflexivity.
 # symmetry.
@@ -51,7 +51,8 @@ GRAMMAR = {
 
         LABEL_PROOF:
             (fr"{KW_PROOF}\.(.*?)(?:{KW_QED}|{KW_ADMITTED}|{KW_ABORT})\.",
-             [LABEL_INTROS,
+             [LABEL_BULLET,
+              LABEL_INTROS,
               LABEL_INTRO,
               LABEL_INDUCTION,
               LABEL_EXACT,
@@ -62,6 +63,10 @@ GRAMMAR = {
               LABEL_CHECK,
               LABEL_COMPUTE,
               LABEL_SPLIT]),
+
+            LABEL_BULLET:
+                (fr"({REGEXP_BULLET})",
+                 []),
 
             LABEL_INTROS:
                 (fr"{KW_INTROS}\s?(.*?){REGEXP_TACTIC_END}",

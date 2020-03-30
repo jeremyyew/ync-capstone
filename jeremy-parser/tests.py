@@ -237,6 +237,29 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("split1", split1)
 
+    def test_bullet1(self):
+        bullet1 = """
+        Proof.
+        -intro n.
+        +intro n.
+        *intro n.
+        - intro n.
+        + intro n.
+        * intro n.
+        -  intro n.
+        +  intro n.
+        *  intro n.
+        -intro n.+intro n.*intro n.
+        - intro n.
+            + intro n.
+                * intro n.
+        - intro n.
+          -- intro n.
+             --- intro n.
+        Qed.
+        """
+        self.parser_helper("bullet1", bullet1)
+
     def test_unpermitted_tactic1(self):
         code = """
             Proof.
