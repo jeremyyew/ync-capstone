@@ -108,7 +108,7 @@ def construct_node(s: str, rule) -> Node:
             raise exception
         if parent == LABEL_PROOF:
             raise UnmatchedTactic(s)
-        raise UnmatchedToken
+        raise UnmatchedToken(s)
 
     logger.info(f"Constructing node {rule}...")
     node = Node(rule, s)
@@ -217,12 +217,11 @@ if __name__ == "__main__":
             print(warnings_output or "No warnings.")
         except UnmatchedToken as e:
             print(
-                f"Parser error: No matching tokens for: \"{e.remaining}\". This syntax may not be currently supported.")
+                f"""Parser error: Could not parse \"{e.remaining}\". This syntax may not be currently supported.""")
         except UnmatchedTactic as e:
             if e.tactic:
                 print(
-                    f"Parser error: There seems to be an unpermitted tactic \
-                    \"{e.tactic}\" in:\n \"{e.remaining}]\".")
+                    f"""Parser error: Could not parse the substring \"{e.remaining}\". \"{e.tactic}\" may be an unpermitted tactic, please only use tactics that have been introduced in the course.""")
             else:
                 print(
-                    f"Parser error: No matching tokens for: \"{e.remaining}\". This syntax may not be currently supported.")
+                    f"""Parser error: Could not parse \"{e.remaining}\".\n This syntax may not be currently supported.""")
