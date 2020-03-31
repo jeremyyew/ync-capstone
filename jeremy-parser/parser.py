@@ -1,5 +1,5 @@
 import argparse
-from terminals import *
+from constants import *
 import re
 from typing import List, Dict
 import logging
@@ -27,6 +27,23 @@ class Node:
         self.val = val
         # Each node has a list of children, or subcomponents.
         self.children = children or []
+
+# Custom exceptions.
+
+
+class UnmatchedTactic(Exception):
+    def __init__(self, remaining):
+        self.remaining = remaining
+        self.tactic = None
+        match = re.match(fr"(.+?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                         self.remaining)
+        if match:
+            self.tactic = match.group(1)
+
+
+class UnmatchedToken(Exception):
+    def __init__(self, remaining):
+        self.remaining = remaining
 
 
 def preprocess(s: str) -> str:

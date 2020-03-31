@@ -3,7 +3,7 @@ import re
 import sys
 import parser
 import utils
-from terminals import *
+from constants import *
 import logging
 
 # The tree for Nat is huge and our function is not tail recursive.
