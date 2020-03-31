@@ -7,7 +7,7 @@ def pretty_log(node, logger):
                              "|- " if _last else "|- ",
                              node.label,
                              ":",
-                             (f"\n   {_prefix}(\"{node.val}\")"
+                             (f"\n   {_prefix}\"{node.val}\""
                               if node.val else "")
                              )))
         _prefix += "      "
@@ -26,7 +26,7 @@ def pretty2str(node):
                                "|- " if _last else "|- ",
                                node.label,
                                ":",
-                               (f"\n   {_prefix}(\"{node.val}\")"
+                               (f"\n   {_prefix}\"{node.val}\""
                                 if node.val else "")
                                )))
         _prefix += "      "
