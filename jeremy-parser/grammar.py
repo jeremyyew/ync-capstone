@@ -49,19 +49,22 @@ GRAMMAR = {
 
         LABEL_PROOF:
             (fr"{KW_PROOF}\.(.*?)(?:{KW_QED}|{KW_ADMITTED}|{KW_ABORT})\.",
-             [LABEL_APPLY,
-              LABEL_BULLET,
-              LABEL_CHECK,
-              LABEL_COMMENT,
-              LABEL_COMPUTE,
-              LABEL_EXACT,
-              LABEL_INDUCTION,
-              LABEL_INTRO,
-              LABEL_INTROS,
-              LABEL_REFLEXIVITY,
-              LABEL_RESTART,
-              LABEL_REWRITE,
-              LABEL_SPLIT]),
+             [
+                 LABEL_APPLY,
+                 LABEL_BULLET,
+                 LABEL_CHECK,
+                 LABEL_COMMENT,
+                 LABEL_COMPUTE,
+                 LABEL_EXACT,
+                 LABEL_INDUCTION,
+                 LABEL_INTRO,
+                 LABEL_INTROS,
+                 LABEL_REFLEXIVITY,
+                 LABEL_RESTART,
+                 LABEL_REWRITE,
+                 LABEL_SPLIT,
+                 LABEL_SYMMETRY
+             ]),
 
             LABEL_APPLY:
                 (fr"{KW_APPLY}\s?(\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
@@ -100,6 +103,8 @@ GRAMMAR = {
                 LABEL_REWRITE_ARROW: (r"(->|<-)\s?", []),
 
             LABEL_SPLIT: (fr"({KW_SPLIT}){REGEXP_TACTIC_END}", []),
+
+            LABEL_SYMMETRY: (fr"({KW_SYMMETRY}){REGEXP_TACTIC_END}", []),
 
 
         LABEL_ASSERTION:

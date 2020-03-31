@@ -262,6 +262,16 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("bullet1", bullet1)
 
+    def test_symmetry1(self):
+        symmetry1 = """
+        Proof.
+        symmetry.
+        symmetry.
+        symmetry.
+        Qed.
+        """
+        self.parser_helper("symmetry1", symmetry1)
+
     def test_unpermitted_tactic1(self):
         code = """
             Proof.

@@ -66,6 +66,7 @@ KW_REFLEXIVITY = "reflexivity"
 KW_RESTART = "Restart"
 KW_REWRITE = "rewrite"
 KW_SPLIT = "split"
+KW_SYMMETRY = "symmetry"
 
 # REGULAR EXPRESSION CONSTANTS (need to be included in keyword groups, so defined first).
 REGEXP_COMMENT = r"\(\*.+?\*\)"
@@ -84,7 +85,7 @@ KW_GRP_TACTIC = [
     KW_RESTART,
     KW_REWRITE,
     KW_SPLIT,
-    REGEXP_BULLET
+    REGEXP_BULLET,
     REGEXP_COMMENT,
 ]
 
@@ -97,7 +98,7 @@ KW_GRP_DOCUMENT = [
 KW_GRP_ASSERTION = [
     KW_COROLLARY,
     KW_DEFINITION,
-    KW_EXAMPLE
+    KW_EXAMPLE,
     KW_FACT,
     KW_LEMMA,
     KW_PROPERTY,
