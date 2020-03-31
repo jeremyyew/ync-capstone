@@ -206,7 +206,7 @@ def check_arity(t, arity_db):
         if t.label in [LABEL_DOCUMENT, LABEL_PROOF]:
             for child in t.children:
                 traverse(child)
-        elif t.label in [LABEL_EXACT, LABEL_REWRITE]:
+        elif t.label in [LABEL_EXACT, LABEL_REWRITE, LABEL_APPLY]:
             # There should be exactly one child in a well-formed syntax tree.
             # It is either a parent term with child subterms to be verified, or a single term with zero arguments.
             if t.children[0].label == LABEL_REWRITE_ARROW:

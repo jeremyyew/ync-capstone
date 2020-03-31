@@ -72,6 +72,33 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("assertion1", assertion1)
 
+    def test_apply1(self):
+        apply1 = """
+        Proof.
+        apply lemma_a_1.
+        apply Nat.add_comm.
+        apply (Nat.add_comm).
+        apply (Nat.add_comm n1).
+        apply (Nat.add_comm n1 n2).
+        apply (lemma_a_2 (lemma_a_1 n1) n2).
+        apply (Nat.add_comm (lemma_a_1 n1) n2).
+        Qed.
+        """
+        self.parser_helper("apply1", apply1)
+
+    def test_assert1(self):
+        assert1 = """
+        Proof.
+        assert (H_tmp := Nat.div_1_l 2).
+        assert (H_tmp := H_f_S q).
+        assert (H_tmp := H_g 0 m).
+        assert (H_tmp := H_g n' m).
+        assert (H_tmp := H_f_S (n + 1) 1).
+        assert (H_tmp := Nat.lt_neq j i).
+        Qed.
+        """
+        self.parser_helper("assert1", assert1)
+
     def test_term1(self):
         term1 = """
         Proof.
@@ -324,6 +351,16 @@ class TestParityCheck(unittest.TestCase):
         exact (lemma_a_2 n1 n2).
         exact (lemma_a_3 n1 n2 n3).
         exact (lemma_a_3 (lemma_a_2 n1 n2) (lemma_a_1 n1) n3).
+        rewrite (Nat.add_comm n1 n2).
+        rewrite (lemma_a_1 n1).
+        rewrite (lemma_a_2 n1 n2).
+        rewrite (lemma_a_3 n1 n2 n3).
+        rewrite (lemma_a_3 (lemma_a_2 n1 n2) (lemma_a_1 n1) n3).
+        apply (Nat.add_comm n1 n2).
+        apply (lemma_a_1 n1).
+        apply (lemma_a_2 n1 n2).
+        apply (lemma_a_3 n1 n2 n3).
+        apply (lemma_a_3 (lemma_a_2 n1 n2) (lemma_a_1 n1) n3).
         Qed.
         """
         arity2 = {"Nat.add_comm": 2}
@@ -337,6 +374,16 @@ class TestParityCheck(unittest.TestCase):
         exact (lemma_a_2 n1 n2).
         exact (lemma_a_3 n1 n2 n3).
         exact (lemma_a_3 (lemma_a_2 n1 n2) (lemma_a_1 n1) n3).
+        rewrite (Nat.add_comm n1 n2).
+        rewrite (lemma_a_1 n1).
+        rewrite (lemma_a_2 n1 n2).
+        rewrite (lemma_a_3 n1 n2 n3).
+        rewrite (lemma_a_3 (lemma_a_2 n1 n2) (lemma_a_1 n1) n3).
+        apply (Nat.add_comm n1 n2).
+        apply (lemma_a_1 n1).
+        apply (lemma_a_2 n1 n2).
+        apply (lemma_a_3 n1 n2 n3).
+        apply (lemma_a_3 (lemma_a_2 n1 n2) (lemma_a_1 n1) n3).
         Qed.
         """
         self.arity_helper("aritypos1", aritypos1, arity1, expected_warnings)
@@ -347,6 +394,10 @@ class TestParityCheck(unittest.TestCase):
         expected_warnings = [
             ['Nat.add_comm',
                 'Nat.add_comm', 2, 0, []],
+            ['Nat.add_comm',
+             'Nat.add_comm', 2, 0, []],
+            ['Nat.add_comm',
+             'Nat.add_comm', 2, 0, []],
             ['Nat.add_comm',
                 'Nat.add_comm', 2, 0, []],
             ['Nat.add_comm n1',
@@ -379,6 +430,8 @@ class TestParityCheck(unittest.TestCase):
         arityneg1 = """
         Proof.
         exact Nat.add_comm.
+        rewrite Nat.add_comm.
+        apply Nat.add_comm.
         exact (Nat.add_comm).
         exact (Nat.add_comm n1).
         exact lemma_a_1.
@@ -398,6 +451,8 @@ class TestParityCheck(unittest.TestCase):
         Lemma lemma_a_2: forall (n1 n2 : nat), n1 + n2 = n1 + n2. Proof. Admitted.
         Proof.
         exact Nat.add_comm.
+        rewrite Nat.add_comm.
+        apply Nat.add_comm.
         exact (Nat.add_comm).
         exact (Nat.add_comm n1).
         exact lemma_a_1.

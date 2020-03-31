@@ -15,6 +15,7 @@ LABEL_ASSERTION_IDENT = "ASSERTION_IDENT"
 
 # Tactic command labels (alphabetically sorted).
 LABEL_APPLY = "APPLY"
+LABEL_ASSERT = "ASSERT"
 LABEL_BULLET = "BULLET"
 LABEL_CHECK = "CHECK"
 LABEL_COMMENT = "COMMENT"
@@ -56,6 +57,7 @@ KW_THEOREM = "Theorem"
 
 # Tactic command keywords (alphabetically sorted).
 KW_APPLY = "apply"
+KW_ASSERT = "assert"
 KW_CHECK = "Check"
 KW_COMPUTE = "Compute"
 KW_EXACT = "exact"
@@ -75,6 +77,7 @@ REGEXP_BULLET = r"[\+\-\*]+\s*"
 # KEYWORD GROUPS.
 KW_GRP_TACTIC = [
     KW_APPLY,
+    KW_ASSERT,
     KW_CHECK,
     KW_COMPUTE,
     KW_EXACT,
@@ -85,6 +88,7 @@ KW_GRP_TACTIC = [
     KW_RESTART,
     KW_REWRITE,
     KW_SPLIT,
+    KW_SYMMETRY,
     REGEXP_BULLET,
     REGEXP_COMMENT,
 ]

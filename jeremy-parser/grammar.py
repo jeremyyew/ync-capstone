@@ -24,7 +24,7 @@ from constants import *
 # Ltac fold_unfold_tactic name := intros; unfold name; fold name; reflexivity.
 # X symmetry.
 # induction
-# assert
+# X assert
 # destruct
 # unfold/fold.
 # apply.
@@ -51,6 +51,7 @@ GRAMMAR = {
             (fr"{KW_PROOF}\.(.*?)(?:{KW_QED}|{KW_ADMITTED}|{KW_ABORT})\.",
              [
                  LABEL_APPLY,
+                 LABEL_ASSERT,
                  LABEL_BULLET,
                  LABEL_CHECK,
                  LABEL_COMMENT,
@@ -69,6 +70,11 @@ GRAMMAR = {
             LABEL_APPLY:
                 (fr"{KW_APPLY}\s?(\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_TERM]),
+
+            LABEL_ASSERT:
+                (fr"{KW_ASSERT}\s?(\(.+?\)){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                 []),
+
 
             LABEL_BULLET: (fr"({REGEXP_BULLET})", []),
 
