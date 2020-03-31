@@ -1,4 +1,4 @@
-from terminals import *
+from constants import *
 
 # TODO:
 # X Define assertion and collect arity signatures.
@@ -22,7 +22,7 @@ from terminals import *
 # X split + bullet point
 # intro patterns?
 # Ltac fold_unfold_tactic name := intros; unfold name; fold name; reflexivity.
-# symmetry.
+# X symmetry.
 # induction
 # assert
 # destruct
@@ -45,18 +45,17 @@ GRAMMAR = {
           LABEL_CHECK,
           LABEL_COMPUTE]),
 
-        LABEL_REQUIRE_IMPORT:
-            (r"Require Import (.+?)\.",
-             []),
+        LABEL_REQUIRE_IMPORT: (r"Require Import (.+?)\.", []),
 
         LABEL_PROOF:
             (fr"{KW_PROOF}\.(.*?)(?:{KW_QED}|{KW_ADMITTED}|{KW_ABORT})\.",
              [LABEL_BULLET,
-              LABEL_INTROS,
               LABEL_INTRO,
+              LABEL_INTROS,
               LABEL_INDUCTION,
               LABEL_EXACT,
               LABEL_REWRITE,
+              LABEL_APPLY,
               LABEL_REFLEXIVITY,
               LABEL_COMMENT,
               LABEL_RESTART,
@@ -64,21 +63,14 @@ GRAMMAR = {
               LABEL_COMPUTE,
               LABEL_SPLIT]),
 
-            LABEL_BULLET:
-                (fr"({REGEXP_BULLET})",
-                 []),
+            LABEL_BULLET: (fr"({REGEXP_BULLET})", []),
 
-            LABEL_INTROS:
-                (fr"{KW_INTROS}\s?(.*?){REGEXP_TACTIC_END}",
-                 []),
+            LABEL_INTRO: (fr"{KW_INTRO}(?:\s(.*?)|()){REGEXP_TACTIC_END}", []),
 
-            LABEL_INTRO:
-                (fr"{KW_INTRO}\s?(.*?){REGEXP_TACTIC_END}",
-                 []),
+            LABEL_INTROS: (fr"{KW_INTROS}(?:\s(.*?)|()){REGEXP_TACTIC_END}", []),
 
-            LABEL_INDUCTION:
-                (fr"{KW_INDUCTION}\s(.*?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
-                 []),
+            LABEL_INDUCTION: (fr"{KW_INDUCTION}\s(.*?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}", []),
+
             LABEL_EXACT:
                 (fr"{KW_EXACT}\s?(\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_TERM]),
@@ -87,22 +79,20 @@ GRAMMAR = {
                 (fr"{KW_REWRITE}\s?((?:->|<-)?\s?\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_REWRITE_ARROW, LABEL_TERM]),
 
-                LABEL_REWRITE_ARROW:
-                    (r"(->|<-)\s?",
-                     []),
-                LABEL_TERM:
-                    (r"(.+)",
-                        []),
+                LABEL_REWRITE_ARROW: (r"(->|<-)\s?", []),
 
-            LABEL_REFLEXIVITY:
-                (fr"({KW_REFLEXIVITY}){REGEXP_TACTIC_END}",
-                 []),
+                LABEL_TERM: (r"(.+)", []),
 
-            LABEL_RESTART:
-                (fr"({KW_RESTART}){REGEXP_TACTIC_END}", []),
+            LABEL_APPLY:
+                (fr"{KW_APPLY}\s?(\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                 [LABEL_TERM]),
 
-            LABEL_SPLIT:
-                (fr"({KW_SPLIT}){REGEXP_TACTIC_END}", []),
+            LABEL_REFLEXIVITY: (fr"({KW_REFLEXIVITY}){REGEXP_TACTIC_END}", []),
+
+            LABEL_RESTART: (fr"({KW_RESTART}){REGEXP_TACTIC_END}", []),
+
+            LABEL_SPLIT: (fr"({KW_SPLIT}){REGEXP_TACTIC_END}", []),
+
 
         LABEL_ASSERTION:
             (fr"({REGEXP_ASSERTION} .+?:.+?)\.(?={REGEXP_ASSERTION}|{REGEXP_DOCUMENT}|$)",
@@ -111,39 +101,24 @@ GRAMMAR = {
               LABEL_FORALL,
               LABEL_ASSERTION_TERM]),
 
-            LABEL_ASSERTION_KEYWORD:
-                (fr"({REGEXP_ASSERTION})",
-                 []),
+            LABEL_ASSERTION_KEYWORD: (fr"({REGEXP_ASSERTION})", []),
 
-            LABEL_ASSERTION_IDENT:
-                (r"\s*([^\s]+?)\s*:\s*",
-                 []),
+            LABEL_ASSERTION_IDENT: (r"\s*([^\s]+?)\s*:\s*", []),
 
             LABEL_FORALL:
                 (fr"{KW_FORALL} \(?(.+?)\)?,\s*",
                  [LABEL_BINDER, LABEL_TYPE]),
 
-                LABEL_BINDER:
-                    (r"([^:\s]+)\s*",
-                     []),
+                LABEL_BINDER: (r"([^:\s]+)\s*", []),
 
-                LABEL_TYPE:
-                    (r":\s*(.+)",
-                     []),
+                LABEL_TYPE: (r":\s*(.+)", []),
 
-            LABEL_ASSERTION_TERM:
-                (r"(.+)",
-                 []),
+            LABEL_ASSERTION_TERM: (r"(.+)", []),
 
-        LABEL_CHECK:
-            (fr"{KW_CHECK}\s?(\(?.+?\)?)\.(?={REGEXP_TACTIC}|{REGEXP_ASSERTION}|$)",
-             []),
+    LABEL_CHECK: (fr"{KW_CHECK}\s?(\(?.+?\)?)\.(?={REGEXP_TACTIC}|{REGEXP_ASSERTION}|$)", []),
 
-    LABEL_COMPUTE:
-        (fr"{KW_COMPUTE}\s?(\(?.+?\)?)\.(?={REGEXP_TACTIC}|{REGEXP_ASSERTION}|$)",
-         []),
-    LABEL_COMMENT:
-        # Note: Will not parse nested comments.
-        (r"\s?(\(\*.+?\*\))\s?",
-         [])
+    LABEL_COMPUTE: (fr"{KW_COMPUTE}\s?(\(?.+?\)?)\.(?={REGEXP_TACTIC}|{REGEXP_ASSERTION}|$)", []),
+
+    # Note: Will not parse nested comments.
+    LABEL_COMMENT: (r"\s?(\(\*.+?\*\))\s?", [])
 }
