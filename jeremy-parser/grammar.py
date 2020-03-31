@@ -2,11 +2,6 @@ from constants import *
 
 # TODO:
 # Ltac fold_unfold_tactic name := intros; unfold name; fold name; reflexivity.
-# X apply.
-# X rewrite in _ at _.
-# X apply in _.
-# X destruct in _.
-# induction in _.
 # unfold _ in _.
 # fold _.
 # Factor out collect_arity from check_arity.
@@ -74,7 +69,8 @@ GRAMMAR = {
 
                 LABEL_TERM: (r"(.+)", []),
 
-            LABEL_INDUCTION: (fr"{KW_INDUCTION}\s(.*?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}", []),
+            LABEL_INDUCTION: (
+                fr"{KW_INDUCTION}(\s?.*?){REGEXP_AS_INTROPATTERN}{REGEXP_USING_TERM}{REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}", []),
 
             LABEL_INTRO: (fr"{KW_INTRO}(?:\s(.*?)|()){REGEXP_TACTIC_END}", []),
 

@@ -179,6 +179,27 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("intros1", intros1)
 
+    def test_induction1(self):
+        code = """
+        Proof.
+        induction.
+
+        induction n as [ | n [IH IH_S]]. 
+        induction p as [ | p' IHp'].
+        induction n as [ | n' [[q H_q] | [q H_q]]].
+
+        induction n using triple_induction.
+        induction n using pair_induction.
+
+        induction p in goal_1.        
+        induction p using induction_scheme in goal_1.        
+        induction p as [ | p' IHp'] using induction_scheme.
+        induction p as [ | p' IHp'] in goal_1.
+        induction p as [ | p' IHp'] using induction_scheme in goal_1.
+        Qed.
+        """
+        self.parser_helper("induction1", code)
+
     def test_exact1(self):
         exact1 = """
         Proof.
