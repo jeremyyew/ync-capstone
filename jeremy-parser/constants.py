@@ -1,79 +1,91 @@
 import re
 
-# Label constants.
+# LABEL CONSTANTS.
+# Toplevel labels.
 LABEL_DOCUMENT = "DOCUMENT"
+LABEL_REQUIRE_IMPORT = "REQUIRE_IMPORT"
 LABEL_PROOF = "PROOF"
 LABEL_ASSERTION = "ASSERTION"
+
+# Toplevel subcomponent labels.
 LABEL_ASSERTION_KEYWORD = "ASSERTION_KEYWORD"
 LABEL_ASSERTION_TERM = "ASSERTION_TERM"
 LABEL_FORALL = "FORALL"
 LABEL_ASSERTION_IDENT = "ASSERTION_IDENT"
+
+# Tactic command labels (alphabetically sorted).
+LABEL_APPLY = "APPLY"
+LABEL_BULLET = "BULLET"
+LABEL_CHECK = "CHECK"
+LABEL_COMMENT = "COMMENT"
+LABEL_COMPUTE = "COMPUTE"
+LABEL_EXACT = "EXACT"
+LABEL_INDUCTION = "INDUCTION"
 LABEL_INTRO = "INTRO"
 LABEL_INTROS = "INTROS"
-LABEL_EXACT = "EXACT"
+LABEL_REFLEXIVITY = "REFLEXIVITY"
+LABEL_RESTART = "RESTART"
+LABEL_REWRITE = "REWRITE"
+LABEL_SPLIT = "SPLIT"
+LABEL_SYMMETRY = "SYMMETRY"
+
+# Tactic subcomponent labels.
+LABEL_REWRITE_ARROW = "REWRITE_ARROW"
 LABEL_TERM = "TERM"
 LABEL_TYPE = "TYPE"
 LABEL_BINDER = "BINDER"
-LABEL_REQUIRE_IMPORT = "REQUIRE_IMPORT"
-LABEL_REWRITE = "REWRITE"
-LABEL_REWRITE_ARROW = "REWRITE_ARROW"
-LABEL_REFLEXIVITY = "REFLEXIVITY"
-LABEL_COMMENT = "COMMENT"
-LABEL_RESTART = "RESTART"
-LABEL_CHECK = "CHECK"
-LABEL_COMPUTE = "COMPUTE"
-LABEL_INDUCTION = "INDUCTION"
-LABEL_SPLIT = "SPLIT"
-LABEL_BULLET = "BULLET"
-LABEL_APPLY = "APPLY"
 
-# Keyword constants.
+# KEYWORD CONSTANTS.
+# Toplevel keywords.
 KW_PROOF = "Proof"
 KW_QED = "Qed"
 KW_ADMITTED = "Admitted"
 KW_ABORT = "Abort"
-KW_LEMMA = "Lemma"
-KW_THEOREM = "Theorem"
-KW_REMARK = "Remark"
-KW_FACT = "Fact"
+
+# Assertion and subcomponent keywords (alphabetically sorted).
 KW_COROLLARY = "Corollary"
-KW_PROPERTY = "Property"
-KW_PROPOSITION = "Proposition"
 KW_DEFINITION = "Definition"
 KW_EXAMPLE = "Example"
+KW_FACT = "Fact"
 KW_FORALL = "forall"
+KW_LEMMA = "Lemma"
+KW_PROPERTY = "Property"
+KW_PROPOSITION = "Proposition"
+KW_REMARK = "Remark"
+KW_THEOREM = "Theorem"
 
-KW_INTRO = "intro"
-KW_INTROS = "intros"
-KW_INDUCTION = "induction"
-KW_REWRITE = "rewrite"
-KW_RESTART = "Restart"
-KW_EXACT = "exact"
-KW_REFLEXIVITY = "reflexivity"
+# Tactic command keywords (alphabetically sorted).
+KW_APPLY = "apply"
 KW_CHECK = "Check"
 KW_COMPUTE = "Compute"
+KW_EXACT = "exact"
+KW_INDUCTION = "induction"
+KW_INTRO = "intro"
+KW_INTROS = "intros"
+KW_REFLEXIVITY = "reflexivity"
+KW_RESTART = "Restart"
+KW_REWRITE = "rewrite"
 KW_SPLIT = "split"
-KW_APPLY = "apply"
 
-# Regular expressions constants (need to be included in keyword groups, so defined first).
+# REGULAR EXPRESSION CONSTANTS (need to be included in keyword groups, so defined first).
 REGEXP_COMMENT = r"\(\*.+?\*\)"
 REGEXP_BULLET = r"[\+\-\*]+\s*"
 
-# Keyword constant groups.
+# KEYWORD GROUPS.
 KW_GRP_TACTIC = [
-    KW_INTRO,
-    KW_INTROS,
-    KW_INDUCTION,
-    KW_REWRITE,
-    KW_RESTART,
-    KW_EXACT,
-    KW_REFLEXIVITY,
+    KW_APPLY,
     KW_CHECK,
     KW_COMPUTE,
+    KW_EXACT,
+    KW_INDUCTION,
+    KW_INTRO,
+    KW_INTROS,
+    KW_REFLEXIVITY,
+    KW_RESTART,
+    KW_REWRITE,
     KW_SPLIT,
-    KW_APPLY,
-    REGEXP_COMMENT,
     REGEXP_BULLET
+    REGEXP_COMMENT,
 ]
 
 KW_GRP_DOCUMENT = [
@@ -83,18 +95,18 @@ KW_GRP_DOCUMENT = [
 ]
 
 KW_GRP_ASSERTION = [
-    KW_THEOREM,
-    KW_LEMMA,
-    KW_REMARK,
-    KW_FACT,
     KW_COROLLARY,
-    KW_PROPERTY,
-    KW_PROPOSITION,
     KW_DEFINITION,
     KW_EXAMPLE
+    KW_FACT,
+    KW_LEMMA,
+    KW_PROPERTY,
+    KW_PROPOSITION,
+    KW_REMARK,
+    KW_THEOREM,
 ]
 
-# Regular expression constants.
+# REGULAR EXPRESSION CONSTANTS.
 
 
 def regx_non_capture_alt(grp):

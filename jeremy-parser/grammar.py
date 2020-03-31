@@ -49,47 +49,55 @@ GRAMMAR = {
 
         LABEL_PROOF:
             (fr"{KW_PROOF}\.(.*?)(?:{KW_QED}|{KW_ADMITTED}|{KW_ABORT})\.",
-             [LABEL_BULLET,
+             [LABEL_APPLY,
+              LABEL_BULLET,
+              LABEL_CHECK,
+              LABEL_COMMENT,
+              LABEL_COMPUTE,
+              LABEL_EXACT,
+              LABEL_INDUCTION,
               LABEL_INTRO,
               LABEL_INTROS,
-              LABEL_INDUCTION,
-              LABEL_EXACT,
-              LABEL_REWRITE,
-              LABEL_APPLY,
               LABEL_REFLEXIVITY,
-              LABEL_COMMENT,
               LABEL_RESTART,
-              LABEL_CHECK,
-              LABEL_COMPUTE,
+              LABEL_REWRITE,
               LABEL_SPLIT]),
 
+            LABEL_APPLY:
+                (fr"{KW_APPLY}\s?(\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                 [LABEL_TERM]),
+
             LABEL_BULLET: (fr"({REGEXP_BULLET})", []),
+
+
+            LABEL_CHECK: (fr"{KW_CHECK}\s?(\(?.+?\)?)\.(?={REGEXP_TACTIC}|{REGEXP_ASSERTION}|$)", []),
+
+            # Note: Will not parse nested comments.
+            LABEL_COMMENT: (r"\s?(\(\*.+?\*\))\s?", []),
+
+            LABEL_COMPUTE: (fr"{KW_COMPUTE}\s?(\(?.+?\)?)\.(?={REGEXP_TACTIC}|{REGEXP_ASSERTION}|$)", []),
+
+            LABEL_EXACT:
+                (fr"{KW_EXACT}\s?(\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                 [LABEL_TERM]),
+
+                LABEL_TERM: (r"(.+)", []),
+
+            LABEL_INDUCTION: (fr"{KW_INDUCTION}\s(.*?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}", []),
 
             LABEL_INTRO: (fr"{KW_INTRO}(?:\s(.*?)|()){REGEXP_TACTIC_END}", []),
 
             LABEL_INTROS: (fr"{KW_INTROS}(?:\s(.*?)|()){REGEXP_TACTIC_END}", []),
 
-            LABEL_INDUCTION: (fr"{KW_INDUCTION}\s(.*?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}", []),
+            LABEL_REFLEXIVITY: (fr"({KW_REFLEXIVITY}){REGEXP_TACTIC_END}", []),
 
-            LABEL_EXACT:
-                (fr"{KW_EXACT}\s?(\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
-                 [LABEL_TERM]),
+            LABEL_RESTART: (fr"({KW_RESTART}){REGEXP_TACTIC_END}", []),
 
             LABEL_REWRITE:
                 (fr"{KW_REWRITE}\s?((?:->|<-)?\s?\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_REWRITE_ARROW, LABEL_TERM]),
 
                 LABEL_REWRITE_ARROW: (r"(->|<-)\s?", []),
-
-                LABEL_TERM: (r"(.+)", []),
-
-            LABEL_APPLY:
-                (fr"{KW_APPLY}\s?(\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
-                 [LABEL_TERM]),
-
-            LABEL_REFLEXIVITY: (fr"({KW_REFLEXIVITY}){REGEXP_TACTIC_END}", []),
-
-            LABEL_RESTART: (fr"({KW_RESTART}){REGEXP_TACTIC_END}", []),
 
             LABEL_SPLIT: (fr"({KW_SPLIT}){REGEXP_TACTIC_END}", []),
 
@@ -115,10 +123,6 @@ GRAMMAR = {
 
             LABEL_ASSERTION_TERM: (r"(.+)", []),
 
-    LABEL_CHECK: (fr"{KW_CHECK}\s?(\(?.+?\)?)\.(?={REGEXP_TACTIC}|{REGEXP_ASSERTION}|$)", []),
 
-    LABEL_COMPUTE: (fr"{KW_COMPUTE}\s?(\(?.+?\)?)\.(?={REGEXP_TACTIC}|{REGEXP_ASSERTION}|$)", []),
 
-    # Note: Will not parse nested comments.
-    LABEL_COMMENT: (r"\s?(\(\*.+?\*\))\s?", [])
 }
