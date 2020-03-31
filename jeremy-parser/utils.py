@@ -1,4 +1,4 @@
-from terminals import *
+from constants import *
 
 
 def pretty_log(node, logger):
