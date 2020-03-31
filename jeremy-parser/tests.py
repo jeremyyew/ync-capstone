@@ -99,6 +99,26 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("assert1", assert1)
 
+    def test_destruct1(self):
+        destruct1 = """
+        Proof.
+        destruct IH_S as [IH_S_1 IH_S_2].
+        destruct (Nat.lt_ge_cases i j) as [ H_i_greater_j | H_i_smaller_eq_j ].
+        destruct H_tmp3 as [_ H_tmp3_right].
+        destruct H_tmp2 as [_ H_tmp2_right].
+        destruct (H_n n) as [ly _].
+        destruct (even_or_odd n) as [[q H_q] | [q H_q]].
+        destruct (even_or_odd n) as [[q H_q] | [q H_q]].
+        destruct (even_or_odd n) as [[q H_q] | [q H_q]].
+        destruct H_tmp as [H_g_O _].
+        destruct H_tmp as [H_f_O _].
+        destruct H_tmp as [_ H_g_S].
+        destruct H_tmp as [_ H_g_f].
+        destruct IH_S as [IH_S_1 IH_S_2].
+        Qed.
+        """
+        self.parser_helper("destruct1", destruct1)
+
     def test_term1(self):
         term1 = """
         Proof.

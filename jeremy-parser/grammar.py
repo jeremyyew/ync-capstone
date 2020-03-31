@@ -24,8 +24,8 @@ from constants import *
 # Ltac fold_unfold_tactic name := intros; unfold name; fold name; reflexivity.
 # X symmetry.
 # induction
-# X assert
-# destruct
+# X assert.
+# X destruct term as intropattern.
 # unfold/fold.
 # apply.
 # rewrite in _.
@@ -56,6 +56,7 @@ GRAMMAR = {
                  LABEL_CHECK,
                  LABEL_COMMENT,
                  LABEL_COMPUTE,
+                 LABEL_DESTRUCT,
                  LABEL_EXACT,
                  LABEL_INDUCTION,
                  LABEL_INTRO,
@@ -68,16 +69,12 @@ GRAMMAR = {
              ]),
 
             LABEL_APPLY:
-                (fr"{KW_APPLY}\s?(\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                (fr"{KW_APPLY}\s?(.+?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_TERM]),
 
-            LABEL_ASSERT:
-                (fr"{KW_ASSERT}\s?(\(.+?\)){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
-                 []),
-
+            LABEL_ASSERT: (fr"{KW_ASSERT}\s?(\(.+?\)){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}", []),
 
             LABEL_BULLET: (fr"({REGEXP_BULLET})", []),
-
 
             LABEL_CHECK: (fr"{KW_CHECK}\s?(\(?.+?\)?)\.(?={REGEXP_TACTIC}|{REGEXP_ASSERTION}|$)", []),
 
@@ -86,8 +83,12 @@ GRAMMAR = {
 
             LABEL_COMPUTE: (fr"{KW_COMPUTE}\s?(\(?.+?\)?)\.(?={REGEXP_TACTIC}|{REGEXP_ASSERTION}|$)", []),
 
+            LABEL_DESTRUCT:
+                (fr"{KW_DESTRUCT}\s?([^\[\]]+?)\s?as\s?\[[^\.]+?\]{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                 [LABEL_TERM]),
+
             LABEL_EXACT:
-                (fr"{KW_EXACT}\s?(\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                (fr"{KW_EXACT}\s?(.+?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_TERM]),
 
                 LABEL_TERM: (r"(.+)", []),
@@ -103,7 +104,7 @@ GRAMMAR = {
             LABEL_RESTART: (fr"({KW_RESTART}){REGEXP_TACTIC_END}", []),
 
             LABEL_REWRITE:
-                (fr"{KW_REWRITE}\s?((?:->|<-)?\s?\(?.+?\)?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                (fr"{KW_REWRITE}\s?((?:->|<-)?\s?.+?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_REWRITE_ARROW, LABEL_TERM]),
 
                 LABEL_REWRITE_ARROW: (r"(->|<-)\s?", []),
