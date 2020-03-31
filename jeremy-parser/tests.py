@@ -1,8 +1,8 @@
 import pickle
 import unittest
 import deepdiff
-from terminals import *
-from parser import preprocess, construct_node, check_arity, logger
+from constants import *
+from parser import preprocess, construct_node, check_arity, logger, UnmatchedTactic, UnmatchedToken
 import utils
 
 
@@ -33,6 +33,8 @@ class TestParser(unittest.TestCase):
             logger.info(
                 f"\n*********\nEXPECTED FOR TESTCASE: {name}\n*********\n")
             logger.info("\n"+utils.pretty2str(pickled))
+            logger.info("\nDIFF:")
+            logger.info(diff)
             raise e
 
     def unpermitted_tactic_helper(self, name, code, expected_tactic, expected_remaining):
