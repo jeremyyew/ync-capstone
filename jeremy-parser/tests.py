@@ -76,12 +76,14 @@ class TestParser(unittest.TestCase):
         apply1 = """
         Proof.
         apply lemma_a_1.
+        apply lemma_a_1 in ident_1.
         apply Nat.add_comm.
         apply (Nat.add_comm).
         apply (Nat.add_comm n1).
         apply (Nat.add_comm n1 n2).
         apply (lemma_a_2 (lemma_a_1 n1) n2).
         apply (Nat.add_comm (lemma_a_1 n1) n2).
+        apply (Nat.add_comm (lemma_a_1 n1) n2) in ident_1.
         Qed.
         """
         self.parser_helper("apply1", apply1)
@@ -100,7 +102,7 @@ class TestParser(unittest.TestCase):
         self.parser_helper("assert1", assert1)
 
     def test_destruct1(self):
-        destruct1 = """
+        code = """
         Proof.
         destruct IH_S as [IH_S_1 IH_S_2].
         destruct (Nat.lt_ge_cases i j) as [ H_i_greater_j | H_i_smaller_eq_j ].
@@ -117,7 +119,18 @@ class TestParser(unittest.TestCase):
         destruct IH_S as [IH_S_1 IH_S_2].
         Qed.
         """
-        self.parser_helper("destruct1", destruct1)
+        self.parser_helper("destruct1", code)
+
+    def test_destruct2(self):
+        code = """
+        Proof.
+        destruct IH_S in goal_1.
+        destruct (Nat.lt_ge_cases i j) in goal_1.
+        destruct IH_S as [IH_S_1 IH_S_2] in goal_1.
+        destruct (Nat.lt_ge_cases i j) as [ H_i_greater_j | H_i_smaller_eq_j ] in goal_1.
+        Qed.
+        """
+        self.parser_helper("destruct2", code)
 
     def test_term1(self):
         term1 = """
@@ -202,6 +215,39 @@ class TestParser(unittest.TestCase):
         Qed.
         """
         self.parser_helper("rewrite1", rewrite1)
+
+    def test_rewrite2(self):
+        code = """
+        Proof.
+        rewrite <- lemma_a_1 in goal_1. 
+        rewrite -> (Nat.add_comm (lemma_a_1 n1) n2) in goal_1.
+        rewrite Nat.add_comm in goal_1.
+        rewrite (Nat.add_comm (lemma_a_1 n1) n2) in goal_1.
+        Qed.
+        """
+        self.parser_helper("rewrite2", code)
+
+    def test_rewrite3(self):
+        code = """
+        Proof.
+        rewrite <- lemma_a_1 at 1. 
+        rewrite -> (Nat.add_comm (lemma_a_1 n1) n2) at 1.
+        rewrite Nat.add_comm at 1.
+        rewrite (Nat.add_comm (lemma_a_1 n1) n2) at 1.
+        Qed.
+        """
+        self.parser_helper("rewrite3", code)
+
+    def test_rewrite4(self):
+        code = """
+        Proof.
+        rewrite <- lemma_a_1 in goal_1 at 1. 
+        rewrite -> (Nat.add_comm (lemma_a_1 n1) n2) in goal_1 at 1.
+        rewrite Nat.add_comm in goal_1 at 1.
+        rewrite (Nat.add_comm (lemma_a_1 n1) n2) in goal_1 at 1.
+        Qed.
+        """
+        self.parser_helper("rewrite4", code)
 
     def test_reflexivity1(self):
         reflexivity1 = """

@@ -1,35 +1,16 @@
 from constants import *
 
 # TODO:
-# X Define assertion and collect arity signatures.
-# X Only collect for those that have been proven. (accept admitted).
-# X Emacs command to call program.
-# X Send back warning messages and display them.
-# - Warnings:
-#   rewrite: missing arrow
-#   intro/intros: no args.
-# - Accept:
-# X require
-# X  intros
-# X rewrite
-# X comment
-# X Abort
-# X Restart
-# X Check
-# X Compute
-# X reflexivity
-# X exact (with or without parenthesis)
-# X split + bullet point
-# intro patterns?
 # Ltac fold_unfold_tactic name := intros; unfold name; fold name; reflexivity.
-# X symmetry.
-# induction
-# X assert.
-# X destruct term as intropattern.
-# unfold/fold.
-# apply.
-# rewrite in _.
-
+# X apply.
+# X rewrite in _ at _.
+# X apply in _.
+# X destruct in _.
+# induction in _.
+# unfold _ in _.
+# fold _.
+# Factor out collect_arity from check_arity.
+# Refactor TERM and check_arity so that first term is parent term.
 
 # RULE: PATTERN, [RULE...RULE]
 # PATTERN: A regexp pattern applied to the current string to check if it can return a match for this rule.
@@ -69,7 +50,7 @@ GRAMMAR = {
              ]),
 
             LABEL_APPLY:
-                (fr"{KW_APPLY}\s?(.+?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                (fr"{KW_APPLY}\s?(.+?){REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_TERM]),
 
             LABEL_ASSERT: (fr"{KW_ASSERT}\s?(\(.+?\)){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}", []),
@@ -84,7 +65,7 @@ GRAMMAR = {
             LABEL_COMPUTE: (fr"{KW_COMPUTE}\s?(\(?.+?\)?)\.(?={REGEXP_TACTIC}|{REGEXP_ASSERTION}|$)", []),
 
             LABEL_DESTRUCT:
-                (fr"{KW_DESTRUCT}\s?([^\[\]]+?)\s?as\s?\[[^\.]+?\]{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                (fr"{KW_DESTRUCT}\s?([^\[\]]+?){REGEXP_AS_INTROPATTERN}{REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_TERM]),
 
             LABEL_EXACT:
@@ -104,7 +85,7 @@ GRAMMAR = {
             LABEL_RESTART: (fr"({KW_RESTART}){REGEXP_TACTIC_END}", []),
 
             LABEL_REWRITE:
-                (fr"{KW_REWRITE}\s?((?:->|<-)?\s?.+?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                (fr"{KW_REWRITE}\s?((?:->|<-)?\s?.+?){REGEXP_IN_OCCURRENCE}{REGEXP_AT_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_REWRITE_ARROW, LABEL_TERM]),
 
                 LABEL_REWRITE_ARROW: (r"(->|<-)\s?", []),

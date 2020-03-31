@@ -126,3 +126,6 @@ REGEXP_TACTIC = regx_non_capture_alt(KW_GRP_TACTIC)
 REGEXP_TACTIC_LOOKAHEAD = f"(?={REGEXP_TACTIC}|$)"
 REGEXP_DOCUMENT = regx_non_capture_alt(KW_GRP_DOCUMENT)
 REGEXP_ASSERTION = regx_non_capture_alt(KW_GRP_ASSERTION)
+REGEXP_IN_OCCURRENCE = r"(?:\sin\s\S+?)?"
+REGEXP_AT_OCCURRENCE = r"(?:\sat(?:\s\d)+?)?"
+REGEXP_AS_INTROPATTERN = r"(?:\s?as\s?\[[^\.]+?\])?"
