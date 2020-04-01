@@ -63,12 +63,16 @@ def get_next_subterm(s: str) -> str:
         if c == " " and k == 0:
             remaining = s[i+1:]
             break
+        if term == "S" and c == "(":
+            remaining = s[i:]
+            break
         elif c == '(':
             k += 1
         elif c == ')':
             k -= 1
         term += c
     if k != 0:
+        logger.info("Invalid parentheses.")
         raise Exception("Invalid parentheses.")
     return term, remaining
 
@@ -105,11 +109,11 @@ def construct_node(s: str, rule) -> Node:
         exception = None
         for item in expected:
             pattern, _ = grammar.GRAMMAR[item]
-            logger.info(f"\nRunning match using: {pattern}")
             match = re.match(pattern, s)
             if not match:
                 continue
-            logger.info(f"Matched: {item} on \"{match.group(0)}\".")
+            logger.info(
+                f"Matched: {item} on \"{match.group(0)}\" with pattern: \n{pattern}\n")
             if item == LABEL_TERM:
                 return [construct_term(s)]
             try:

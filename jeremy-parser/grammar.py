@@ -1,8 +1,11 @@
 from constants import *
 
 # TODO:
+# Fixpoint ident binders := term
+# Warn when tactic used outside proof.
 # Factor out collect_arity from check_arity.
 # Refactor TERM and check_arity so that first term is parent term.
+
 
 # RULE: PATTERN, [RULE...RULE]
 # PATTERN: A regexp pattern applied to the current string to check if it can return a match for this rule.
@@ -16,6 +19,7 @@ GRAMMAR = {
              LABEL_CHECK,
              LABEL_COMMENT,
              LABEL_COMPUTE,
+             LABEL_FIXPOINT,
              LABEL_LTAC,
              LABEL_PROOF,
              LABEL_REQUIRE_IMPORT,
@@ -49,6 +53,8 @@ GRAMMAR = {
 
         LABEL_COMPUTE: (fr"({KW_COMPUTE}\s?\(?.+?\)?\.){REGEXP_DOC_LOOKAHEAD}", []),
 
+        LABEL_FIXPOINT: (fr"({KW_FIXPOINT}.+?end\.)", []),
+
         LABEL_LTAC: (fr"({KW_LTAC}\s\S+?(?:\s\S+?)+?\s?:=.+?\.){REGEXP_DOC_LOOKAHEAD}", []),
 
         LABEL_PROOF:
@@ -63,9 +69,12 @@ GRAMMAR = {
                  LABEL_DESTRUCT,
                  LABEL_EXACT,
                  LABEL_FOLD,
+                 LABEL_FOLD_UNFOLD,
                  LABEL_INDUCTION,
                  LABEL_INTRO,
                  LABEL_INTROS,
+                 LABEL_LEFT,
+                 LABEL_RIGHT,
                  LABEL_REFLEXIVITY,
                  LABEL_RESTART,
                  LABEL_REWRITE,
@@ -94,12 +103,18 @@ GRAMMAR = {
 
             LABEL_FOLD: (fr"({KW_FOLD}\s\S+?{REGEXP_TACTIC_END})", []),
 
+            LABEL_FOLD_UNFOLD: (fr"({KW_FOLD_UNFOLD}\s\S+?{REGEXP_TACTIC_END})", []),
+
             LABEL_INDUCTION: (
                 fr"({KW_INDUCTION}\s?.*?{REGEXP_AS_INTROPATTERN}{REGEXP_USING_TERM}{REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}){REGEXP_TACTIC_LOOKAHEAD}", []),
 
             LABEL_INTRO: (fr"{KW_INTRO}(?:\s(\S+?)|()){REGEXP_TACTIC_END}", []),
 
             LABEL_INTROS: (fr"{KW_INTROS}(?:\s?([^\.]+?)|()){REGEXP_TACTIC_END}", []),
+
+            LABEL_LEFT: (fr"({KW_LEFT}{REGEXP_TACTIC_END})", []),
+
+            LABEL_RIGHT: (fr"({KW_RIGHT}{REGEXP_TACTIC_END})", []),
 
             LABEL_REFLEXIVITY: (fr"({KW_REFLEXIVITY}{REGEXP_TACTIC_END})", []),
 

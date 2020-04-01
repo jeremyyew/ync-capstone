@@ -4,6 +4,9 @@ import deepdiff
 from constants import *
 from parser import preprocess, construct_node, check_arity, logger, UnmatchedTactic, UnmatchedToken
 import utils
+import os
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 class TestParser(unittest.TestCase):
@@ -411,6 +414,92 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("symmetry1", symmetry1)
 
+    def test_left1(self):
+        code = """
+        Proof.
+        left.
+        Qed.
+        """
+        self.parser_helper("left1", code)
+
+    def test_right1(self):
+        code = """
+        Proof.
+        right.
+        Qed.
+        """
+        self.parser_helper("right1", code)
+
+    def test_fixpoint1(self):
+        code = """
+        Fixpoint add_v1 (i j : nat) : nat :=
+            match i with
+            | O =>
+                j
+            | S i' =>
+                S (add_v1 i' j)
+            end.    
+        Fixpoint add_v2 (i j : nat) : nat :=
+            match i with
+                | O => j
+                | S i' => add_v2 i' (S j)
+            end.
+        Fixpoint mul_v11 (x y : nat) : nat :=
+            match x with
+            | O =>
+                O
+            | S x' =>
+                add_v1 (mul_v11 x' y) y
+            end.
+        Fixpoint mul_v12 (x y : nat) : nat :=
+            match x with
+            | O =>
+                O
+            | S x' =>
+                add_v2 (mul_v12 x' y) y
+            end.
+        Fixpoint mul_v21_aux (x y a: nat) : nat :=
+            match x with
+            | 0 =>
+                a
+            | S x' =>
+                mul_v21_aux x' y (add_v1 y a)
+            end.
+        Fixpoint mul_v22_aux (x y a: nat) : nat :=
+            match x with
+            | 0 =>
+                a
+            | S x' =>
+                mul_v22_aux x' y (add_v2 y a)
+            end.
+        Fixpoint mystery_function_19_aux (t a : tree) : tree :=
+            match t with
+            | Leaf n =>
+                Node (Leaf n) a
+            | Node t1 t2 =>
+                mystery_function_19_aux t1 (mystery_function_19_aux t2 a)
+            end.
+        Fixpoint is_odd (n : nat) : bool :=
+            match n with
+            | 0 => false
+            | S n' => is_even n'
+            end
+            with is_even (n : nat) : bool :=
+            match n with
+            | 0 => true
+            | S n' => is_odd n'
+            end.
+        """
+        self.parser_helper("fixpoint1", code)
+
+    def test_fold_unfold1(self):
+        code = """
+        Proof.
+        fold_unfold_tactic is_even.
+        Qed.
+        """
+        self.parser_helper("fold_unfold1", code)
+
     def test_ltac1(self):
         code = """
         Ltac fold_unfold_tactic name := intros; unfold name; fold name; reflexivity.
@@ -424,6 +513,11 @@ class TestParser(unittest.TestCase):
         Qed.
         """
         self.parser_helper("ltac1", code)
+
+    def test_acceptance(self):
+        for filename in os.listdir("test_data/acceptance_tests"):
+            with open(f'test_data/acceptance_tests/{filename}', 'r') as f:
+                self.parser_helper(filename, f.read())
 
     def test_unpermitted_tactic1(self):
         code = """
