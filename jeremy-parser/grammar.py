@@ -64,6 +64,7 @@ GRAMMAR = {
                  LABEL_COMPUTE,
                  LABEL_DESTRUCT,
                  LABEL_EXACT,
+                 LABEL_FOLD,
                  LABEL_INDUCTION,
                  LABEL_INTRO,
                  LABEL_INTROS,
@@ -71,7 +72,8 @@ GRAMMAR = {
                  LABEL_RESTART,
                  LABEL_REWRITE,
                  LABEL_SPLIT,
-                 LABEL_SYMMETRY
+                 LABEL_SYMMETRY,
+                 LABEL_UNFOLD
              ]),
 
             LABEL_APPLY:
@@ -91,6 +93,8 @@ GRAMMAR = {
                  [LABEL_TERM]),
 
                 LABEL_TERM: (r"(.+)", []),
+
+            LABEL_FOLD: (fr"({KW_FOLD}\s\S+?){REGEXP_TACTIC_END}", []),
 
             LABEL_INDUCTION: (
                 fr"{KW_INDUCTION}(\s?.*?){REGEXP_AS_INTROPATTERN}{REGEXP_USING_TERM}{REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}", []),
@@ -112,7 +116,7 @@ GRAMMAR = {
 
             LABEL_SPLIT: (fr"({KW_SPLIT}){REGEXP_TACTIC_END}", []),
 
-            LABEL_SYMMETRY: (fr"({KW_SYMMETRY}){REGEXP_TACTIC_END}", []),
+            LABEL_UNFOLD: (fr"({KW_UNFOLD}(?:\s\S+?)+?{REGEXP_AT_OCCURRENCE}{REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END})", []),
 
         LABEL_REQUIRE_IMPORT: (fr"({KW_REQUIRE_IMPORT}(?:\s\S+?)+?\.){REGEXP_DOC_LOOKAHEAD}", []),
 

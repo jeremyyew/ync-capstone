@@ -23,6 +23,7 @@ LABEL_COMMENT = "COMMENT"
 LABEL_COMPUTE = "COMPUTE"
 LABEL_DESTRUCT = "DESTRUCT"
 LABEL_EXACT = "EXACT"
+LABEL_FOLD = "FOLD"
 LABEL_INDUCTION = "INDUCTION"
 LABEL_INTRO = "INTRO"
 LABEL_INTROS = "INTROS"
@@ -31,6 +32,7 @@ LABEL_RESTART = "RESTART"
 LABEL_REWRITE = "REWRITE"
 LABEL_SPLIT = "SPLIT"
 LABEL_SYMMETRY = "SYMMETRY"
+LABEL_UNFOLD = "UNFOLD"
 
 # Tactic subcomponent labels.
 LABEL_BINDER = "BINDER"
@@ -66,6 +68,7 @@ KW_CHECK = "Check"
 KW_COMPUTE = "Compute"
 KW_DESTRUCT = "destruct"
 KW_EXACT = "exact"
+KW_FOLD = "fold"
 KW_INDUCTION = "induction"
 KW_INTRO = "intro"
 KW_INTROS = "intros"
@@ -74,6 +77,7 @@ KW_RESTART = "Restart"
 KW_REWRITE = "rewrite"
 KW_SPLIT = "split"
 KW_SYMMETRY = "symmetry"
+KW_UNFOLD = "unfold"
 
 # REGULAR EXPRESSION CONSTANTS (need to be included in keyword groups, so defined first).
 REGEXP_COMMENT = r"\s*\(\*.+?\*\)\s*"
@@ -87,6 +91,7 @@ KW_GRP_TACTIC = [
     KW_COMPUTE,
     KW_DESTRUCT,
     KW_EXACT,
+    KW_FOLD,
     KW_INDUCTION,
     KW_INTRO,
     KW_INTROS,
@@ -95,6 +100,7 @@ KW_GRP_TACTIC = [
     KW_REWRITE,
     KW_SPLIT,
     KW_SYMMETRY,
+    KW_UNFOLD,
     REGEXP_BULLET,
     REGEXP_COMMENT,
 ]

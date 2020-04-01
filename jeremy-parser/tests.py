@@ -301,6 +301,31 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("comment1", comment1)
 
+    def test_fold1(self):
+        code = """
+        Proof.
+        fold fac.
+        Check lemma_a_1.
+        fold fac.(*comment*)
+        fold fac.reflexivity.
+        Qed.
+        """
+        self.parser_helper("fold1", code)
+
+    def test_unfold1(self):
+        code = """
+        Proof.
+        unfold fac.
+        Check lemma_a_1.
+        unfold fac.(*comment*)
+        unfold fac.reflexivity.
+        unfold fac at 1.
+        unfold fac in goal_1.
+        unfold fac at 1 in goal_1.
+        Qed.
+        """
+        self.parser_helper("unfold1", code)
+
     def test_check1(self):
         check1 = """
         Proof.
