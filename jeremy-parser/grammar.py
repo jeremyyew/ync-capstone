@@ -2,7 +2,6 @@ from constants import *
 
 # TODO:
 # unfold _ in _.
-# fold _.
 # Factor out collect_arity from check_arity.
 # Refactor TERM and check_arity so that first term is parent term.
 
@@ -114,7 +113,9 @@ GRAMMAR = {
 
                 LABEL_REWRITE_ARROW: (r"(->|<-)\s?", []),
 
-            LABEL_SPLIT: (fr"({KW_SPLIT}){REGEXP_TACTIC_END}", []),
+            LABEL_SPLIT: (fr"({KW_SPLIT}{REGEXP_TACTIC_END})", []),
+
+            LABEL_SYMMETRY: (fr"({KW_SYMMETRY}{REGEXP_TACTIC_END})", []),
 
             LABEL_UNFOLD: (fr"({KW_UNFOLD}(?:\s\S+?)+?{REGEXP_AT_OCCURRENCE}{REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END})", []),
 
