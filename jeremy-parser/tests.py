@@ -386,6 +386,20 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("symmetry1", symmetry1)
 
+    def test_ltac1(self):
+        code = """
+        Ltac fold_unfold_tactic name := intros; unfold name; fold name; reflexivity.
+        Require Import Bool.
+        Ltac fold_unfold_tactic name := intros; unfold name; fold name; reflexivity.
+        Lemma lemma_a_1: forall (n1: nat), n1 = n1. Proof. Admitted.
+        Ltac fold_unfold_tactic name := intros; unfold name; fold name; reflexivity.
+        Check (lemma_1). 
+        Ltac fold_unfold_tactic name := intros; unfold name; fold name; reflexivity.
+        Proof.
+        Qed.
+        """
+        self.parser_helper("ltac1", code)
+
     def test_unpermitted_tactic1(self):
         code = """
             Proof.

@@ -105,6 +105,7 @@ def construct_node(s: str, rule) -> Node:
         exception = None
         for item in expected:
             pattern, _ = grammar.GRAMMAR[item]
+            logger.info(f"\nRunning match using: {pattern}")
             match = re.match(pattern, s)
             if not match:
                 continue
