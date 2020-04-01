@@ -13,3 +13,6 @@
 # Testing
 jeremy-parser/logs
 jeremy-parser/test-script.v
+
+# Coq save files
+jeremy-parser/#test-script.v#
