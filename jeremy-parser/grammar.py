@@ -1,7 +1,6 @@
 from constants import *
 
 # TODO:
-# unfold _ in _.
 # Factor out collect_arity from check_arity.
 # Refactor TERM and check_arity so that first term is parent term.
 
@@ -43,14 +42,14 @@ GRAMMAR = {
 
             LABEL_ASSERTION_TERM: (r"(.+)", []),
 
-        LABEL_CHECK: (fr"{KW_CHECK}\s?(\(?.+?\)?)\.{REGEXP_DOC_LOOKAHEAD}", []),
+        LABEL_CHECK: (fr"({KW_CHECK}\s?\(?.+?\)?\.){REGEXP_DOC_LOOKAHEAD}", []),
 
         # Note: Will not parse nested comments.
         LABEL_COMMENT: (fr"({REGEXP_COMMENT})", []),
 
-        LABEL_COMPUTE: (fr"{KW_COMPUTE}\s?(\(?.+?\)?)\.{REGEXP_DOC_LOOKAHEAD}", []),
+        LABEL_COMPUTE: (fr"({KW_COMPUTE}\s?\(?.+?\)?\.){REGEXP_DOC_LOOKAHEAD}", []),
 
-        LABEL_LTAC: (fr"({KW_LTAC}\s\S+?(?:\s\S+?)+?\s?:=.+?)\.{REGEXP_DOC_LOOKAHEAD}", []),
+        LABEL_LTAC: (fr"({KW_LTAC}\s\S+?(?:\s\S+?)+?\s?:=.+?\.){REGEXP_DOC_LOOKAHEAD}", []),
 
         LABEL_PROOF:
             (fr"{KW_PROOF}\.(.*?)(?:{KW_QED}|{KW_ADMITTED}|{KW_ABORT})\.",
@@ -79,7 +78,7 @@ GRAMMAR = {
                 (fr"{KW_APPLY}\s?(.+?){REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_TERM]),
 
-            LABEL_ASSERT: (fr"{KW_ASSERT}\s?(\(.+?\)){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}", []),
+            LABEL_ASSERT: (fr"({KW_ASSERT}\s?\(.+?\){REGEXP_TACTIC_END}){REGEXP_TACTIC_LOOKAHEAD}", []),
 
             LABEL_BULLET: (fr"({REGEXP_BULLET})", []),
 
@@ -93,18 +92,18 @@ GRAMMAR = {
 
                 LABEL_TERM: (r"(.+)", []),
 
-            LABEL_FOLD: (fr"({KW_FOLD}\s\S+?){REGEXP_TACTIC_END}", []),
+            LABEL_FOLD: (fr"({KW_FOLD}\s\S+?{REGEXP_TACTIC_END})", []),
 
             LABEL_INDUCTION: (
-                fr"{KW_INDUCTION}(\s?.*?){REGEXP_AS_INTROPATTERN}{REGEXP_USING_TERM}{REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}", []),
+                fr"({KW_INDUCTION}\s?.*?{REGEXP_AS_INTROPATTERN}{REGEXP_USING_TERM}{REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}){REGEXP_TACTIC_LOOKAHEAD}", []),
 
-            LABEL_INTRO: (fr"{KW_INTRO}(?:\s(.*?)|()){REGEXP_TACTIC_END}", []),
+            LABEL_INTRO: (fr"{KW_INTRO}(?:\s(\S+?)|()){REGEXP_TACTIC_END}", []),
 
-            LABEL_INTROS: (fr"{KW_INTROS}(?:\s(.*?)|()){REGEXP_TACTIC_END}", []),
+            LABEL_INTROS: (fr"{KW_INTROS}(?:\s?([^\.]+?)|()){REGEXP_TACTIC_END}", []),
 
-            LABEL_REFLEXIVITY: (fr"({KW_REFLEXIVITY}){REGEXP_TACTIC_END}", []),
+            LABEL_REFLEXIVITY: (fr"({KW_REFLEXIVITY}{REGEXP_TACTIC_END})", []),
 
-            LABEL_RESTART: (fr"({KW_RESTART}){REGEXP_TACTIC_END}", []),
+            LABEL_RESTART: (fr"({KW_RESTART}{REGEXP_TACTIC_END})", []),
 
             LABEL_REWRITE:
                 (fr"{KW_REWRITE}\s?((?:->|<-)?\s?.+?){REGEXP_IN_OCCURRENCE}{REGEXP_AT_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
