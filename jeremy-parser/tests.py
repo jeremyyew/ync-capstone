@@ -514,11 +514,6 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("ltac1", code)
 
-    def test_acceptance(self):
-        for filename in os.listdir("test_data/acceptance_tests"):
-            with open(f'test_data/acceptance_tests/{filename}', 'r') as f:
-                self.parser_helper(filename, f.read())
-
     def test_unpermitted_tactic1(self):
         code = """
             Proof.
@@ -542,6 +537,13 @@ class TestParser(unittest.TestCase):
                                        code,
                                        "auto",
                                        "auto.")
+
+
+class TestParserAcceptance(unittest.TestCase):
+    def test_acceptance(self):
+        for filename in os.listdir("test_data/acceptance_tests"):
+            with open(f'test_data/acceptance_tests/{filename}', 'r') as f:
+                TestParser().parser_helper(filename, f.read())
 
 
 class TestParityCheck(unittest.TestCase):
@@ -720,36 +722,3 @@ class TestParityCheck(unittest.TestCase):
 
 
 unittest.main()
-
-# Fixpoint left_balanced (t : binary_tree) : bool :=
-#   match t with
-#   | Leaf =>
-#     true
-#   | Node t1 n t2 =>
-#     match t2 with
-#     | Leaf =>
-#       left_balanced t1
-#     | Node _ _ _ =>
-#       false
-#     end
-#   end.
-
-# Lemma unfold_left_balanced_Leaf :
-#   left_balanced Leaf = true.
-# Proof.
-#   unfold_tactic left_balanced.
-# Qed.
-
-# Lemma unfold_left_balanced_Node :
-#   forall (t1 : binary_tree)
-#          (n : nat)
-#          (t2 : binary_tree),
-#     left_balanced (Node t1 n t2) = match t2 with
-#                                    | Leaf =>
-#                                      left_balanced t1
-#                                    | Node _ _ _ =>
-#                                      false
-#                                    end.
-# Proof.
-#   unfold_tactic left_balanced.
-# Qed.
