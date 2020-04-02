@@ -103,7 +103,8 @@ def construct_node(s: str, rule) -> Node:
         if not s:
             return []
         _, expected = grammar.GRAMMAR[parent]
-        logger.info(f"\n\nWith node {rule}, at:\n\"{s}\"")
+        logger.info(
+            f"\n\nWith node {rule}, at:\n\"{s if len(s) < 100 else s[:100]}\"...")
         logger.info(
             "Attemping matches, expecting: [" + ", ".join(expected) + "]")
         exception = None
@@ -118,10 +119,13 @@ def construct_node(s: str, rule) -> Node:
                 return [construct_term(s)]
             try:
                 child = construct_node(match.group(1), item)
+                remaining = s[match.end():]
+                remaining_log = remaining if len(
+                    remaining) < 100 else remaining[:100]
                 logger.info(
-                    f"Constructing other children of {rule} on \"{s[match.end():]}\"...")
+                    f"Constructing other children of {rule} on \"{remaining_log}\"...")
                 children = [child] + \
-                    construct_children(s[match.end():], parent)
+                    construct_children(remaining, parent)
                 return children
             except (UnmatchedToken, UnmatchedTactic) as e:
                 exception = e

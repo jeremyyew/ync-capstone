@@ -21,8 +21,10 @@ GRAMMAR = {
              LABEL_COMPUTE,
              LABEL_FIXPOINT,
              LABEL_LTAC,
+             LABEL_NOTATION,
              LABEL_PROOF,
              LABEL_REQUIRE_IMPORT,
+             LABEL_SEARCH,
          ]),
 
         LABEL_ASSERTION:
@@ -57,6 +59,8 @@ GRAMMAR = {
 
         LABEL_LTAC: (fr"({KW_LTAC}\s\S+?(?:\s\S+?)+?\s?:=.+?\.){REGEXP_DOC_LOOKAHEAD}", []),
 
+        LABEL_NOTATION: (fr"({KW_NOTATION}\s?\".+?\"\s?:=\s?.+?\.){REGEXP_DOC_LOOKAHEAD}", []),
+
         LABEL_PROOF:
             (fr"{KW_PROOF}\.(.*?)(?:{KW_QED}|{KW_ADMITTED}|{KW_ABORT})\.",
              [
@@ -68,6 +72,7 @@ GRAMMAR = {
                  LABEL_COMPUTE,
                  LABEL_DESTRUCT,
                  LABEL_EXACT,
+                 LABEL_EXISTS,
                  LABEL_FOLD,
                  LABEL_FOLD_UNFOLD,
                  LABEL_INDUCTION,
@@ -102,6 +107,10 @@ GRAMMAR = {
 
                 LABEL_TERM: (r"(.+)", []),
 
+            LABEL_EXISTS:
+                (fr"{KW_EXISTS}\s?(.+?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                 [LABEL_TERM]),
+
             LABEL_FOLD: (fr"({KW_FOLD}\s\S+?{REGEXP_TACTIC_END})", []),
 
             LABEL_FOLD_UNFOLD: (fr"({KW_FOLD_UNFOLD}\s\S+?{REGEXP_TACTIC_END})", []),
@@ -129,7 +138,7 @@ GRAMMAR = {
                 LABEL_REWRITE_ARROW: (r"(->|<-)\s?", []),
 
             LABEL_SEARCH:
-                (fr"{KW_SEARCH}\s?(.+?)\s?{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                (fr"{KW_SEARCH}\s?(.+?)\s?\.{REGEXP_DOC_LOOKAHEAD}",
                  [LABEL_TERM]),
 
             LABEL_SPLIT: (fr"({KW_SPLIT}{REGEXP_TACTIC_END})", []),

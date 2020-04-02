@@ -7,7 +7,7 @@
 
 Require Import Arith Bool.
 
-Notation "A =n= B" :=
+Notation"A =n= B":=
   (beq_nat A B) (at level 70, right associativity).
 
 Notation "A =b= B" :=
@@ -513,7 +513,7 @@ Proof.
   intros H0 H1 H2 Hstep n.
   enough (P n /\ P (S n) /\ P (S (S n))) as [H [H_S H_SS]].
   - exact H.
-  - induction n as [ | n [IH IH_S]]. 
+  - Induction N As [ | N [IH IH_S]]. 
     * exact (conj H0 (conj H1 H2)).
     * destruct IH_S as [IH_S_1 IH_S_2].
       + split.
