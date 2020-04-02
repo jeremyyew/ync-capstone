@@ -351,6 +351,31 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("check1", check1)
 
+    def test_search1(self):
+        code = """
+        Proof.
+        Search (beq_nat _  _ = true).
+        Search (true && _ = _).
+        Search (S _ = _).
+        Search (2 = 1 + 1).
+        Search (0 + _ = _).
+        Search (_ + _ = _).
+        Search (_ + _ = _ + _).
+        Search ((_ + _) * _ = _ * _ + _ * _).
+        Search (_ = _ - 1).
+        Search (Nat.min 0 _).
+        Search (beq_nat _ _).
+        Search (_ <> _ -> _).
+        Search (_ =n= _).
+        Search(Nat.min).
+        Search (beq_nat).
+        Search ( 1 + _  = S _).
+        Search (S _ * _ = _).
+        Search (log _).
+        Qed.
+        """
+        self.parser_helper("search1", code)
+
     def test_compute1(self):
         compute1 = """
         Proof.
@@ -539,11 +564,11 @@ class TestParser(unittest.TestCase):
                                        "auto.")
 
 
-class TestParserAcceptance(unittest.TestCase):
-    def test_acceptance(self):
-        for filename in os.listdir("test_data/acceptance_tests"):
-            with open(f'test_data/acceptance_tests/{filename}', 'r') as f:
-                TestParser().parser_helper(filename, f.read())
+# class TestParserAcceptance(unittest.TestCase):
+#     def test_acceptance(self):
+#         for filename in os.listdir("test_data/acceptance_tests"):
+#             with open(f'test_data/acceptance_tests/{filename}', 'r') as f:
+#                 TestParser().parser_helper(filename, f.read())
 
 
 class TestParityCheck(unittest.TestCase):

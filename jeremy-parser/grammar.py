@@ -78,6 +78,7 @@ GRAMMAR = {
                  LABEL_REFLEXIVITY,
                  LABEL_RESTART,
                  LABEL_REWRITE,
+                 LABEL_SEARCH,
                  LABEL_SPLIT,
                  LABEL_SYMMETRY,
                  LABEL_UNFOLD
@@ -126,6 +127,10 @@ GRAMMAR = {
                   LABEL_TERM]),
 
                 LABEL_REWRITE_ARROW: (r"(->|<-)\s?", []),
+
+            LABEL_SEARCH:
+                (fr"{KW_SEARCH}\s?(.+?)\s?{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                 [LABEL_TERM]),
 
             LABEL_SPLIT: (fr"({KW_SPLIT}{REGEXP_TACTIC_END})", []),
 
