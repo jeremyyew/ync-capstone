@@ -51,7 +51,7 @@ GRAMMAR = {
         LABEL_CHECK: (fr"({KW_CHECK}\s?\(?.+?\)?\.){REGEXP_DOC_LOOKAHEAD}", []),
 
         # Note: Will not parse nested comments.
-        LABEL_COMMENT: (fr"({REGEXP_COMMENT})", []),
+        LABEL_COMMENT: (fr"{REGEXP_COMMENT}", []),
 
         LABEL_COMPUTE: (fr"({KW_COMPUTE}\s?\(?.+?\)?\.){REGEXP_DOC_LOOKAHEAD}", []),
 
@@ -63,31 +63,7 @@ GRAMMAR = {
 
         LABEL_PROOF:
             (fr"{KW_PROOF}\.(.*?)(?:{KW_QED}|{KW_ADMITTED}|{KW_ABORT})\.",
-             [
-                 LABEL_APPLY,
-                 LABEL_ASSERT,
-                 LABEL_BULLET,
-                 LABEL_CHECK,
-                 LABEL_COMMENT,
-                 LABEL_COMPUTE,
-                 LABEL_DESTRUCT,
-                 LABEL_EXACT,
-                 LABEL_EXISTS,
-                 LABEL_FOLD,
-                 LABEL_FOLD_UNFOLD,
-                 LABEL_INDUCTION,
-                 LABEL_INTRO,
-                 LABEL_INTROS,
-                 LABEL_LEFT,
-                 LABEL_RIGHT,
-                 LABEL_REFLEXIVITY,
-                 LABEL_RESTART,
-                 LABEL_REWRITE,
-                 LABEL_SEARCH,
-                 LABEL_SPLIT,
-                 LABEL_SYMMETRY,
-                 LABEL_UNFOLD
-             ]),
+             LABEL_GRP_TACTIC),
 
             LABEL_APPLY:
                 (fr"{KW_APPLY}\s?(.+?){REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
@@ -95,7 +71,7 @@ GRAMMAR = {
 
             LABEL_ASSERT: (fr"({KW_ASSERT}\s?\(.+?\){REGEXP_TACTIC_END}){REGEXP_TACTIC_LOOKAHEAD}", []),
 
-            LABEL_BULLET: (fr"({REGEXP_BULLET})", []),
+            LABEL_BULLET: (fr"{REGEXP_BULLET}", []),
 
             LABEL_DESTRUCT:
                 (fr"{KW_DESTRUCT}\s?([^\[\]]+?){REGEXP_AS_INTROPATTERN}{REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
@@ -107,11 +83,18 @@ GRAMMAR = {
 
                 LABEL_TERM: (r"(.+)", []),
 
+            LABEL_ENOUGH: (fr"({KW_ENOUGH}\s?\(.+?\){REGEXP_AS_INTROPATTERN}{REGEXP_TACTIC_END}){REGEXP_TACTIC_LOOKAHEAD}", []),
+
             LABEL_EXISTS:
                 (fr"{KW_EXISTS}\s?(.+?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_TERM]),
 
+            LABEL_FOCUSED:
+                (fr"{REGEXP_FOCUSED}",
+                 LABEL_GRP_TACTIC),
+
             LABEL_FOLD: (fr"({KW_FOLD}\s\S+?{REGEXP_TACTIC_END})", []),
+
 
             LABEL_FOLD_UNFOLD: (fr"({KW_FOLD_UNFOLD}\s\S+?{REGEXP_TACTIC_END})", []),
 
