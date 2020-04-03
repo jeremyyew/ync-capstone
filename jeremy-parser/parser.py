@@ -32,13 +32,14 @@ class Node:
 
 
 class UnmatchedTactic(Exception):
-    def __init__(self, remaining):
+    def __init__(self, remaining, parent):
         self.remaining = remaining
         self.tactic = None
         match = re.match(fr"(.+?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                          self.remaining)
         if match:
             self.tactic = match.group(1)
+        self.parent = parent
 
 
 class UnmatchedToken(Exception):
@@ -98,11 +99,11 @@ def construct_term(term: str) -> Node:
     return node
 
 
-def construct_node(s: str, rule) -> Node:
-    def construct_children(s: str, parent: str) -> List[Node]:
+def construct_node(s: str, rule: str) -> Node:
+    def construct_children(s: str, parent: Node) -> List[Node]:
         if not s:
             return []
-        _, expected = grammar.GRAMMAR[parent]
+        _, expected = grammar.GRAMMAR[parent.label]
         logger.info(
             f"\n\nWith node {rule}, at:\n\"{s if len(s) < 100 else s[:100]}\"...")
         logger.info(
@@ -133,15 +134,15 @@ def construct_node(s: str, rule) -> Node:
                     f"""Failed constructing node {item} or children. Backtracking from {rule}...""")
         if exception:
             raise exception
-        if parent == LABEL_PROOF:
-            raise UnmatchedTactic(s)
+        if parent.label == LABEL_PROOF:
+            raise UnmatchedTactic(s, parent)
         raise UnmatchedToken(s)
 
     logger.info(f"Constructing node {rule}...")
     node = Node(rule, s)
     _, expected = grammar.GRAMMAR[rule]
     if expected:
-        node.children = construct_children(s, rule)
+        node.children = construct_children(s, node)
     return node
 
 
@@ -247,7 +248,7 @@ if __name__ == "__main__":
         except UnmatchedTactic as e:
             if e.tactic:
                 print(
-                    f"""Parser error: Could not parse the substring \"{e.remaining}\". \"{e.tactic}\" may be an unpermitted tactic, please only use tactics that have been introduced in the course.""")
+                    f"""Parser error: Could not parse the substring \"{e.remaining}\" in {e.parent.val}. \"{e.tactic}\" may be an unpermitted tactic, please only use tactics that have been introduced in the course.""")
             else:
                 print(
                     f"""Parser error: Could not parse \"{e.remaining}\".\n This syntax may not be currently supported.""")
