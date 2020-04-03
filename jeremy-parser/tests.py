@@ -144,6 +144,15 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("term1", term1)
 
+    def test_enough(self):
+        code = """
+        Proof.
+        enough (P n /\ P (S n)) as [H H_S].
+        enough (P n /\ P (S n) /\ P (S (S n))) as [H [H_S H_SS]].
+        Qed. 
+        """
+        self.parser_helper("enough1", code)
+
     def test_proof1(self):
         proof1 = """
         Proof. Qed.
