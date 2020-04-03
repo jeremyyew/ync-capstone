@@ -79,15 +79,14 @@ def get_next_subterm(s: str) -> str:
 
 
 def construct_term(term: str) -> Node:
-    def construct_subterms(s: str) -> List[Node]:
+    def construct_subterms(s: str, acc: list) -> List[Node]:
         if s == "":
-            return []
+            return acc
         subterm, remaining = get_next_subterm(s)
         child = construct_term(subterm)
         logger.info(
             f"Constructing other children of {s} with \"{remaining}\"...")
-        children = [child] + construct_subterms(remaining)
-        return children
+        return construct_subterms(remaining, acc + [child])
     logger.info(f"Constructing node TERM:{term}...")
     if term and term[0] == "(" and term[-1] == ")":
         term = term[1:-1]
@@ -95,7 +94,7 @@ def construct_term(term: str) -> Node:
     if re.fullmatch(r"[^\s]+", term):
         logger.info("Arrived at terminal.")
         return node
-    node.children = construct_subterms(term)
+    node.children = construct_subterms(term, [])
     return node
 
 
