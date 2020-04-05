@@ -99,12 +99,14 @@ def construct_term(term: str) -> Node:
 
 
 def construct_node(s: str, rule: str) -> Node:
-    def construct_children(s: str, parent: Node) -> List[Node]:
+    def construct_children(s: str, parent: str, acc: list) -> List[Node]:
         if not s:
-            return []
-        _, expected = grammar.GRAMMAR[parent.label]
+            return None, acc, ""
+        _, expected = grammar.GRAMMAR[parent]
+        if expected == []:
+            return s, acc, ""
         logger.info(
-            f"\n\nWith node {rule}, at:\n\"{s if len(s) < 100 else s[:100]}\"...")
+            f"\n\nWith node {parent}, at:\n\"{s if len(s) < 100 else s[:100]}\"...")
         logger.info(
             "Attemping matches, expecting: [" + ", ".join(expected) + "]")
         exception = None
@@ -116,32 +118,36 @@ def construct_node(s: str, rule: str) -> Node:
             logger.info(
                 f"Matched: {item} on \"{match.group(0)}\" with pattern: \n{pattern}\n")
             if item == LABEL_TERM:
-                return [construct_term(s)]
+                term_s, remaining_s = get_next_subterm(match.group(1))
+                term = construct_term(term_s)
+                return term_s, acc+[term], remaining_s
             try:
-                child = construct_node(match.group(1), item)
-                remaining = s[match.end():]
-                remaining_log = remaining if len(
-                    remaining) < 100 else remaining[:100]
+                child, remaining_s = construct_node_helper(
+                    match.group(1), item)
+                remaining_s = remaining_s + s[match.end():]
+                remaining_log = remaining_s if len(
+                    remaining_s) < 100 else remaining_s[:100]
                 logger.info(
-                    f"Constructing other children of {rule} on \"{remaining_log}\"...")
-                children = [child] + \
-                    construct_children(remaining, parent)
-                return children
+                    f"Constructing other children of {parent} on \"{remaining_log}\"...")
+                return construct_children(remaining_s, parent, acc + [child])
             except (UnmatchedToken, UnmatchedTactic) as e:
                 exception = e
                 logger.info(
                     f"""Failed constructing node {item} or children. Backtracking from {rule}...""")
         if exception:
             raise exception
-        if parent.label == LABEL_PROOF:
-            raise UnmatchedTactic(s, parent)
+        if parent == LABEL_PROOF:
+            raise UnmatchedTactic(s)
         raise UnmatchedToken(s)
 
     logger.info(f"Constructing node {rule}...")
-    node = Node(rule, s)
-    _, expected = grammar.GRAMMAR[rule]
-    if expected:
-        node.children = construct_children(s, node)
+        term_s, children, remaining_s = construct_children(s, rule, [])
+        node = Node(rule, term_s or s)
+        node.children = children
+        return node, remaining_s
+
+    node, _ = construct_node_helper(s, rule)
+    # assert remaining is empty
     return node
 
 
