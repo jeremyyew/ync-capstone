@@ -66,7 +66,7 @@ GRAMMAR = {
              LABEL_GRP_TACTIC),
 
             LABEL_APPLY:
-                (fr"{KW_APPLY}\s?(.+?){REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                (fr"{KW_APPLY}({REGEXP_TERM}){REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_TERM]),
 
             LABEL_ASSERT: (fr"({KW_ASSERT}\s?\(.+?\){REGEXP_TACTIC_END}){REGEXP_TACTIC_LOOKAHEAD}", []),
@@ -74,19 +74,19 @@ GRAMMAR = {
             LABEL_BULLET: (fr"{REGEXP_BULLET}", []),
 
             LABEL_DESTRUCT:
-                (fr"{KW_DESTRUCT}\s?([^\[\]]+?){REGEXP_AS_INTROPATTERN}{REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                (fr"{KW_DESTRUCT}({REGEXP_TERM}){REGEXP_AS_INTROPATTERN}{REGEXP_IN_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_TERM]),
 
             LABEL_EXACT:
-                (fr"{KW_EXACT}\s?(.+?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                (fr"{KW_EXACT}({REGEXP_TERM}){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_TERM]),
 
-                LABEL_TERM: (r"(.+)", []),
+                LABEL_TERM: (r"\s?(.+)", []),
 
             LABEL_ENOUGH: (fr"({KW_ENOUGH}\s?\(.+?\){REGEXP_AS_INTROPATTERN}{REGEXP_TACTIC_END}){REGEXP_TACTIC_LOOKAHEAD}", []),
 
             LABEL_EXISTS:
-                (fr"{KW_EXISTS}\s?(.+?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                (fr"{KW_EXISTS}({REGEXP_TERM}){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_TERM]),
 
             LABEL_FOCUSED:
@@ -114,14 +114,14 @@ GRAMMAR = {
             LABEL_RESTART: (fr"({KW_RESTART}{REGEXP_TACTIC_END})", []),
 
             LABEL_REWRITE:
-                (fr"{KW_REWRITE}\s?((?:->|<-)?\s?.+?){REGEXP_IN_OCCURRENCE}{REGEXP_AT_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
+                (fr"{KW_REWRITE}({REGEXP_REWRITE_ARROW}?{REGEXP_TERM_OPTIONAL_SPACE}){REGEXP_IN_OCCURRENCE}{REGEXP_AT_OCCURRENCE}{REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                  [LABEL_REWRITE_ARROW,
                   LABEL_TERM]),
 
-                LABEL_REWRITE_ARROW: (r"(->|<-)\s?", []),
+                LABEL_REWRITE_ARROW: (fr"({REGEXP_REWRITE_ARROW})", []),
 
             LABEL_SEARCH:
-                (fr"{KW_SEARCH}\s?(.+?)\s?\.{REGEXP_DOC_LOOKAHEAD}",
+                (fr"{KW_SEARCH}({REGEXP_TERM})\.{REGEXP_DOC_LOOKAHEAD}",
                  [LABEL_TERM]),
 
             LABEL_SPLIT: (fr"({KW_SPLIT}{REGEXP_TACTIC_END})", []),

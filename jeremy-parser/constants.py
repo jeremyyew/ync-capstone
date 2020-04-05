@@ -202,5 +202,8 @@ REGEXP_IN_OCCURRENCE = r"(?:\sin\s\S+?)?"
 REGEXP_AT_OCCURRENCE = r"(?:\sat(?:\s\d)+?)?"
 REGEXP_AS_INTROPATTERN = fr"(?:\s?as\s?{REGEXP_OR_AND_INTROPATTERN})?"
 REGEXP_USING_TERM = fr"(?:\susing\s\S+?)?"
+REGEXP_TERM = fr"(?:\s?\(.+?\)|\s\S+?)"
+REGEXP_TERM_OPTIONAL_SPACE = fr"\s?(?:\(.+?\)|\S+?)"
+REGEXP_REWRITE_ARROW = fr"(?:\s*(?:->|<-)\s*)"
 
 REGEXP_DOC_LOOKAHEAD = f"(?=(?:{REGEXP_BULLET})?{REGEXP_TACTIC}|{REGEXP_DOCUMENT}|$)"
