@@ -32,14 +32,14 @@ class Node:
 
 
 class UnmatchedTactic(Exception):
-    def __init__(self, remaining, parent):
+    def __init__(self, remaining):
         self.remaining = remaining
         self.tactic = None
         match = re.match(fr"(.+?){REGEXP_TACTIC_END}{REGEXP_TACTIC_LOOKAHEAD}",
                          self.remaining)
         if match:
             self.tactic = match.group(1)
-        self.parent = parent
+        # self.parent = parent
 
 
 class UnmatchedToken(Exception):
@@ -61,12 +61,10 @@ def get_next_subterm(s: str) -> str:
     term = ""
     remaining = ""
     for i, c in enumerate(s):
-        if c == " " and k == 0:
-            remaining = s[i+1:]
-            break
+        if c in [" "] and k == 0:
+            return term, s[i+1:]
         if term == "S" and c == "(":
-            remaining = s[i:]
-            break
+            return term, s[i:]
         elif c == '(':
             k += 1
         elif c == ')':
@@ -140,7 +138,8 @@ def construct_node(s: str, rule: str) -> Node:
             raise UnmatchedTactic(s)
         raise UnmatchedToken(s)
 
-    logger.info(f"Constructing node {rule}...")
+    def construct_node_helper(s, rule):
+        logger.info(f"Constructing node {rule}...")
         term_s, children, remaining_s = construct_children(s, rule, [])
         node = Node(rule, term_s or s)
         node.children = children
@@ -253,7 +252,7 @@ if __name__ == "__main__":
         except UnmatchedTactic as e:
             if e.tactic:
                 print(
-                    f"""Parser error: Could not parse the substring \"{e.remaining}\" in {e.parent.val}. \"{e.tactic}\" may be an unpermitted tactic, please only use tactics that have been introduced in the course.""")
+                    f"""Parser error: Could not parse the substring \"{e.remaining}\". \"{e.tactic}\" may be an unpermitted tactic, please only use tactics that have been introduced in the course.""")
             else:
                 print(
                     f"""Parser error: Could not parse \"{e.remaining}\".\n This syntax may not be currently supported.""")
