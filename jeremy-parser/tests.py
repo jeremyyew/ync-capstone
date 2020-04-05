@@ -13,7 +13,12 @@ class TestParser(unittest.TestCase):
     def parser_helper(self, name, code):
         s = preprocess(code)
         logger.info(f"\n*********\nCONSTRUCTING TREE OF {name}:\n*********\n")
-        t = construct_node(s, LABEL_DOCUMENT)
+        t = None
+        try:
+            t = construct_node(s, LABEL_DOCUMENT)
+        except (UnmatchedTactic, UnmatchedToken) as e:
+            logger.info(f"EXCEPTION! {e.__class__.__name__}: {str(e)[:20]}")
+            raise e
 
         try:
             with open(f'pickled/{name}', 'rb') as f:
@@ -46,7 +51,10 @@ class TestParser(unittest.TestCase):
             logger.info(
                 f"\n*********\nCONSTRUCTING TREE OF {name}:\n*********\n")
             t = construct_node(s, LABEL_DOCUMENT)
+        except UnmatchedToken as e:
+            logger.info(f"EXCEPTION! {e.__class__.__name__}: {str(e)[:20]}")
         except UnmatchedTactic as e:
+            logger.info(f"EXCEPTION! {e.__class__.__name__}: {str(e)[:20]}")
             if e.tactic != expected_tactic or \
                     e.remaining != expected_remaining:
                 print(f"\ntactic captured:{e.tactic}")
@@ -614,18 +622,34 @@ class TestParser(unittest.TestCase):
                                        "auto.")
 
 
-class TestParserAcceptance(unittest.TestCase):
-    def test_acceptance(self):
-        for filename in os.listdir("test_data/acceptance_tests"):
-            with open(f'test_data/acceptance_tests/{filename}', 'r') as f:
-                TestParser().parser_helper(filename, f.read())
+# class TestParserAcceptance(unittest.TestCase):
+#     def test_acceptance_helper(self, name, filename):
+#         with open(f'test_data/acceptance_tests/{filename}', 'r') as f:
+#             TestParser().parser_helper(name, f.read())
+
+#     def test_acceptance1(self):
+#         self.test_acceptance_helper(
+#             'acceptance1', 'acceptance1-week-02_anonymized-handin.v')
+
+#     def test_acceptance2(self):
+#         self.test_acceptance_helper(
+#             'acceptance2', 'acceptance2-week-04_equational-reasoning-about-arithmetical-functions-anonymized.v')
+
+    # def test_acceptance3(self):
+    #     self.test_acceptance_helper(
+    #         'acceptance3', 'acceptance3-week-05_mystery-functions_anonymized.v')
 
 
 class TestParityCheck(unittest.TestCase):
     def arity_helper(self, name, code, arity, expected_warnings):
         s = preprocess(code)
         logger.info(f"\n*********\nCONSTRUCTING TREE OF {name}:\n*********\n")
-        t = construct_node(s, LABEL_DOCUMENT)
+        t = None
+        try:
+            t = construct_node(s, LABEL_DOCUMENT)
+        except (UnmatchedToken, UnmatchedTactic) as e:
+            logger.info(f"EXCEPTION! {e.__class__.__name__}: {str(e)[:20]}")
+            raise e
         logger.info(f"\n*********\nTREE OF {name}:\n*********\n")
         logger.info("\n"+utils.pretty2str(t))
         warnings, _ = check_arity(t, arity)
