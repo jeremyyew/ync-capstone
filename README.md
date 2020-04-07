@@ -68,3 +68,11 @@ For the parser implementation, please see [jeremy-parser/parser.py](jeremy-parse
   - [ ] References 
   - [ ] Appendix 
     - [ ] Supported syntax  
+
+
+## Feedback
+- Delineate assumptions and contribution
+- Explain unfold 
+- Explain recursive structure
+- Muscle memory
+- Testimonials
