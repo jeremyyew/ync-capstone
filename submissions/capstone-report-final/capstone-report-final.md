@@ -756,3 +756,5 @@ Ultimately, like any tool, parser generators provided a high level of abstractio
 - My parser allows for backtracking, but so far I have not encountered any backtracking scenarios.
   - Do you think there would be any cases where backtracking is ever needed? 
   - If not, is the correct term 'unambiguous` or is there another term for languages that do not require backtracking? 
+
+"Capstone reports cannot exceed 40 pages excluding references (this means that everything else except the references must be contained in the 40 pages)."
