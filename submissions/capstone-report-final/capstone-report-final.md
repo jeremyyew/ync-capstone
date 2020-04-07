@@ -549,6 +549,8 @@ Having generated a syntax tree, we are now in a position to traverse it in order
 
 The code referenced in this section can be found in `jeremy-parser/parser.py` unless otherwise specified. 
 
+### Arity Checker
+
 We now have a syntax tree which we can traverse to find errors. 
 
 (To be refactored into two functions. Arity check should return only warning data to be formatted separately).

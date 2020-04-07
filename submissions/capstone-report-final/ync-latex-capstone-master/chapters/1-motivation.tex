@@ -1,0 +1,105 @@
+% Chapter Template
+
+\chapter{Motivation} % Main chapter title
+
+\label{motivation} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+
+\section{Building muscle memory}
+The learning philosophy of FPP is that programming and proving is sim- ilar to training in any skilled discipline such as martial arts, cooking, or dance: beginner training should build muscle memory for basic skills and habits.
+
+For example, if you are training to be a chef, but you don’t develop proper knife skills early on, this will hurt you for the rest of your career.
+
+Therefore, in the first half of the course, students complete rigorous, progressive exercises in order to practice specific proof techniques and programming habits. In the second half of the course, students can then rely on this muscle memory to write proofs with greater creativity and efficiency. By the end of the course, students will have independently written more proofs than they have ever written in their lives, and all of these proofs would have been verified by Coq.
+
+\section{Common beginner mistakes}
+
+With programming languages, there are usually many ways to write the same program. In the same way, there are many equivalent represen- tations of a Coq proof, because Coq is flexible and allows you to take shortcuts. However, for new learners, this flexibility can be counterpro- ductive. In the context of FPP, several issues arise.
+
+
+\subsection{Abuse of tactics}
+
+First, students may abuse tactics that have not been introduced in the course.
+
+When students get stuck on a proof, they might Google for related solutions or search the Coq documentation for anything that will ’solve’ the proof. They might end up using a magical tactic, for example ‘trivial‘, as in the example proof below.
+
+\begin{lstlisting}
+Lemma SSSn_is_3_plus_n :
+forall n : nat,
+S (S (S n)) = 3 + n.
+Proof.
+trivial.
+Qed.
+\end{lstlisting}
+
+Under the hood, the ‘trivial‘ tactic uses some heuristics to automati- cally try various strategies to solve the current formula. However, in the first half of the course the focus is for students to understand every sin- gle proof step they write, because if students cannot explain what they are doing, they do not really understand it. Therefore, using a tactic like ‘trivial‘ completely goes against the objective of the exercise. The proof should read:
+
+\begin{lstlisting}
+...
+Proof.
+intro n.
+rewrite <- (Nat.add_1_l n).
+rewrite <- (plus_Sn_m 1 n).
+rewrite <- (plus_Sn_m 2 n).
+reflexivity.
+Qed.
+\end{lstlisting}
+
+Yet these tactics still appear in student submissions, because they might still have the bad programmer mindset of "if it works, its fine". This causes time between resubmissions to be wasted on superficial feedback.
+
+\subsection{Misuse of tactics}
+Second, even when students use tactics that have been introduced, they may misuse them by taking shortcuts. For instance, the rewrite tactic is used to apply a rule to the current formula. A rewrite rule is a function that expects specific terms in the formula as arguments; Coq will rewrite the given terms. For example, the rewrite rule below accepts three arguments, n, m, p.
+
+\begin{lstlisting}
+Check Nat.add_assoc.
+# Nat.add_assoc : forall n m p : nat, n + (m + p) = n + m + p.
+\end{lstlisting}
+
+However, Coq is flexible with the number of arguments you give it. As the example proofs below demonstrate, you could give the rewrite rule three, two, one or zero of the rewrite arguments required, and Coq will simply pick the first terms in the formula that it can apply the rule to.
+
+\begin{lstlisting}
+Proposition add_assoc_nested :
+forall a b c d e: nat,
+a+b+c+d+e=
+a + (b + (c + (d + e))).
+Proof.
+intros a b c d e.
+rewrite -> (Nat.add_assoc a b (c + (d + e))).
+rewrite -> (Nat.add_assoc (a + b) c (d + e)).
+rewrite -> (Nat.add_assoc (a + b + c) d e).
+reflexivity.
+Qed.
+Proposition add_assoc_nested :
+forall a b c d e: nat,
+a+b+c+d+e=
+a + (b + (c + (d + e))).
+Proof.
+intros a b c d e.
+rewrite -> (Nat.add_assoc a b).
+rewrite -> (Nat.add_assoc (a+b)).
+rewrite -> Nat.add_assoc.
+reflexivity.
+Qed.
+\end{lstlisting}
+
+However, in the first half of the course, the focus is on understanding the proof at a low level. Clearly, students need to be aware of exactly which terms they have changed at every step. Otherwise, they may get stuck in a proof because they applied a rewrite rule to the wrong term, or they might reach a solution without knowing how. Therefore, taking advantage of this shortcut goes against the spirit of the exercise.
+
+Furthermore, this issue is not easy to check manually, especially with assignments that are hundreds of lines long.
+
+These two issues - abuse and misuse of tactics - correspond to issues of **abstract syntax** (what language constructs are represented in the grammar) and **concrete syntax** (what structures are used to represent language constructs) respectively.
+
+Therefore, it would be nice to have a system that can anticipate and identify both abstract and concrete syntax issues, to save both students and the Lecturer’s time and help achieve the learning goals of the course.
+
+\subsection{Not utilizing unfold lemmas}
+
+- Content of unfold lemmas is derived directly from the theorem to be proved, and style should be consistent. Therefore writing unfold lemmas is mechanical.
+- It could be automated but that defeats the purpose, because its part of the training to understand why it's important. Instead we'll check if they do it correctly, or at all.
+
+\section{The goal: automated intervention on formal issues to build muscle memory}
+
+The idea is for the proposed tool to cut down on the amount of **’superficial’** feedback - e.g., ’don’t use this tactic, because...’, or ’this is bad style, please correct it in this way’, etc. - that the Lecturer must give re- peatedly to individual students, and instead automatically lead students towards solutions that only require **substantive** feedback - e.g., ideas to pursue, possible restructuring of the proof, etc. The less superficial feedback is required, the more time the Professor can spend on provid- ing substantive feedback. Also, students will spend less effort correcting style errors if they do so immediately.
+
+Yet, superficial feedback is not merely incidental. Superficial feedback reflects the formal concerns of the course and helps reinforces good pro- gramming habits, which will not only assist the learning experience of students, but benefit them in future endeavors. Therefore, the tool does not simply emphasize pedantic concerns; it makes concrete the formal training prescriptions of the course.
