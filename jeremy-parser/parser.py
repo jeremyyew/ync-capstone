@@ -156,6 +156,8 @@ def collect_arity(t: Node, arity_db : dict) -> dict:
         if child.label != LABEL_ASSERTION:
             continue
         assertion = child
+        if len(assertion.children) < 3: 
+            continue
         ident = assertion.children[1]
         forall = assertion.children[2]
         if ident.label != LABEL_ASSERTION_IDENT or forall.label != LABEL_FORALL:
@@ -171,7 +173,7 @@ def check_arity(t: Node, arity_db: dict) -> dict:
     warnings = []
     warnings_output = []
 
-    def check_subterms(subterms, parent_term):
+    def check_subterms(subterms, parent_term, parent_tactic_label):
         if not subterms:
             return
         first_term = subterms[0]
@@ -183,9 +185,9 @@ def check_arity(t: Node, arity_db: dict) -> dict:
             if arity != arity_expected:
                 warnings.append([parent_term.val, first_term.val,
                                  arity_expected, arity, args])
-                warning_str = utils.warning_format(
-                    parent_term.val, first_term.val,
-                    arity_expected, arity, arg_strings)
+                
+                warning_str = utils.warning_format(parent_tactic_label, parent_term.val, first_term.val, arity_expected, arity, arg_strings)
+                
                 warnings_output.append(warning_str)
                 logger.info(warning_str)
 
@@ -194,15 +196,13 @@ def check_arity(t: Node, arity_db: dict) -> dict:
             logger.info(
                 f"In {parent_term.val},direct term {first_term.val} not seen or registered.")
 
-        assert((not first_term.children or len(subterms) == 1))
-
-        check_subterms(first_term.children, parent_term)
+        check_subterms(first_term.children, parent_term, parent_tactic_label)
         for subterm in subterms[1:]:
             if not subterm.children:
                 # Primitive term. Check arity by itself.
-                check_subterms([subterm], parent_term)
+                check_subterms([subterm], parent_term, parent_tactic_label)
             else:
-                check_subterms(subterm.children, parent_term)
+                check_subterms(subterm.children, parent_term, parent_tactic_label)
 
     def traverse(t):
         logger.info(f"TRAVERSING {t.label}")
@@ -214,7 +214,7 @@ def check_arity(t: Node, arity_db: dict) -> dict:
             # It is either a parent term with child subterms to be verified, or a single term with zero arguments.
             if t.children[0].label == LABEL_REWRITE_ARROW:
                 t.children = t.children[1:]
-            check_subterms(t.children, t.children[0])
+            check_subterms(t.children, t.children[0], t.label)
     arity_db = collect_arity(t, arity_db)
     traverse(t)
     return warnings, "\n".join(warnings_output)

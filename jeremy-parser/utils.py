@@ -38,9 +38,9 @@ def pretty2str(node):
     return "\n".join(output)
 
 
-def warning_format(parent, first_term, arity_expected, arity, arg_strings):
+def warning_format(parent_tactic_label, parent_term, first_term, arity_expected, arity, arg_strings):
     return (
-        f"WARNING: In term ({parent}):\n Term ({first_term}) with arity {arity_expected} incorrectly applied to {arity} terms {arg_strings}.\n")
+        f"WARNING: In tactic invocation {parent_tactic_label} on parent term ({parent_term}):\n Term \"{first_term}\" with arity {arity_expected} incorrectly applied to {arity} terms {arg_strings}.\n")
 
 
 # def log_correct(logger, parent, first_term, arity_expected, arity, arg_strings):
