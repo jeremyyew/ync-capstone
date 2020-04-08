@@ -150,16 +150,15 @@ def construct_node(s: str, rule: str) -> Node:
     return node
 
 
-def collect_arity(t, arity_db):
+def collect_arity(t: Node, arity_db : dict) -> dict:
     assert(t.label == LABEL_DOCUMENT)
     for child in t.children:
         if child.label != LABEL_ASSERTION:
             continue
         assertion = child
         ident = assertion.children[1]
-        assert(ident.label == LABEL_ASSERTION_IDENT)
         forall = assertion.children[2]
-        if forall.label != LABEL_FORALL:
+        if ident.label != LABEL_ASSERTION_IDENT or forall.label != LABEL_FORALL:
             continue
         binders = [c for c in forall.children if c.label == LABEL_BINDER]
         arity = len(binders)
@@ -168,7 +167,7 @@ def collect_arity(t, arity_db):
     return arity_db
 
 
-def check_arity(t, arity_db):
+def check_arity(t: Node, arity_db: dict) -> dict:
     warnings = []
     warnings_output = []
 
@@ -205,16 +204,6 @@ def check_arity(t, arity_db):
             else:
                 check_subterms(subterm.children, parent_term)
 
-    def collect_arity(assertion):
-        ident = assertion.children[1]
-        assert(ident.label == LABEL_ASSERTION_IDENT)
-        forall = assertion.children[2]
-        assert(forall.label == LABEL_FORALL)
-        binders = [c for c in forall.children if c.label == LABEL_BINDER]
-        arity = len(binders)
-        arity_db[ident.val] = arity
-        logger.info(f"New term {ident.val} arity added in db: {arity_db}.")
-
     def traverse(t):
         logger.info(f"TRAVERSING {t.label}")
         if t.label in [LABEL_DOCUMENT, LABEL_PROOF]:
@@ -226,8 +215,7 @@ def check_arity(t, arity_db):
             if t.children[0].label == LABEL_REWRITE_ARROW:
                 t.children = t.children[1:]
             check_subterms(t.children, t.children[0])
-        elif t.label == LABEL_ASSERTION:
-            collect_arity(t)
+    arity_db = collect_arity(t, arity_db)
     traverse(t)
     return warnings, "\n".join(warnings_output)
 
@@ -243,7 +231,7 @@ if __name__ == "__main__":
             logger.info(f"Loaded arity_db with {len(arity_db)} entries.")
         try:
             t = construct_node(s, LABEL_DOCUMENT)
-            # print(utils.pretty2str(t))
+            logger.info("\n"+utils.pretty2str(t))
             _, warnings_output = check_arity(t, arity_db)
             print(warnings_output or "No warnings.")
         except UnmatchedToken as e:

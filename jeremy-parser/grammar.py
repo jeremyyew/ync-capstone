@@ -36,7 +36,7 @@ GRAMMAR = {
 
             LABEL_ASSERTION_KEYWORD: (fr"({REGEXP_ASSERTION})", []),
 
-            LABEL_ASSERTION_IDENT: (r"\s*([^\s]+?)\s*:\s*", []),
+            LABEL_ASSERTION_IDENT: (r"\s*(\S+?)\s*:\s*", []),
 
             LABEL_FORALL:
                 (fr"{KW_FORALL} \(?(.+?)\)?,\s*",

@@ -622,21 +622,21 @@ class TestParser(unittest.TestCase):
                                        "auto.")
 
 
-# class TestParserAcceptance(unittest.TestCase):
-#     def test_acceptance_helper(self, name, filename):
-#         with open(f'test_data/acceptance_tests/{filename}', 'r') as f:
-#             TestParser().parser_helper(name, f.read())
+class TestParserAcceptance(unittest.TestCase):
+    def acceptance_helper(self, name, filename):
+        with open(f'test_data/acceptance_tests/{filename}', 'r') as f:
+            TestParser().parser_helper(name, f.read())
 
-#     def test_acceptance1(self):
-#         self.test_acceptance_helper(
-#             'acceptance1', 'acceptance1-week-02_anonymized-handin.v')
+    def test_acceptance1(self):
+        self.acceptance_helper(
+            'acceptance1', 'acceptance1-week-02_anonymized-handin.v')
 
-#     def test_acceptance2(self):
-#         self.test_acceptance_helper(
-#             'acceptance2', 'acceptance2-week-04_equational-reasoning-about-arithmetical-functions-anonymized.v')
-
+    def test_acceptance2(self):
+        self.acceptance_helper(
+            'acceptance2', 'acceptance2-week-04_equational-reasoning-about-arithmetical-functions-anonymized.v')
+    # TODO: Add "clear" so this will pass? 
     # def test_acceptance3(self):
-    #     self.test_acceptance_helper(
+    #     self.acceptance_helper(
     #         'acceptance3', 'acceptance3-week-05_mystery-functions_anonymized.v')
 
 
