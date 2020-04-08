@@ -236,11 +236,11 @@ if __name__ == "__main__":
             print(warnings_output or "No warnings.")
         except UnmatchedToken as e:
             print(
-                f"""Parser error: Could not parse \"{e.remaining}\". This syntax may not be currently supported.""")
+                f"""Parser error: Could not parse the substring \"{e.remaining}\". This syntax may not be currently supported.""")
         except UnmatchedTactic as e:
             if e.tactic:
                 print(
                     f"""Parser error: Could not parse the substring \"{e.remaining}\". \"{e.tactic}\" may be an unpermitted tactic, please only use tactics that have been introduced in the course.""")
             else:
                 print(
-                    f"""Parser error: Could not parse \"{e.remaining}\".\n This syntax may not be currently supported.""")
+                    f"""Parser error: Could not parse the substring\"{e.remaining}\".\n This syntax may not be currently supported.""")
