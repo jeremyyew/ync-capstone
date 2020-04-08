@@ -1,6 +1,3 @@
-from constants import *
-
-
 def pretty_log(node, logger):
     def helper(node, _prefix="", _last=True):
         logger.info("".join((_prefix,
@@ -42,7 +39,3 @@ def warning_format(parent_tactic_label, parent_term, first_term, arity_expected,
     return (
         f"WARNING: In tactic invocation {parent_tactic_label} on parent term ({parent_term}):\n Term \"{first_term}\" with arity {arity_expected} incorrectly applied to {arity} terms {arg_strings}.\n")
 
-
-# def log_correct(logger, parent, first_term, arity_expected, arity, arg_strings):
-#     logger.info(
-#         f"In term ({parent}):\n Term ({first_term}) with arity {arity_expected} correctly applied to {arity} terms {arg_strings}.\n")

@@ -2,7 +2,7 @@ import pickle
 import unittest
 import deepdiff
 from constants import *
-from parser import preprocess, construct_node, check_arity, logger, UnmatchedTactic, UnmatchedToken
+from proof_reader import preprocess, construct_node, check_arity, logger, UnmatchedTactic, UnmatchedToken
 import utils
 import os
 

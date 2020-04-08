@@ -68,7 +68,7 @@ Proof General is a powerful, configurable and generic Emacs interface for proof 
 
 The interface presents users with three buffers (windows): one buffer in which the Coq script is to edited, one buffer to display subgoals, and one buffer to display other responses like search results or error mes- sages.
 
-# Motivation  (TODO)
+# Motivation  
 
 ## Building muscle memory
 
@@ -171,13 +171,31 @@ Yet, superficial feedback is not merely incidental. Superficial feedback reflect
 
 ## Parsing student submissions with `proof-reader`
 
-I implement a parser which provides learning support by checking student submissions and warning them of the three common mistakes described above. Corresponding it has three main features: 
+The `proof-reader` is an Emacs-integrated tool that provides learning support by parsing student submissions. It emits two types of warnings corresponding to the common mistakes described in the previous section:
 
-1. Warns user of instances where unpermitted tactics are used (TODO).
+1. Warns user of instances where unpermitted tactics are used.
+2. Warns user of instances of incorrect arity in terms supplied to tactics such as "rewrite", "exact", "apply", etc.
 
-2. Warns user of instances of incorrect arity in terms supplied to “rewrite” and “exact” tactics.
-3. Warns user of missing unfold lemmas when appropriate, and verifies the form of existing unfold lemmas (TODO).
+`proof-reader` is intended to be used by students, both while in the process of writing proofs and as a final check before submission. As students are writing proofs, the `proof-reader`  keeps them on the right track by correcting mistakes that might be affecting their current proof or later proofs. When used as a final check, it will help them correct proofs that might have been accepted by Coq but do not demonstrate the intended learning goals of the exercise. Overall, it will reduce the amount of superficial feedback required on the part of the instructor, allowing them to focus on substantive feedback. This makes the iterative cycle of feedback and resubmissions more efficient and helps students reach learning goals quicker.
 
+In theory, the `proof-reader` can be used directly by the instructor as well, but this will not be necessary when students are required to submit only scripts that have been parsed with no warnings.
+
+## Usage
+
+To run `proof-reader` on your proof script, simply execute the following Emacs command while in Proof General, with the editor focused on the buffer containing the script: 
+```
+ M-x jeremy-parse-buffer
+```
+
+The script will be re-run from the beginning by Proof General and if it is accepted by Coq, `proof-reader` will then evaluate the script and display any relevant warnings in the Emacs response buffer, for example:   
+```
+WARNING: In term (add_comm n):
+ Term (add_comm) with arity 2 incorrectly applied to 1 terms (n).
+```
+Or, if there are no warnings: 
+```
+No warnings.
+```
 ## Setup
 
 1. Make sure you have the file `jeremy-parser.el` - it is included in the binary download, but you can also copy or download it from the Github repository. 
@@ -197,29 +215,19 @@ I implement a parser which provides learning support by checking student submiss
 
 5. Restart Emacs. The file will now be loaded whenever Emacs is started. 
 
-## Usage
-
-To run `proof-reader` on your proof script, simply execute the following Emacs command while in Proof General, with the editor focused on the buffer containing the script: 
-```
- M-x jeremy-parse-buffer
-```
-
-The script will be re-run from the beginning by Proof General and if it is accepted by Coq, `proof-reader` will then evaluate the script and display any relevant warnings in the Emacs response buffer, for example:   
-```
-WARNING: In term (add_comm n):
- Term (add_comm) with arity 2 incorrectly applied to 1 terms (n).
-```
-Or, if there are no warnings: 
-```
-No warnings.
-```
-## Examples (TODO)
+## Examples 
 
 ### Example 1: Warning user of instances where unpermitted tactics are used (TODO)
 
+When `proof-reader` is applied to the example in chapter XX, the output is: 
+
+```
+Parser error: Could not parse the substring "trivial.". "trivial" may be an unpermitted tactic, please only use tactics that have been introduced in the course.
+```
+
 ### Example 2: Warning user of instances of incorrect arity
 
-When `proof-reader` is applied to the example proof script in chapter XX, the output is: 
+When `proof-reader` is applied to the example in chapter XX, the output is: 
 
 ```
 WARNING: In term (Nat.add_assoc a b):
@@ -232,11 +240,9 @@ WARNING: In term (Nat.add_assoc):
  Term (Nat.add_assoc) with arity 3 incorrectly applied to 0 terms .
 ```
 
-### Example 3: Warning user of missing unfold lemmas, and verifying existing unfold lemmas (TODO).
-
 ## Possible errors
 
-The proof script should be syntactically correct Coq code. To confirm this, the parser will first trigger Proof General to reevaluate the entire buffer. As long as Proof General accepts it, the parser will accept it.
+`proof-reader` only accepts syntactically correct Coq code. It will first trigger Proof General to reevaluate the entire buffer. As long as Proof General accepts the script without error, `proof-reader` will process it. 
 
 If there are Coq syntax errors, `proof-reader` will display:
 ```
@@ -244,19 +250,17 @@ Coq error raised. Please correct and try again.
 ```
 The parser will then terminate without evaluating the script. The Coq errors will be in the response buffer, as usual. 
 
-Furthermore, `proof-reader` only accepts a subset of Coq syntax, which has been pre-defined by the instructor (See "Appendix/Supported syntax"). Therefore, if the script contains unsupported syntax, `proof-reader` will display:
+Furthermore, `proof-reader` only accepts a subset of Coq syntax, which has been pre-defined by the instructor (See "Appendix/Supported syntax"). Therefore, if the script contains unsupported syntax, it is likely either a command that has been introduced in the course but not accounted for, or a bug. `proof-reader` will display:
 
 ```
-Parser error: Unrecognized tokens found.
+Parser error: Could not parse "XXX". This syntax may not be currently supported.
 ```
 
-This means that the script should be rewritten without using the unsupported syntax. To extend the supported syntax or modify the parser behaviour, see "Design and implementation/Extensibility".
-
-Lastly, `proof-reader` only checks the arity of terms that have been directly defined in the script, as well as modules that have been pre-registered (i.e. the `Nat`, `Bool` and `Peano` modules). If the problem happens to call for built-in theorems outside of these modules, then this could be a source of false negatives (no warning for incorrect arity) as `proof-reader` will simply not have the arity signatures for those theorems, and will ignore them. But it is more likely that those theorems have not been taught and are not permitted. 
+To extend the supported syntax or modify the parser behaviour, see "Design and implementation/Extensibility".
 
 # Design and implementation
 
-## Parsing input to generate a syntax tree 
+## Parsing input to generate a syntax tree
 
 The code referenced in this section can be found in `jeremy-parser/parser.py` unless otherwise specified. 
 
@@ -749,6 +753,11 @@ Ultimately, like any tool, parser generators provided a high level of abstractio
 # References  (TODO)
 
 # Appendix  (TODO)
+
+## Known issues
+
+1. Proof node will catch the first Qed/Admitted/Abort even if its in comments.
+2. Unrecognized syntax after will not show. 
 
 ## Supported syntax  
 

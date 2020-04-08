@@ -1,30 +1,32 @@
+
 import pickle
 import re
 import sys
-import parser
-import utils
+import proof_reader
 from constants import *
 import logging
+
+# collect_arity_from_str allows us to collate the library theory methods. This is done once only, or when new modules are added. 
 
 # The tree for Nat is huge and our function is not tail recursive.
 sys.setrecursionlimit(10000)
 # The library modules from which we register assertion arity signatures.
 LIB_MODULES = ["Bool", "Nat", "Peano"]
 # Processing is faster without the standard info logging.
-parser.logger.level = logging.ERROR
+proof_reader.logger.level = logging.ERROR
 
 
 def collect_arity_from_str(s: str, arity_db: dict) -> dict:
     print(f"Creating document from string....")
     s = re.findall(r"[^\s]+?:\n[\s\S]+?(?=\n[^\s]+?:\n|$)", s)
     s = "".join([f"Lemma {a}." for a in s])
-    s = parser.preprocess(s)
+    s = proof_reader.preprocess(s)
     print(f"Constructing syntax tree...")
-    t = parser.construct_node(s, LABEL_DOCUMENT)
-    utils.pretty_log(t, parser.logger)
+    t = proof_reader.construct_node(s, LABEL_DOCUMENT)
+    utils.pretty_log(t, proof_reader.logger)
     print(f"Number of assertion nodes:{len(t.children)}.")
     print(f"Collecting arity...")
-    arity_db = parser.collect_arity(t, arity_db)
+    arity_db = proof_reader.collect_arity(t, arity_db)
     print(
         f"Number of entries so far (assertions with forall):{len(arity_db)}.")
     return arity_db
