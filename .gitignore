@@ -16,3 +16,6 @@ jeremy-parser/test-script.v
 
 # Coq save files
 jeremy-parser/#test-script.v#
+
+# VS
+.vscode
