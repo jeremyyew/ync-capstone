@@ -1439,7 +1439,6 @@ rewrite -> (H_f_S n).
     rewrite -> (H_g_S n).
     rewrite -> IHn.
     reflexivity.
-Qed.
 *)
 Abort.
 

@@ -20,6 +20,7 @@ GRAMMAR = {
              LABEL_COMMENT,
              LABEL_COMPUTE,
              LABEL_FIXPOINT,
+             LABEL_INDUCTIVE,
              LABEL_LTAC,
              LABEL_NOTATION,
              LABEL_PROOF,
@@ -50,12 +51,16 @@ GRAMMAR = {
 
         LABEL_CHECK: (fr"({KW_CHECK}\s?\(?.+?\)?\.){REGEXP_DOC_LOOKAHEAD}", []),
 
+        LABEL_CLEAR: (fr"({KW_CLEAR}(?:\s\S+?)+?{REGEXP_TACTIC_END})", []),
+
         # Note: Will not parse nested comments.
         LABEL_COMMENT: (fr"{REGEXP_COMMENT}", []),
 
         LABEL_COMPUTE: (fr"({KW_COMPUTE}\s?\(?.+?\)?\.){REGEXP_DOC_LOOKAHEAD}", []),
 
         LABEL_FIXPOINT: (fr"({KW_FIXPOINT}.+?end\.)", []),
+
+        LABEL_INDUCTIVE: (fr"({KW_INDUCTIVE}.+?:=.+?\.)", []),
 
         LABEL_LTAC: (fr"({KW_LTAC}\s\S+?(?:\s\S+?)+?\s?:=.+?\.){REGEXP_DOC_LOOKAHEAD}", []),
 

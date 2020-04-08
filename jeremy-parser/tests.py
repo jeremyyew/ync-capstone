@@ -597,6 +597,58 @@ class TestParser(unittest.TestCase):
         """
         self.parser_helper("ltac1", code)
 
+    def test_clear1(self):
+        code = """                
+        Theorem there_is_at_most_one_mystery_function_11:
+        forall f g : nat -> nat,
+            specification_of_mystery_function_11 f ->
+            specification_of_mystery_function_11 g ->
+            forall n : nat,
+            f n = g n.
+        Proof.
+        intros f g.
+        unfold specification_of_mystery_function_11.
+        intros [H_f_1 H_f_S] [H_g_1 H_g_S].
+        intro n.
+        induction n as [ | n' IHn'].
+
+        - assert (H_tmp := H_f_S 0 0).
+            rewrite -> (Nat.add_0_r 0) in H_tmp.
+            rewrite -> (Nat.mul_0_r (2 * 0)) in H_tmp.
+            rewrite -> (Nat.add_0_r (f 0)) in H_tmp.
+            rewrite <- (Nat.add_0_r (f 0)) in H_tmp at 1.
+            (* apply plus_reg_l in H_tmp. *)
+            (* Yikes: *)
+            Check plus_reg_l.
+            Check (plus_reg_l 0 (f 0) (f 0)).
+            apply (plus_reg_l 0 (f 0) (f 0)) in H_tmp.
+            (* *)
+            rewrite <- H_tmp.
+            clear H_tmp.
+            assert (H_tmp := H_g_S 0 0).
+            rewrite -> (Nat.add_0_r 0) in H_tmp.
+            rewrite -> (Nat.mul_0_r (2 * 0)) in H_tmp.
+            rewrite -> (Nat.add_0_r (g 0)) in H_tmp.
+            rewrite <- (Nat.add_0_r (g 0)) in H_tmp at 1.
+            apply plus_reg_l in H_tmp.
+            rewrite <- H_tmp.
+            clear H_tmp.
+            reflexivity.
+
+        - Search (S _ = _).
+            assert (H_tmp := plus_n_Sm n' 0).
+            rewrite -> (Nat.add_0_r n') in H_tmp.
+            rewrite -> H_tmp.
+            rewrite -> (H_f_S n' 1).
+            rewrite -> (H_g_S n' 1).
+            rewrite -> IHn'.
+            rewrite -> H_f_1.
+            rewrite -> H_g_1.
+            reflexivity.
+        Qed.
+        """
+        self.parser_helper("clear1", code)
+
     def test_unpermitted_tactic1(self):
         code = """
             Proof.
@@ -634,10 +686,10 @@ class TestParserAcceptance(unittest.TestCase):
     def test_acceptance2(self):
         self.acceptance_helper(
             'acceptance2', 'acceptance2-week-04_equational-reasoning-about-arithmetical-functions-anonymized.v')
-    # TODO: Add "clear" so this will pass? 
-    # def test_acceptance3(self):
-    #     self.acceptance_helper(
-    #         'acceptance3', 'acceptance3-week-05_mystery-functions_anonymized.v')
+            
+    def test_acceptance3(self):
+        self.acceptance_helper(
+            'acceptance3', 'acceptance3-week-05_mystery-functions_anonymized.v')
 
 
 class TestParityCheck(unittest.TestCase):
