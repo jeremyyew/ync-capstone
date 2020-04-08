@@ -18,9 +18,12 @@
 
 (defun jeremy-parser (s)
   "Call parser program in shell and display program output as message."
-  (message (shell-command-to-string
-	    (format "python3 /Users/Macintosh/github/ync-capstone/jeremy-parser/parser.py --input \"%s\"" s))))
- 
+  (progn
+    (setq c (concat "python3 ~/github/ync-capstone/jeremy-parser/parser.py --input " (shell-quote-argument s)))
+    (message (shell-command-to-string c))
+  )
+)
+
 
 
 ;; Turn on the hook (via the hook-active variable), and process the buffer with the coq shell first.
@@ -43,3 +46,4 @@
     (setq jeremy-coq-error-found nil)
     (setq jeremy-error-hook-active nil)
     ))
+
