@@ -12,6 +12,7 @@ import pickle
 
 # Change directory so we can write log files in the correct folder, instead of from where emacs calls the shell command.
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+sys.setrecursionlimit(10000)
 
 # Set logging config.
 logging.basicConfig(
@@ -20,12 +21,12 @@ logger = logging.getLogger()
 
 
 class Node:
-    def __init__(self, label, val=None, children=None):
-        # We label every node by its 'type', for evaluation purposes.
+    def __init__(self, label: str, val: str = None, children: list = None):
+         # Each node's label identifies its "type", i.e. which syntactical unit it represents.
         self.label = label
-        # The node's actual value (e.g. the identifier of a term) is not needed for evaluation, but is used for logging and displaying warning messages.
+        # Each node's value is the contents of the substring it matched on. This is useful for logging and constructing helpful warning messages.
         self.val = val
-        # Each node has a list of children, or subcomponents.
+        # Each node has a list of children, since each syntactical unit may be comprised of sub-components. Hence a node with no children is a leaf node.
         self.children = children or []
 
 # Custom exceptions.
@@ -39,7 +40,6 @@ class UnmatchedTactic(Exception):
                          self.remaining)
         if match:
             self.tactic = match.group(1)
-        # self.parent = parent
 
 
 class UnmatchedToken(Exception):
@@ -56,24 +56,22 @@ def preprocess(s: str) -> str:
     return s
 
 
-def get_next_subterm(s: str) -> str:
+def get_next_subterm(s: str) -> (str, str):
+    # Special case: the Successor constructor for Peano numbers. 
+    if s[0] == "S" and s[1] == "(":
+        return "S", s[1:]
     k = 0
-    term = ""
-    remaining = ""
     for i, c in enumerate(s):
-        if c in [" "] and k == 0:
-            return term, s[i+1:]
-        if term == "S" and c == "(":
-            return term, s[i:]
+        if c == " " and k == 0:
+            return s[:i], s[i+1:]
         elif c == '(':
             k += 1
         elif c == ')':
             k -= 1
-        term += c
     if k != 0:
         logger.info("Invalid parentheses.")
         raise Exception("Invalid parentheses.")
-    return term, remaining
+    return s, ""
 
 
 def construct_term(term: str) -> Node:
@@ -138,7 +136,7 @@ def construct_node(s: str, rule: str) -> Node:
             raise UnmatchedTactic(s)
         raise UnmatchedToken(s)
 
-    def construct_node_helper(s, rule):
+    def construct_node_helper(s: str, rule:str) -> (Node, str):
         logger.info(f"Constructing node {rule}...")
         term_s, children, remaining_s = construct_children(s, rule, [])
         node = Node(rule, term_s or s)
@@ -146,7 +144,6 @@ def construct_node(s: str, rule: str) -> Node:
         return node, remaining_s
 
     node, _ = construct_node_helper(s, rule)
-    # assert remaining is empty
     return node
 
 
@@ -165,15 +162,15 @@ def collect_arity(t: Node, arity_db : dict) -> dict:
         binders = [c for c in forall.children if c.label == LABEL_BINDER]
         arity = len(binders)
         arity_db[ident.val] = arity
-        logger.info(f"New term {ident.val} arity added in db: {arity_db}.")
+        logger.info(f"New term {ident.val} arity added in db.")
     return arity_db
 
 
-def check_arity(t: Node, arity_db: dict) -> dict:
+def check_arity(t: Node, arity_db: dict) -> (list, list):
     warnings = []
     warnings_output = []
 
-    def check_subterms(subterms, parent_term, parent_tactic_label):
+    def check_subterms(subterms: list, parent_term: Node, parent_tactic_label: str):
         if not subterms:
             return
         first_term = subterms[0]
@@ -192,7 +189,6 @@ def check_arity(t: Node, arity_db: dict) -> dict:
                 logger.info(warning_str)
 
         if not first_term.children and first_term.val not in arity_db:
-            # Primitive term, but can't tell if its unregistered or its a value (arity zero).
             logger.info(
                 f"In {parent_term.val},direct term {first_term.val} not seen or registered.")
 
@@ -204,7 +200,7 @@ def check_arity(t: Node, arity_db: dict) -> dict:
             else:
                 check_subterms(subterm.children, parent_term, parent_tactic_label)
 
-    def traverse(t):
+    def traverse(t: Node):
         logger.info(f"TRAVERSING {t.label}")
         if t.label in [LABEL_DOCUMENT, LABEL_PROOF]:
             for child in t.children:
