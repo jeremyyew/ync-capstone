@@ -1,7 +1,7 @@
 [TOC]
 # Learning Support for Writing Proofs in Coq
 
-# Context  (819)
+# Context 
 
 ## Introduction
 
@@ -49,7 +49,7 @@ Emacs is a family of real-time text editors characterized by their customizabili
 
 Proof General is an Emacs interface for proof assistants, developed at the University of Edinburgh since 1992. It provides a common interface across various proof assistants, including Coq, and allows users to interactively edit proof scripts. The `proof-reader` tool interacts with Proof General functions in order to provide its functionality. 
 
-# Motivation  (726)
+# Motivation 
 
 ## Building muscle memory
 
@@ -135,7 +135,7 @@ These two issues - abuse and misuse of tactics - correspond to issues of **abstr
 
 `proof-reader` is a tool that anticipates and identifies both abstract and concrete syntax issues. By automatically intervening during the proof editing process,  `proof-reader` guides students towards solutions that do not require superficial feedback, allowing the instructor to focus on substantive feedback. 
 
-# Solution: the `proof-reader` tool (555)
+# Solution: the `proof-reader` tool
 
 ## Parsing student submissions with `proof-reader` 
 
@@ -210,7 +210,7 @@ Parser error: Could not parse "XXX". This syntax may not be currently supported.
 
 To extend the supported syntax or modify the parser behaviour, see "Design and implementation/Extensibility".
 
-# Design and implementation (2832)
+# Design and implementation
 
 ## Backus-Naur Form (BNF)  
 
@@ -565,7 +565,7 @@ The grammar module abstraction enables syntax to be extended conveniently. To ex
 
 `TestParityCheck` performs unit tests to verify that `collect_arity` and `arity_check`. It generates and evaluates the syntax tree for each test input, and compares the output warnings with the expected warnings. It performs both positive tests (inputs that should trigger no warnings) and negative tests (inputs that should trigger warnings), and each input contains variations of `exact`, `rewrite` and `apply` syntax. 
 
-# Discussion (1465)
+# Discussion 
 
 ## Time and space complexity
 
@@ -585,11 +585,7 @@ The `construct_node` function takes `O(N)` time to construct the entire tree, an
 
 ### Overall complexity
 
-Therefore, the overall complexity for constructing and evaluating the syntax tree is `O(N)` time and `O(N)` space.  
-
-## Performance
-
-Results of performance tests can be found in the Appendix on the repository. 
+Therefore, the overall complexity for constructing and evaluating the syntax tree is `O(N)` time and `O(N)` space. We also run performance tests on real input as well as large input, the results of which can be found in the Appendix on the repository. 
 
 ## Limitations of the `grammar` module
 
