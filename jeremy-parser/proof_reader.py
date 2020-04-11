@@ -16,7 +16,7 @@ sys.setrecursionlimit(10000)
 
 # Set logging config.
 logging.basicConfig(
-    filename=f'logs/log_{datetime.datetime.now().strftime("%H-%M-%S_%d-%m")}.txt', level=logging.DEBUG)
+    filename=f'logs/log_{datetime.datetime.now().strftime("%H-%M-%S_%d-%m")}.txt', level=logging.WARNING)
 logger = logging.getLogger()
 
 
@@ -57,7 +57,7 @@ def preprocess(s: str) -> str:
 
 
 def get_next_subterm(s: str) -> (str, str):
-    # Special case: the Successor constructor for Peano numbers. 
+    # Special case: the Successor constructor for Peano numbers.
     if s[0] == "S" and s[1] == "(":
         return "S", s[1:]
     k = 0
@@ -136,7 +136,7 @@ def construct_node(s: str, rule: str) -> Node:
             raise UnmatchedTactic(s)
         raise UnmatchedToken(s)
 
-    def construct_node_helper(s: str, rule:str) -> (Node, str):
+    def construct_node_helper(s: str, rule: str) -> (Node, str):
         logger.info(f"Constructing node {rule}...")
         term_s, children, remaining_s = construct_children(s, rule, [])
         node = Node(rule, term_s or s)
@@ -147,13 +147,13 @@ def construct_node(s: str, rule: str) -> Node:
     return node
 
 
-def collect_arity(t: Node, arity_db : dict) -> dict:
+def collect_arity(t: Node, arity_db: dict) -> dict:
     assert(t.label == LABEL_DOCUMENT)
     for child in t.children:
         if child.label != LABEL_ASSERTION:
             continue
         assertion = child
-        if len(assertion.children) < 3: 
+        if len(assertion.children) < 3:
             continue
         ident = assertion.children[1]
         forall = assertion.children[2]
@@ -182,9 +182,10 @@ def check_arity(t: Node, arity_db: dict) -> (list, list):
             if arity != arity_expected:
                 warnings.append([parent_term.val, first_term.val,
                                  arity_expected, arity, args])
-                
-                warning_str = utils.warning_format(parent_tactic_label, parent_term.val, first_term.val, arity_expected, arity, arg_strings)
-                
+
+                warning_str = utils.warning_format(
+                    parent_tactic_label, parent_term.val, first_term.val, arity_expected, arity, arg_strings)
+
                 warnings_output.append(warning_str)
                 logger.info(warning_str)
 
@@ -198,7 +199,8 @@ def check_arity(t: Node, arity_db: dict) -> (list, list):
                 # Primitive term. Check arity by itself.
                 check_subterms([subterm], parent_term, parent_tactic_label)
             else:
-                check_subterms(subterm.children, parent_term, parent_tactic_label)
+                check_subterms(subterm.children, parent_term,
+                               parent_tactic_label)
 
     def traverse(t: Node):
         logger.info(f"TRAVERSING {t.label}")
