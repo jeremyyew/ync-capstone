@@ -1,11 +1,16 @@
+
 Require Import Arith Bool.
 
-(* Comment *)
-Require Import Nat.
-Proposition add_assoc_nested :
-  forall a b: nat,
-	a = a.
+Check Nat.add_0_r.
+
+Proposition first_formal_proof :
+  forall n : nat,
+    n + 0 = 0 + n.
 Proof.
-  intro.
+  intro n.
+  Check (Nat.add_0_r n).
+  rewrite -> (Nat.add_0_r n).
+  Check (Nat.add_0_l n).
+  rewrite -> (Nat.add_0_l n).
   reflexivity.
 Qed.
