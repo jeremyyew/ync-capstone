@@ -19,7 +19,7 @@
 (defun jeremy-shell-command-parser (s)
   "Call proof_reader in shell and display program output as message."
   (progn
-    (setq c (concat "./<path-to-proof_reader> --input " (shell-quote-argument s)))
+    (setq c (concat "<path-to-proof_reader> --input " (shell-quote-argument s)))
     (message (shell-command-to-string c))))
 
 
