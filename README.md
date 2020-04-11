@@ -1,6 +1,21 @@
 # The `proof-reader`
 This repository contains all my MCS Capstone AY19/20 project source code and submission files. 
-[TOC]
+
+- [The `proof-reader`](#the-proof-reader)
+  - [Description](#description)
+  - [Report](#report)
+  - [Usage](#usage)
+  - [Requirements](#requirements)
+  - [Setup](#setup)
+    - [For Linux and MacOS](#for-linux-and-macos)
+    - [For Windows](#for-windows)
+    - [Running from source](#running-from-source)
+  - [Build process](#build-process)
+    - [Building Linux/MacOS executable using PyInstaller](#building-linuxmacos-executable-using-pyinstaller)
+    - [Building Windows executable using py2exe and Wine on Linux machine](#building-windows-executable-using-py2exe-and-wine-on-linux-machine)
+  - [Testing](#testing)
+
+
 ## Description 
 The `proof-reader` tool is a parser that emits two types of warnings corresponding to the syntax issues described in the previous section:
 
