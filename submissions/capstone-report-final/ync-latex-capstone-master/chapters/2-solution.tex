@@ -4,89 +4,71 @@
 
 \label{solution} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
 
-%----------------------------------------------------------------------------------------
-%	SECTION 1
-%----------------------------------------------------------------------------------------
-
 \section{Parsing student submissions with \code{proof-reader}}
+The \code{proof-reader} tool is a parser that emits two types of warnings corresponding to the syntax issues described in the previous section:
 
-I implement a parser which provides learning support by checking student submissions and warning them of the three common mistakes described above. Corresponding it has three main features:
+\begin{enumerate}
+    \item Warns user of instances where unpermitted tactics are used.
+    \item Warns user of instances of incorrect arity in terms supplied to tactics such as "rewrite", "exact", "apply", etc.
+\end{enumerate}
 
-1. Warns user of instances where unpermitted tactics are used (TODO).
+\code{proof-reader} is intended to be used by students, both during proof editing and as a final check before submission. As students are writing proofs, the \code{proof-reader}  keeps them on the right track by correcting issues that might be affecting their thought process. When used as a final check, it will help them correct proofs that might have been accepted by Coq but do not demonstrate the intended learning goals of the exercise. The \code{proof-reader} can be used directly on student submissions by the instructor as well.
 
-2. Warns user of instances of incorrect arity in terms supplied to “rewrite” and “exact” tactics.
-3. Warns user of missing unfold lemmas when appropriate, and verifies the form of existing unfold lemmas (TODO).
-
-\section{Setup}
-
-1. Make sure you have the file `jeremy-parser.el` - it is included in the binary download, but you can also copy or download it from the Github repository.
-
-2. In the script `jeremy-parser` function, change the file path to reflect the location of the Python parser script (TODO: package as binary):
-
-\begin{lstlisting}
-    (defun jeremy-parser (s)
-    "Call parser program in shell and display program output as message."
-    (message (shell-command-to-string
-    (format "python3 /Users/Macintosh/github/ync-capstone/jeremy-parser/parser.py --input \"%s\"" s))))
-\end{lstlisting}
-
-3. Navigate to your Emacs initialization file, which might be one of three options: `~/.emacs, ~/.emacs.el, or ~/.emacs.d/init.el.`
-
-4. Insert this line anywhere in the init file: `load ("path/to/jeremy-parser.el")` . The file can be named and located as you like.
-
-5. Restart Emacs. The file will now be loaded whenever Emacs is started.
 
 \section{Usage}
-To run `proof-reader` on your proof script, simply execute the following Emacs command while in Proof General, with the editor focused on the buffer containing the script:
-\begin{lstlisting}
-    M-x jeremy-parse-buffer
-\end{lstlisting}
-
-The script will be re-run from the beginning by Proof General and if it is accepted by Coq, `proof-reader` will then evaluate the script and display any relevant warnings in the Emacs response buffer, for example:
-\begin{lstlisting}
-    WARNING: In term (add_comm n):
-    Term (add_comm) with arity 2 incorrectly applied to 1 terms (n).
-\end{lstlisting}
+To run \code{proof-reader} on your proof script, simply execute the following Emacs command while in Proof General, with the editor focused on the buffer containing the script:
+\begin{minted}{text}
+M-x jeremy-proof-reader
+\end{minted}
+The script will first be re-run from the beginning by Proof General. \code{proof-reader} will then evaluate the script and display any relevant warnings in the Emacs response buffer, for example:
+\begin{minted}[fontsize=\scriptsize]{text}
+WARNING: In tactic invocation REWRITE on parent term (Nat.add_assoc a b):
+Term "Nat.add_assoc" with arity 3 incorrectly applied to 2 terms (a),(b).
+\end{minted}
 Or, if there are no warnings:
-\begin{lstlisting}
-    No warnings.
-\end{lstlisting}
+\begin{minted}{text}
+No warnings.
+\end{minted}
 
+\section{Setup}
+Simply download the source code or binary package and follow the installation steps from this repository: \url{https://github.com/jeremyyew/ync-capstone}.
 
 \section{Examples}
 
-\subsection{Example 1: Warning user of instances where unpermitted tactics are used (TODO)}
+\subsection{Example 1: Warning user of instances where unpermitted tactics are used}
+\label{example-1}
+When \code{proof-reader} is applied to the example proof script in the section \ref{abuse-of-tactics} \nameref{abuse-of-tactics}, the output is:
+\begin{minted}{text}
+Parser error: Could not parse the substring "trivial.". "trivial" may be an unpermitted tactic, please only use tactics that have been introduced in the course.
+\end{minted}
 
 \subsection{Example 2: Warning user of instances of incorrect arity}
-When `proof-reader` is applied to the example proof script in chapter XX, the output is:
+\label{example-2}
+When \code{proof-reader} is applied to the example proof script in the section \ref{misuse-of-tactics} \nameref{misuse-of-tactics}, the output is:
 
-\begin{lstlisting}
-WARNING: In term (Nat.add_assoc a b):
- Term (Nat.add_assoc) with arity 3 incorrectly applied to 2 terms (a),(b).
+\begin{minted}[fontsize=\scriptsize]{text}
+WARNING: In tactic invocation REWRITE on parent term (Nat.add_assoc a b):
+Term "Nat.add_assoc" with arity 3 incorrectly applied to 2 terms (a),(b).
 
-WARNING: In term (Nat.add_assoc (a + b)):
- Term (Nat.add_assoc) with arity 3 incorrectly applied to 1 terms (a + b).
- 
-WARNING: In term (Nat.add_assoc):
- Term (Nat.add_assoc) with arity 3 incorrectly applied to 0 terms .
-\end{lstlisting}
+WARNING: In tactic invocation REWRITE on parent term (Nat.add_assoc (a+b)):
+Term "Nat.add_assoc" with arity 3 incorrectly applied to 1 terms (a+b).
+
+WARNING: In tactic invocation REWRITE on parent term (Nat.add_assoc):
+Term "Nat.add_assoc" with arity 3 incorrectly applied to 0 terms.
+\end{minted}
 
 \section{Possible errors}
+\code{proof-reader}\ only accepts syntactically correct Coq code. It will first trigger Proof General to reevaluate the entire buffer. As long as Proof General accepts the script without error, \code{proof-reader}\ will process it.
 
-The proof script should be syntactically correct Coq code. To confirm this, the parser will first trigger Proof General to reevaluate the entire buffer. As long as Proof General accepts it, the parser will accept it.
-
-If there are Coq syntax errors, `proof-reader` will display:
-\begin{lstlisting}
+If there are Coq syntax errors, \code{proof-reader}\ will display:
+\begin{minted}{text}
 Coq error raised. Please correct and try again.
-\end{lstlisting}
+\end{minted}
 The parser will then terminate without evaluating the script. The Coq errors will be in the response buffer, as usual.
 
-Furthermore, `proof-reader` only accepts a subset of Coq syntax, which has been pre-defined by the instructor (See "Appendix/Supported syntax"). Therefore, if the script contains unsupported syntax, `proof-reader` will display:
+Furthermore, \code{proof-reader}\ only accepts a subset of Coq syntax, which has been pre-defined by the instructor (see "Supported syntax" in the Appendix on the repository). Therefore, if the script contains unsupported syntax, it is likely either a command that has been introduced in the course but not accounted for, or a bug. \code{proof-reader}\ will display:
+\begin{minted}{text}
+Parser error: Could not parse "XXX". This syntax may not be currently supported.
+\end{minted}
 
-\begin{lstlisting}
-Parser error: Unrecognized tokens found.
-\end{lstlisting}
-
-This means that the script should be rewritten without using the unsupported syntax. To extend the supported syntax or modify the parser behaviour, see "Design and implementation/Extensibility".
-
-Lastly, `proof-reader` only checks the arity of terms that have been directly defined in the script, as well as modules that have been pre-registered (i.e. the `Nat`, `Bool` and `Peano` modules). If the problem happens to call for built-in theorems outside of these modules, then this could be a source of false negatives (no warning for incorrect arity) as `proof-reader` will simply not have the arity signatures for those theorems, and will ignore them. But it is more likely that those theorems have not been taught and are not permitted.
+To extend the supported syntax or modify the parser behaviour, see \ref{extending} \nameref{extending}.

@@ -52,12 +52,17 @@ headsepline, % Uncomment to get a line under the header
 \usepackage{balance}
 \usepackage{epigraph}
 \usepackage{alltt} % for code snippet
-\usepackage{listings}
 \usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage[backend=bibtex,style=authoryear,natbib=true]{biblatex} % Use the bibtex backend with the authoryear citation style (which resembles APA)
-\usepackage{listings}
-\newcommand{\code}[1]{\texttt{#1}}
+\usepackage{minted}
+\usepackage{microtype}
+\usepackage{url}
+\DeclareRobustCommand{\code}{\texttt}
+\setcounter{secnumdepth}{3}
+\usemintedstyle{friendly}
+\definecolor{bg}{rgb}{0.94, 0.97, 1.0}
+\setminted{bgcolor=bg, breaklines=true, fontsize=\footnotesize, mathescape=false}
 
 \addbibresource{biblio.bib} % The filename of the bibliography
 
@@ -141,7 +146,7 @@ headsepline, % Uncomment to get a line under the header
 
 \begin{abstract}
 	\addchaptertocentry{\abstractname} % Add the abstract to the table of contents
-	I provide learning support for students in YSC3236 Functional Programming and Proving (FPP), by building an interactive, Emacs-integrated tool that checks for syntax issues in student's Coq proof submissions. The tool thus acts as a set of 'safety rails' to guide students towards developing the proper muscle memory. The Lecturer will be able to provide a grammar specification as an input to the tool.
+	This project provides learning support for students enrolled in YSC3216: Functional Programming and Proving (FPP), by providing \code{proof-reader}: an Emacs-integrated tool that acts a set of ’safety rails’, guiding students as they build muscle memory for good proving and programming habits. \code{proof-reader} analyzes student submissions and generates corrective suggestions, thus automating intervention on syntax issues, which is usually performed via written feedback by the course instructor. This allows the instructor to focus on substantive rather than superficial feedback. The tool is intended to be used interactively by students, both during proof editing and before submission.
 \end{abstract}
 
 
@@ -214,11 +219,11 @@ headsepline, % Uncomment to get a line under the header
 
 \tableofcontents % Prints the main table of contents
 
-\listoftables % Prints the list of tables
-\label{lst:tabs}
+% \listoftables % Prints the list of tables
+% \label{lst:tabs}
 
-\listoffigures % Prints the list of figures
-\label{lst:figs}
+% \listoffigures % Prints the list of figures
+% \label{lst:figs}
 %----------------------------------------------------------------------------------------
 %	ABBREVIATIONS
 %----------------------------------------------------------------------------------------
@@ -263,7 +268,6 @@ headsepline, % Uncomment to get a line under the header
 %	DEDICATION
 %----------------------------------------------------------------------------------------
 
-\dedicatory{Dedicated to ceux l\`{a} qui veulent.}
 
 %----------------------------------------------------------------------------------------
 %	THESIS CONTENT - CHAPTERS
@@ -294,12 +298,12 @@ headsepline, % Uncomment to get a line under the header
 %	THESIS CONTENT - APPENDICES
 %----------------------------------------------------------------------------------------
 
-\appendix % Cue to tell LaTeX that the following "chapters" are Appendices
+% \appendix % Cue to tell LaTeX that the following "chapters" are Appendices
 
 % Include the appendices of the thesis as separate files from the Appendices folder
 % Uncomment the lines as you write the Appendices
 
-\input{appendix/appendixA}
+% \input{appendix/appendixA}
 
 %----------------------------------------------------------------------------------------
 

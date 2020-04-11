@@ -4,90 +4,73 @@
 
 \label{dicussion} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
 
-%----------------------------------------------------------------------------------------
-%	SECTION 1
-%----------------------------------------------------------------------------------------
 
+\section{Time and space complexity}
+Note that the generated syntax trees are expected to be shallow with some constant depth, with most branches having only a few levels, since the grammar contains non-recursive definitions. The only source of arbitrary depth is \code{TERM}, but the expected depth of \code{TERM} subtrees for actual student submissions is around 1-3 levels, since highly nested terms are quite rare in simple proofs, and might call for a goal to be factored into a standalone lemma.
 
-\section{Time complexity}
-\subsection{Regular expression matching in $construct_node$
-}
+\subsection{Regular expression matching in \code{construct\_node}}
+Regular expressions can be computationally expensive - for example, they might grow exponentially in complexity when catastrophic backtracking occurs. However, all the regex patterns in the \code{grammar} module use lazy quantifiers, thus avoiding backtracking. Furthermore, almost all matches are performed on Coq sentences or fragments of sentences, which are very short substrings. Lastly, since we only accept input that is syntactically validated by \code{coqtop}, the input is quite predictable.
 
-Regular expressions can be computationally expensive - for example, they might grow exponentially in complexity when catastrophic backtracking occurs. However:
-- All the regex patterns in the $grammar$ module use lazy quantifiers, thus avoiding backtracking.
-- Almost all matches are performed on Coq sentences or fragments of sentences, which are very short substrings.
-- Since we only accept input that is syntactically validated by $coqtop$, the input is predictable.
-- We try to arrange expected rules in order of frequency of occurence, so we reach a match sooner rather than later, similar to regex alternation optimization. This reduces the number of match attempts on each substring, which would be a constant factor anyway.
+Therefore we can reasonably assume total $O(N)$ time where $ N $ is the length of the input string; the tree is expected to be shallow, so the same substring will only be processed some constant number of times. We also have $ O(1) $ space complexity. Counting parentheses in \code{get\_next\_subterm} incurs $ O(N) $ time complexity as well.
 
-Therefore we can reasonably assume total $O(N)$ time (where $N$ is the length of the input string) and $O(1)$ space complexity for regex matching.
+\subsection{Constructing and traversing the syntax tree}
+The \code{construct\_node} function takes $ O(N) $ time to construct the entire tree, and $ O(N) $ space on the callstack (since \code{construct\_node} is recursive and Python does not have tail-call optimization), where $ N $ is the length of the input string and the total number of nodes constructed is proportional to $ N $. A more precise estimate might be $O(log_kN)$ where $k$ is the average number of nodes generated for each level of the tree. Due to the space consumption, Python's recursion limit should be increased if long proofs are expected (currently set to 10000).
 
-Note that counting parentheses in $get_next_subterm$ incurs $O(N)$ time complexity as well.
-
-\subsection{The recursive $construct_node $ function}
--  $O(N)$ time to construct the entire tree
-- $O(N)$ space on the callstack, since neither $construct_node$ or $construct_children$ is tail-recursive
-
-where $N$ is total the number of nodes in the tree.
-
-Therefore python's recursion limit should be increased if long proofs are expected (default is 1000).
-
-\subsection{Traversing the syntax tree in $check_arity$}
-The depth-first traversal will explore all nodes, incurring a $O(N)$ time complexity, where $N$ is the number of nodes, which is a constant fraction of the length of the input string. The space complexity is $O(1)$.
-
-\subsection{String slicing}
-
-In Python, strings are immutable, hence all instances of string slicing (e.g. $s[match.end():]$ in $construct_node$ and $s[i+1:]$ in $construct_term$) will create a new copy of the string, which involves $O(N)$ time complexity, where $N$ is the length of the sliced substring.
-
-This is sometimes a concern for processing long strings. In this case, the expected depth of $TERM$ subtrees for actual student submissions is 2-4 levels (highly nested terms would be highly unreadable, and also quite difficult to construct deliberately in simple proofs), so we would only copy the entire substring a few times. Thus, we can assume a worst-case constant multiple of substring length, i.e. $O(kN)$.
-
-Furthermore, string slicing is only used on term substrings, which are expected to be short.
+\code{collect\_arity} and \code{arity\_check} will explore nodes only at the first and second level, incurring a $ O(N) $ time complexity and  $ O(1) $ space complexity.
 
 \subsection{Overall complexity}
+Therefore, the overall complexity for constructing and evaluating the syntax tree is $ O(N) $ time and $ O(N) $ space. We also run performance tests on real input as well as large input, the results of which can be found in the Appendix on the repository.
 
-Therefore, the overall complexity for constructing and evaluating the syntax tree is O(N) time and O(N) space.
+\section{Limitations of the \code{grammar} module}
+\label{limitations-grammar}
+The grammar module is limited in its expressiveness because of its simple structure. Firstly, rules do not directly express patterns with distinct subcomponents. For example, an assertion is broken down into a keyword, identifier, 'for all' statement, and a term:
 
-\section{Performance (TODO)}
-- Run on long proof.
+\begin{minted}{python}
+LABEL_ASSERTION: 
+    (fr"({REGEXP_ASSERTION} .+?:.+?)\.{REGEXP_DOC_LOOKAHEAD}",
+    [LABEL_ASSERTION_KEYWORD,
+     LABEL_ASSERTION_IDENT,
+     LABEL_FORALL,
+     LABEL_ASSERTION_TERM])
+\end{minted}
 
-\section{Limitations of the $grammar$ module (TODO)}
+However, since \code{construct\_node} only expects one capture group, it must iteratively match all subcomponent rules on that single captured substring after the substring has been matched on the assertion. The pattern cannot express subcomponents that appear in different locations of the substring. Furthermore, the structure does not express which subcomponents are required. Each subcomponent rule is treated as optional; it could match on only one of them once, or one of them repeatedly, and as long as the string is eventually consumed the assertion subtree will be treated as a successful match. One solution is for the parser to iterate over a list of capture groups and a list of expected patterns, or a map of named capture groups and their expected patterns.
 
-- Does not express specific subcomponents of a unit, since the parser function expects to process only one captured substring.
-- Instead, we always expect the captured substring to potentially contain any quantity of any type of child rule in any sequence.
-- In other words, we assume 0...n quantity for each possible child rule; we can't express specific $k$-quantity of any particular child syntactical unit.
-- Furthermore, a captured substring can contain any sequence of all included child syntactical unit, i.e. we cannot express homogenous lists of only one type (or a subgroup) of children.
-- Our sublanguage does not require this feature.
-- If we needed to express this, we could simply have the parser function expect $n$ number of capture groups, and then each rule list could be a list of lists of rules, with each group of expected children corresponding to each capture group, in order.
-- Does not express alternate patterns for one rule. A single regex pattern defines the acceptable structure for each rule.
-- Under the current system, if needed, we would construct a distinct rule for each alternate pattern and associated group of expected children, even though logically they may be the same syntactical unit.
-- Our sublanguage does not require this feature.
-- If we needed to express this, we could define a rule as a list of pattern/rule list pairs, with each pair representing an additional matching option.
+Secondly, rules do not express alternate patterns. A single regex pattern defines the acceptable structure for each rule. So far we are able to express alternate patterns within the regular expressions as a single pattern with alternating parts. However, a better solution is to define a rule as a list of pattern/children pairs instead of a single pair, with each pair representing an additional matching option.
+
+Fortunately, these issues do not seem to pose a problem for the input we have tested on, but making the module more expressive would make matching more precise, and improve extensibility.
 
 \section{Alternative approaches}
 
-\subsection{Parsing techniques  (TODO)}
 \subsection{Modifying Coqtop source code}
+Given that Coq's ability to infer missing arguments is an additional feature, it seems natural to modify the source code to provide an option to turn the feature off, as opposed to building an external parser from scratch. There are two reasons why this approach was not taken:
+
+Firstly, and most importantly, a source code approach reduces usability and maintainability of the tool. Unless my changes are accepted into the master branch of the open-source Coq codebase on Github, students will be locked in to the Coq version I worked with. They would not benefit from updates to Coq and might have limited access to the Coq ecosystem. The features described in this report are quite prescriptive and highly specific to FPP's learning goals. While the tool has broader applications as an approach to educators with similar goals, its features may not be relevant to the average Coq user. Granted, we could maintain a modified branch in a separate repository, into which we merge Coq updates. But this involves repeated reintegration and might also introduce dependency or installation issues.
+
+Secondly, a source code approach did not seem feasible. I judged that it was out of scope for this project due to my limited experience with large-scale Ocaml applications. Even if I managed to achieve my desired functionality, refactoring source code might introduce invisible bugs in other components.
 
 
-\subsection{ Using a parser generator}
+\subsection{Using a parser generator}
+\label{using-parser-generator}
+Writing parsers for programming language is a well-understood problem, and parser generators automate the implementation of parsing algorithms. A parser generator accepts a grammar specification and produces a parser that can evaluate the specified language. I spent a significant amount of time exploring the use of parser generators to build my tool. Using a parser generator was appealing because I did not want to 're-invent the wheel', and it promised quick development, high-level abstraction, and high performance.
 
-Writing parsers for programming language is a well-understood problem, and parser generators automate the implementation of parsing algorithms.  A parser generator accepts a grammar specification and produces a parser that can evaluate the specified language. In the initial stages I explored using parser generators to build my tool. Using a parser generator was appealing because:
+I tried using several parser generators, for example CEDET's built-in Wisent, and the python package Lark. Each had their own issues. For example, I had some success specifying the grammar of my Coq sublanguage with Lark, but there were often bugs that I had to find workarounds for because I did not understand the error messages. The algorithms were quite complex and I did not have full visibility or understanding of the underlying processes. Furthermore, there were certain functionalities (e.g. collecting and storing previous arity signatures) that did not seem possible in the existing frameworks - modifying the source code was possible but complicated.
 
-- I did not want to 're-invent the wheel'.
+Ultimately, for the purposes of my project, writing a parser from scratch gave me granular control of my development process and allowed me to make informed decisions on the level of abstraction to use for different components.
 
-- It promised quick development, high-level abstraction, and high performance.
 
-I tried using several parser generators (e.g. CEDET's built-in Wisent, and the python package Lark). Each had their own issues. For example, I had some success specifying the grammar of my Coq sublanguage, but there were often bugs that I had to find workarounds for because I did not understand the error messages. The algorithms were quite complex and I did not have full visibility or understanding of what went wrong each time. Furthermore, there were certain functionalities (e.g. collecting and storing previous arity signatures) that did not seem possible in the existing frameworks - modifying the source code was possible but seemed to be more effort than it was worth.
+\section{Future work}
+Firstly, implementing a more expressive grammar structure would improve extensibility and precision, as detailed in \ref{limitations-grammar} \nameref{limitations-grammar}.
 
-Ultimately, like any tool, parser generators provided a high level of abstraction and fast development, at the cost of customizability and understanding. After all, if you can't explain it, you don't understand it, and obviously I should understand my own Capstone.  For the purposes of my project, I realized that writing a parser from scratch gave me full control of my development process and allowed me to make my own decisions on the level of abstraction for different components.
+Secondly, implementing the entire program in Emacs-lisp would allow the program to be run directly in Emacs instead of as a child process. This would likely improve performance and eliminate any installation or interoperability issues.
 
-\section{Potential improvements (TODO)}
-- More expressive grammar structure to make syntax more extensible.
-- Tail recursion to avoid O(N) space complexity.
-- Implementation in Emacs-lisp for direct execution in Emacs.
-- Likely faster performance.
-- Likely zero installation, dependency or interoperability issues.
-- Interaction between Proof General and $proof-reader$.
-- Allow for dynamic addition of new modules, or even for the arity of all terms to be checked dynamically by querying Coq with the "Check" command.
-- Allow for arity checker to register induction hypotheses and other assumptions in the current goal, and check their arity when applied. They are currently ignored.
+Thirdly, modifications or extensions to the grammar should be made possible at runtime instead of requiring source-code modification. This would avoid rebuilding the project and improve the user experience for the instructor. In this implementation, this can be done by importing the grammar module from outside the binary package, similar to how a parser generator might take a specification as input. Closer integration with Proof General would also allow new library modules to be added via an Emacs command.
+
+Fourthly, performance profiling can be run to identify bottlenecks - string slicing should be eliminated to avoid unnecessary copying, and an iterative implementation might be faster.
 
 \section{Reflections}
+In the process of developing \code{proof-reader} I gained some insights on development in general. First and foremost, we need to have clear specifications from which we can write unit tests. In this project I had a set of example inputs and expected warnings, but would have saved time if I expanded on them by running more acceptance tests earlier in order to discover more edge cases.
+
+Secondly, we should always take advantage of any features that ensure type correctness, as early as possible (I used type annotations from Python's built-in \code{typing} module). They help us think more precisely especially in the planning phase, which is really where most of the work happens.
+
+Lastly, in designing a program, we need to find the right level of abstraction. Even though using a parser generator was appealing, like most 'automagical' tools, it provided a high level of abstraction and fast development, at the cost of flexibility and understanding. I learned this the hard way after spending an entire semester on it only to switch approaches – but it was a lesson worth learning.

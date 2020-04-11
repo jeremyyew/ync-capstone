@@ -63,7 +63,7 @@ Just as there are many ways to write the same program, there are many equivalent
 
 ### 1. Abuse of tactics
 
-First, students may abuse tactics that have not been introduced in the course. When students get stuck on a proof, they might Google for related solutions or search the Coq documentation for anything that will ’solve’ the proof. They might end up using a 'magical' tactic, for example the tactic ‘trivial‘, as in the example proof below.
+First, students may abuse tactics that have not been introduced in the course. When students get stuck on a proof, they might Google for related solutions or search the Coq documentation for anything that will solve the proof. They might end up using a 'magical' tactic, for example the tactic ‘trivial‘, as in the example proof below.
 
 ```
 Lemma SSSn_is_3_plus_n :
@@ -147,7 +147,6 @@ The `proof-reader` tool is a parser that emits two types of warnings correspondi
 `proof-reader` is intended to be used by students, both during proof editing and as a final check before submission. As students are writing proofs, the `proof-reader`  keeps them on the right track by correcting issues that might be affecting their thought process. When used as a final check, it will help them correct proofs that might have been accepted by Coq but do not demonstrate the intended learning goals of the exercise. The `proof-reader` can be used directly on student submissions by the instructor as well. 
 
 ## Usage
-
 To run `proof-reader` on your proof script, simply execute the following Emacs command while in Proof General, with the editor focused on the buffer containing the script: 
 ```
  M-x jeremy-proof-reader
@@ -171,7 +170,7 @@ Simply download the source code or binary package and follow the installation st
 
 ### Example 1: Warning user of instances where unpermitted tactics are used 
 
-When `proof-reader` is applied to the example in chapter XX, the output is: 
+When `proof-reader` is applied to the example proof script in chapter XX, the output is:
 
 ```
 Parser error: Could not parse the substring "trivial.". "trivial" may be an unpermitted tactic, please only use tactics that have been introduced in the course.
@@ -179,7 +178,7 @@ Parser error: Could not parse the substring "trivial.". "trivial" may be an unpe
 
 ### Example 2: Warning user of instances of incorrect arity
 
-When `proof-reader` is applied to the example in chapter XX, the output is: 
+When `proof-reader` is applied to the example proof script in chapter XX, the output is:
 
 ```
 WARNING: In tactic invocation REWRITE on parent term (Nat.add_assoc a b):

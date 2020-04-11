@@ -1,7 +1,5 @@
 % Chapter Template
-
 \chapter{Design and Implementation} % Main chapter title
-
 
 
 \label{design-and-implementation} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
@@ -10,388 +8,359 @@
 %	SECTION 1
 %----------------------------------------------------------------------------------------
 
-\section{Parsing input to generate a syntax tree}
+\subsection{Backus-Naur Form (BNF)}
 
-The code referenced in this section can be found in $jeremy-parser/parser.py$ unless otherwise specified.
+Before writing a parser for a language we must understand the specification of the language. Coq consists of various sublanguages for different purposes, each with their own specifications available in the documentation. The language used to write Coq proofs is the Gallina specification language, which interacts with the language of tactics. These sublanguages are specified in Backus-Naur Form.
 
-In order to check the program, we parse the input string into a syntax tree that can be conveniently evaluated.
+The Backus-Naur Form is a notation describing a context-free grammar. A BNF specification consists of expressions on the right - consisting of both 'terminals' (literals) and 'non-terminals' (variables) - represented by non-terminals on the left.
 
-\subsection{Constructing syntax tree nodes}
-First, we preprocess the input string to remove any extraneous tabs, spaces, etc in order to simplify the matching logic later on ($preprocess$ function in $jeremy-parser/parser.py$).
+BNF specifications for different languages will have particular conventions but follow the same overall structure.  For example, here is a fragment of the BNF specification for the vernacular of Gallina:
+
+\begin{minted}[fontsize=\scriptsize]{text}
+    assertion          ::=  assertion_keyword ident [binders] : term .
+    assertion_keyword  ::=  Theorem | Lemma
+                            Remark | Fact
+                            Corollary | Property | Proposition
+                            Definition | Example
+    proof              ::=  Proof . ... Qed .
+                            Proof . ... Defined .
+                            Proof . ... Admitted .
+\end{minted}
+\subsection{The grammar module: a BNF-inspired data structure}
+\emph{Code referenced here from \path{jeremy-parser/grammar.py}.}
+
+\code{proof-reader} parses a given input string into a syntax tree which can be easily traversed and thereby evaluated. In parsing a language, there are many levels of abstraction that we can utilize. The highest level of abstraction would be a parser generator that directly accepts a BNF specification and returns a fully functioning parser with zero or minimal lines of code needed (I explain why this path is not taken in \ref{using-parser-generator} \nameref{using-parser-generator}.) Through trial and error we eventually arrived at a mid-level abstraction. We define a data structure that resembles BNF and dictates the flow of the parser, provided by the \code{grammar} module.
+
+Instead of hard-coding conditional branches to determine matching patterns at each step, the \code{grammar} module provides the \code{GRAMMAR} variable, which is \textbf{a map (Python dictionary) from a rule to a tuple containing a regular expression and a list of valid child rules}. As the parser constructs a syntactical unit and its children, it performs lookups to the data structure to understand what rule patterns to apply at each step.
+
+Here is a truncated version of the actual \code{GRAMMAR} map, with ellipses representing truncated rules; the full object is in the \code{grammar.py} file. As you can see, each rule mirrors a non-terminal on the left, and its regular expression and children  represent its expression on the right. Note the indentation does not correspond to actual nesting of data, but is intended to visually reflect the nested definitions.
+
+\begin{minted}[fontsize=\scriptsize]{python}
+import * from constants
+GRAMMAR = {
+    LABEL_DOCUMENT: 
+        (None,
+        [LABEL_PROOF,
+         LABEL_REQUIRE_IMPORT,
+         LABEL_SEARCH, #...]),
+        #...
+        LABEL_PROOF: 
+            (fr"{KW_PROOF}\.(.*?)(?:{KW_QED}|{KW_ADMITTED}|{KW_ABORT})\.", 
+            [LABEL_APPLY,
+             LABEL_ASSERT, #...]),
+            #...
+            LABEL_REWRITE:
+                (fr"{KW_REWRITE}({REGEXP_REWRITE_ARROW}?{REGEXP_TERM_OPTIONAL_SPACE})\
+                {REGEXP_IN_OCCURRENCE}{REGEXP_AT_OCCURRENCE}{REGEXP_TACTIC_END}\
+                {REGEXP_TACTIC_LOOKAHEAD}",
+                [LABEL_REWRITE_ARROW,
+                 LABEL_TERM]),
+
+                LABEL_REWRITE_ARROW: 
+                    (fr"({REGEXP_REWRITE_ARROW})", []),
+                #...
+    #...
+}
+\end{minted}
+
+For example, the \code{PROOF} rule states: \emph{"a proof is a lazily matched substring beginning with the keyword 'Proof' plus a period, and ends with either the keyword 'Qed', 'Admitted', or 'Abort', plus a period. The inner string must consist of any number of child components matching the rules \code{APPLY}, \code{ASSERT}, etc"}.
+
+Observe:
+\begin{itemize}
+    \item For readability and modularity, we factor out keywords and regular expression fragments into the \code{constants.py} module. We interpolate these constants into regex patterns via Python raw f-strings.
+    \item A terminal node has an empty rule list. For example, \code{LABEL\_REWRITE\_ARROW} is a terminal.
+    \item This data structure is simple. While it serves the purpose of this project, see \ref{limitations-grammar} \nameref{limitations-grammar}.
+\end{itemize}
 
 
-We define a $Node$ object:
-\begin{lstlisting}
+Having generated a syntax tree, we are now in a position to traverse and evaluate it.
+
+\subsection{Parsing input to generate a syntax tree}
+\emph{Code referenced here from \path{jeremy-parser/grammar.py}.}
+
+\subsubsection{Constructing syntax tree nodes}
+\label{constructing-nodes}
+First, we define a \code{Node} object.
+\begin{minted}{python}
 class Node:
-def __init__(self, label, val=None, children=None):
-# We label every node by its 'type', for evaluation purposes.
-self.label = label
-# The node's actual value (e.g. the identifier of a term) is not needed for evaluation, but is used for logging and displaying warning messages.
-self.val = val
-# Each node has a list of children, or subcomponents.
-self.children = children or []
-\end{lstlisting}
+def __init__(self, label: str, val: str = None, children: list = None):
+    # Each node's label identifies its "type", i.e. which syntactical unit it represents.
+    self.label = label
+    # Each node's value is the contents of the substring it matched on. This is useful for logging and constructing helpful warning messages.
+    self.val = val
+    # Each node has a list of children, since each syntactical unit may be comprised of sub-components. Hence a node with no children is a terminal node.
+    self.children = children or []
+\end{minted}
 
-The recursive function $construct_node$ and its helper $construct_children$ then consumes the input string by matching regex patterns on the beginning of input substring, while recursively constructing a syntax tree composed of $Node$ objects.
+The main parser function \code{construct\_node} is responsible for recursively constructing a syntax tree composed of \code{Node} objects, and returning it. It accepts an input string \code{s} and \code{rule}, the label of the rule that the string has been matched on.
 
+\begin{minted}[fontsize=\scriptsize]{python}
+def construct_node(s: str, rule: str) -> Node:
+    def construct_children(s: str, parent: str, acc: list) -> List[Node]:
+        if not s:
+            return None, acc, ""
+        _, expected = grammar.GRAMMAR[parent]
+        if expected == []:
+            return s, acc, ""
+        exception = None
+        for item in expected:
+            pattern, _ = grammar.GRAMMAR[item]
+            match = re.match(pattern, s)
+            if not match:
+                continue
+            if item == LABEL_TERM:
+                term_s, remaining_s = get_next_subterm(match.group(1))
+                term = construct_term(term_s)
+                return term_s, acc+[term], remaining_s
+            try:
+                child, remaining_s = construct_node_helper(
+                    match.group(1), item)
+                remaining_s = remaining_s + s[match.end():]
+                return construct_children(remaining_s, parent, acc + [child])
+            except (UnmatchedToken, UnmatchedTactic) as e:
+                exception = e
+        if exception:
+            raise exception
+        if parent == LABEL_PROOF:
+            raise UnmatchedTactic(s)
+        raise UnmatchedToken(s)
 
-- $construct_node$
-- The main parser function $construct_node$ returns a syntax tree. It assumes the input has already been matched on a syntax rule $rule$, and $s$ is the remaining substring to be evaluated for the node's subcomponents.
-- First, it constructs an appropriately labeled $Node$.
-- It performs a lookup in the $grammar.GRAMMAR$ map to obtain the expected children of $rule$.
-- It then calls $construct_children$, and assigns the result to the current node.
+    def construct_node_helper(s: str, rule:str) -> (Node, str):
+        term_s, children, remaining_s = construct_children(s, rule, [])
+        node = Node(rule, term_s or s)
+        node.children = children
+        return node, remaining_s
 
-- $construct_children$
-- Attempts to match the beginning of $s$ using each rule in the list $expected$.
-- For each rule, it performs a lookup in the $grammar.GRAMMAR$ map to obtain the corresponding regex pattern (see 'Design and implementation/BNF-like grammar abstraction').
-- On a match, it consumes the matched substring, recursively generating a subtree using that substring, before constructing the siblings of that subtree by recursing on  the remaining string $s[match.end():]$ with the same $expected$ rules.
+    node, _ = construct_node_helper(s, rule)
+    return node
+\end{minted}
 
-\begin{lstlisting}
-# Edited for brevity
-def construct_node(s: str, rule) -> Node:
-def construct_children(s: str, expected) -> List[Node]:
-if not s:
-return []
-for item in expected:
-pattern, _ = grammar.GRAMMAR[item]
-match = re.match(pattern, s)
-if match:
-# if item == LABEL_TERM:
-#     child = construct_term(s)
-#     return [child]
-try:
-child = construct_node(match.group(1), item)
-children = [child] + construct_children(
-s[match.end():],
-expected
-)
-return children
-except Exception as e:
-if str(e) != "No match":
-raise e
-raise Exception("No match")
-_, expected = grammar.GRAMMAR[rule]
-node = Node(rule, s)
-if expected == []:
-return node
-children = construct_children(s, expected)
-node.children = children
-return node
-\end{lstlisting}
+It is only called once by the main program, with the entire script as input. It initiates the construction of the tree by calling \code{construct\_node\_helper} and assumes there will be no remaining string to parse (since the root node \code{DOCUMENT} accepts the entire script).
 
-\subsection{Constructing terms and subterms}
+\code{construct\_node\_helper} is responsible for recursively constructing the current subtree, which comprises of both the current node as well as all its children. It accepts an input substring \code{s} and \code{rule}, the label of the rule that the substring has been matched on. Only after successfully constructing all its children will it then create the current node and assign the children. It returns both a syntax subtree as well as the remaining string that contains sibling subtrees to be further parsed.
 
-The above functions are generic enough to construct most syntactical units in our sublanguage. However, in order to validate the arity of terms supplied to the $rewrite$ and $exact$ tactics, we need to parse a term into its subterms, which are grouped in nested parenthesis. Regular expressions are not expressive enough to capture nested patterns. Here is an example substring:
-\begin{lstlisting}
+\code{construct\_children} accepts an input substring \code{s}, its parent \code{rule} , and an accumulator \code{acc} containing the child nodes it will return. It returns \code{term\_s} (the value of the parent substring, should this be different from the original substring \code{s}), a list of child nodes \code{children}, and the remaining string that contains sibling subtrees to be further parsed, \code{remaining\_s}. It proceeds as such:
+\begin{itemize}
+    \item \code{construct\_children} first performs a lookup in the grammar module to obtain the expected children of \code{rule}.
+    \item For each rule, it performs a lookup in the grammar module to obtain the corresponding regular expression. It attempts to match the expression against the beginning of \code{s}.
+    \item On a match, it calls \code{construct\_node\_helper} to construct the current child's subtree, and then recurses on the remaining string to construct the rest of the children.
+\end{itemize}
+
+Observe that in \code{construct\_children}, instead of recursing on the rest of the substring following the matched capture group \code{ s[match.end():]}, we return \code{remaining\_s} from \code{construct\_node\_helper}, which always demands it from \code{construct\_children}, which is ultimately returned as an empty string in \code{construct\_children}'s base cases, or extracted by \code{construct\_term}. We then recurse on \code{remaining\_s + s[match.end():]}. This is because we cannot rely solely on regular expressions to correctly capture the exact substring containing the next subtree.
+
+When parsing a tactic invocation containing a term, we need to count the parentheses in the term to determine its endpoint. Afterwards, we can continue parsing the rest of the substring, prefixed with any extraneous characters the regular expression might have captured. Therefore, if the current substring matches a term, we make a call to \code{construct\_term}.
+
+\subsubsection{Constructing terms and subterms}
+In order to validate the arity of terms supplied to tactics such as \code{rewrite}, \code{exact} and \code{apply}, we need to parse a term into its subterms, which are grouped in nested parenthesis. Regular expressions are not expressive enough to capture nested patterns. Here is an example substring:
+\begin{minted}{Coq}
 exact (my_lemma_1 (my_lemma_2 n1) n2).
 exact (my_lemma_3 n3).
-\end{lstlisting}
-Suppose we have constructed the first $exact$ node, and now we need to capture the parent term $(my_lemma_1 (my_lemma_2 n1) n2)$, before trying to capture its children $my_lemma_1$, $(my_lemma_2 n1)$ and $n2$.
-- A lazy match on opening and closing parenthesis, such as \code{\(.?\)}, would capture:
--  $(my_lemma_1 (my_lemma_2 n1)$.
-- On the other hand, a greedy match like \code{\(.+\)} would capture everything until the last parenthesis in the substring:
-- $(my_lemma_1 (my_lemma_2 n1) n2).exact (my_lemma_3 n3).$
+\end{minted}
+Suppose we have constructed the first \code{exact} node, and now we need to capture the parent term \code{(my\_lemma\_1 (my\_lemma\_2 n1) n2)}, before trying to capture its children \code{my\_lemma\_1}, \code{(my\_lemma\_2 n1)} and \code{n2}.
+\begin{itemize}
+    \item A lazy pattern on opening and closing parenthesis, such as \texttt{\textbackslash(.+?\textbackslash)}, would capture:
+          \begin{minted}{Coq}
+(my_lemma_1 (my_lemma_2 n1). 
+          \end{minted}
+    \item On the other hand, a greedy pattern like \texttt{\textbackslash(.+\textbackslash)} would capture everything until the last parenthesis in the substring:
+          \begin{minted}{Coq}
+(my_lemma_1 (my_lemma_2 n1) n2).exact (my_lemma_3 n3).
+          \end{minted}
+\end{itemize}
+Hence the regular expressions used in the generic \code{construct\_node} function cannot construct this subtree, and we need a specialized \code{construct\_term} function which is able to count parentheses:
 
-Even if we use some strategy to exclude literals to avoid greedy matches across separate tactics, consider this example:
-\begin{lstlisting}
-exact (my_lemma_1 (my_lemma_2 n1) (my_lemma_3 n2)).
-\end{lstlisting}
-Suppose we have captured the entire parent term as well as the first subterm $my_lemma_1$, and now we need to capture the second subterm $(my_lemma_2 n1)$, from the substring $(my_lemma_2 n1) (my_lemma_3 n2)$. However, a greedy match would give us the entire substring
-- $(my_lemma_2 n1) (my_lemma_3 n2)$
-
-Hence the generic $construct_node$ cannot construct this subtree. Thankfully, this is a familiar problem of counting parenthesis, implemented iterative-style here:
-
-\begin{lstlisting}
-def get_next_subterm(s) -> str:
-k = 0
-term = ""
-remaining = ""
-for i, c in enumerate(s):
-if c == " " and k == 0:
-remaining = s[i+1:]
-break
-elif c == '(':
-k += 1
-elif c == ')':
-k -= 1
-term += c
-if k != 0:
-raise Exception("Invalid parentheses.")
-return term, remaining
-\end{lstlisting}
-Then we just need a specialized $construct_term$ function, which mirrors $construct_node$ except for two key differences:
-- the helper function $construct_subterms$ simply looks for the next subterm instead of matching iteratively on a list of expected rules
-- we terminate a recursion when the current term has no subterms (there are no spaces, so it is a single term), instead of iterating over a terminal node's empty list of expected tokens.
-
-\begin{lstlisting}
+\begin{minted}{python}
 def construct_term(term: str) -> Node:
-def construct_subterms(s: str) -> List[Node]:
-if s == "":
-return []
-subterm, remaining = get_next_subterm(s)
-child = construct_term(subterm)
-children = [child] + construct_subterms(remaining)
-return children
-if term and term[0] == "(" and term[-1] == ")":
-term = term[1:-1]
-node = Node(LABEL_TERM, term)
-if re.fullmatch(r"[^\s]+", term):
-return node
-node.children = construct_subterms(term)
-return node
-\begin{lstlisting}
-And now we only need to delegate the construction of term subtrees to $construct_term$ by uncommenting the following lines in $construct_node$:
-\begin{lstlisting}
-for item in expected:
-pattern, _ = grammar.GRAMMAR[item]
-match = re.match(pattern, s)
-if match:
-# if item == LABEL_TERM:
-#     child = construct_term(s)
-#     return [child]
-\end{lstlisting}
-(Note: Consider refactoring so that $construct_node$ implements $construct_term$, since $get_next_term$ has the same output as a regexp.)
+    def construct_subterms(s: str) -> List[Node]:
+        if s == "":
+            return []
+        subterm, remaining = get_next_subterm(s)
+        child = construct_term(subterm)
+        children = [child] + construct_subterms(remaining)
+        return children
+    if term and term[0] == "(" and term[-1] == ")":
+        term = term[1:-1]
+    node = Node(LABEL_TERM, term)
+    if re.fullmatch(r"[^\s]+", term):
+        return node
+    node.children = construct_subterms(term)
+    return node
+\end{minted}
+The familiar problem of counting parenthesis is implemented iterative-style in \code{get\_next\_subterm}:
 
-\subsection{Example syntax tree  (TODO)}
+\begin{minted}{python}
+def get_next_subterm(s: str) -> (str, str):
+    k = 0
+    for i, c in enumerate(s):
+        if c == " " and k == 0:
+            return s[:i], s[i+1:]
+        elif c == '(':
+            k += 1
+        elif c == ')':
+            k -= 1
+    if k != 0:
+        raise Exception("Invalid parentheses.")
+return s, ""
+\end{minted}
 
-Here is an example proof:
-\begin{lstlisting}
-Lemma A_1 : forall a b : nat, a + b = a + b.Proof.Admitted.Lemma A_2 : forall (a b : nat), a + b = a + b.Proof.Admitted.Lemma A_3 : forall a b:nat, a + b = a + b.Proof.Admitted.Lemma A_4 : forall (a b:nat), a + b = a + b.Proof.Admitted.Lemma A_5 : forall a b, a + b = a + b.Proof.Admitted.
-\end{lstlisting}
+\subsubsection{Example syntax tree}
+Here is an example proof from the lecture notes of week 2 of FPP AY 19/20 Semester 1.
+\begin{minted}{Coq}
+Require Import Arith Bool.
+Check Nat.add_0_r.
+Proposition first_formal_proof :
+    forall n : nat,
+    n + 0 = 0 + n.
+Proof.
+    intro n.
+    Check (Nat.add_0_r n).
+    rewrite -> (Nat.add_0_r n).
+    Check (Nat.add_0_l n).
+    rewrite -> (Nat.add_0_l n).
+    reflexivity.
+Qed.
+\end{minted}
 Here is the resulting syntax tree, pretty-printed:
-\begin{lstlisting}
+\begin{minted}[fontsize=\scriptsize]{text}
 |- DOCUMENT:
-("Lemma A_1 : forall a b : nat, a + b = a + b.Proof.Admitted.Lemma A_2 : forall (a b : nat), a + b = a + b.Proof.Admitted.Lemma A_3 : forall a b:nat, a + b = a + b.Proof.Admitted.Lemma A_4 : forall (a b:nat), a + b = a + b.Proof.Admitted.Lemma A_5 : forall a b, a + b = a + b.Proof.Admitted.")
-|- ASSERTION:
-("Lemma A_1 : forall a b : nat, a + b = a + b")
-|- ASSERTION_KEYWORD:
-("Lemma")
-|- ASSERTION_IDENT:
-("A_1")
-|- FORALL:
-("a b : nat")
-|- BINDER:
-("a")
-|- BINDER:
-("b")
-|- TYPE:
-("nat")
-|- ASSERTION_TERM:
-("a + b = a + b")
-|- PROOF:
-|- ASSERTION:
-("Lemma A_2 : forall (a b : nat), a + b = a + b")
-|- ASSERTION_KEYWORD:
-("Lemma")
-|- ASSERTION_IDENT:
-("A_2")
-|- FORALL:
-("a b : nat")
-|- BINDER:
-("a")
-|- BINDER:
-("b")
-|- TYPE:
-("nat")
-|- ASSERTION_TERM:
-("a + b = a + b")
-\end{lstlisting}
+"Require Import Arith Bool...Qed."
+    |- REQUIRE_IMPORT:
+        "Require Import Arith Bool."
+    |- CHECK:
+        "Check Nat.add_0_r."
+    |- ASSERTION:
+        "Proposition first_formal_proof : forall n : nat, n + 0 = 0 + n"
+            |- ASSERTION_KEYWORD:
+            "Proposition"
+            |- ASSERTION_IDENT:
+            "first_formal_proof"
+            |- FORALL:
+            "n : nat"
+                |- BINDER:
+                    "n"
+                |- TYPE:
+                    "nat"
+            |- ASSERTION_TERM:
+            "n + 0 = 0 + n"
+    |- PROOF:
+        "intro n.Check (Nat.add_0_r n).rewrite -> (Nat.add_0_r n).Check (Nat.add_0_l n).rewrite -> (Nat.add_0_l n).reflexivity."
+            |- INTRO:
+            "n"
+            |- CHECK:
+            "Check (Nat.add_0_r n)."
+            |- REWRITE:
+            "(Nat.add_0_r n)"
+                |- REWRITE_ARROW:
+                    " -> "
+                |- TERM:
+                    "Nat.add_0_r n"
+                        |- TERM:
+                        "Nat.add_0_r"
+                        |- TERM:
+                        "n"
+            |- CHECK:
+            "Check (Nat.add_0_l n)."
+            |- REWRITE:
+            "(Nat.add_0_l n)"
+                |- REWRITE_ARROW:
+                    " -> "
+                |- TERM:
+                    "Nat.add_0_l n"
+                        |- TERM:
+                        "Nat.add_0_l"
+                        |- TERM:
+                        "n"
+            |- REFLEXIVITY:
+            "reflexivity."
+\end{minted}
 Observe:
-- $TERM$ subtrees have subterms as children, so the $check_arity$ function simply has to validate the number of terms at each depth.
-- $ASSERTION$ subtrees have $ASSERTION_IDENT$ as well as $BINDER$s (args) so the $collect_arity$ function simply has to store the identifier and count the number of args.
+\begin{itemize}
+    \item \code{ASSERTION} subtrees have \code{ASSERTION\_IDENT} as well as \code{BINDER} arguments so the \code{collect\_arity} function simply has to store the identifier with the number of arguments.
+    \item \code{TERM} subtrees have subterms as children, so the \code{check\_arity} function simply has to validate the number of terms at each depth.
+\end{itemize}
 
-\subsection{BNF grammars  (TODO)}
+\subsection{Feature 1: Recognizing unpermitted tactics}
+In general, when \code{proof-reader} encounters unsupported syntax, it will not continue parsing since it is impossible to differentiate the unsupported syntactical unit and the rest of the script. Thus it raises the \code{UnmatchedToken} exception (see \code{construct\_node} in \ref{constructing-nodes} \nameref{constructing-nodes}), which will be used to display the remaining substring.
 
-\subsection{BNF-like grammar module}
+When it encounters an unrecognized token that might be an unpermitted tactic invocation – i.e. any unsupported syntax within a \code{PROOF} node – it raises \code{UnmatchedTactic} instead, which attempts to extract a specific tactic invocation from the remaining substring. This is used to display a more precise warning message, such as the one in \ref{example-1} \nameref{example-1}.
 
+\begin{minted}{python}
+class UnmatchedToken(Exception):
+    def __init__(self, remaining):
+        self.remaining = remaining
 
-The code referenced in this section can be found in $jeremy-parser/grammar.py$ unless otherwise specified.
+class UnmatchedTactic(Exception):
+    def __init__(self, remaining):
+        self.remaining = remaining
+        self.tactic = None
+        match = re.match(fr"(.+?){REGEXP_TACTIC_END}
+        {REGEXP_TACTIC_LOOKAHEAD}",
+                         self.remaining)
+        if match:
+            self.tactic = match.group(1)
+\end{minted}
 
-The $grammar$ module provides the $GRAMMAR$ variable, which is a map of grammar rules intended to emulate the logic of a BNF grammar notation.
+\subsection{Feature 2: Verifying arity}
+\emph{Code referenced here from \path{jeremy-parser/proof_reader.py}.}
+Having constructed a syntax tree without errors, we are now in a position to traverse and evaluate it. As we traverse the syntax tree, we need to compare the arity of its assertions with assertions that have been defined in the environment – both assertions that have been defined earlier in the script, as well as predefined theorems from built-in libraries that have been imported.
 
-Each key-value pair maps a grammar rule name to a tuple containing a regexp pattern and the children it should (or could) contain:
-- $RULE: (PATTERN, [RULE...RULE])$
-- $PATTERN$: A regexp pattern that the parser will try to match the beginning of the current string with. If successful, then the current string contains this syntactical construct, provided the parser can recursively consume the substring contained in the capture group using the children's rules.
-- $[RULE...RULE]$: A list of child rules that the parser will attempt to recursively match, in order, on the captured substring. If empty, this rule is a terminal/leaf node, i.e. a rule that is not defined in terms of other rules.
+\subsubsection{Collecting arity signatures of built-in library theorems}
+We must have a database of arities for built-in library theorems. This only needs to be done once, or whenever new modules are added to the course (see Appendix on repository for modules used in the course).
 
-Here is a truncated version of the actual $GRAMMAR$ map. Note the indentation does not correspond to actual nesting of data, but is intended to visually reflect the nested definitions.
+For each module, we manually issue a Search command, e.g. \code{Search \_ inside Nat} to list all theorem definitions in the response buffer. We save each list as a string, process the string so it resembles Coq code, and generate a syntax tree containing those definitions using the same \code{construct\_tree} used for input code. We then run \code{collect\_arity}, defined below, returning the dictionary \code{arity\_db}, a map from assertion names to arities. We save this dictionary as a file, to be loaded whenever \code{proof-reader} is run. Later, we add user-defined lemmas to this dictionary we parse the input syntax tree.
 
-\begin{lstlisting}
-GRAMMAR = {
-    LABEL_DOCUMENT:
-        (None,
-         [LABEL_PROOF,
-          LABEL_ASSERTION,
-          ...]),
+This procedure is performed by the script \path{jeremy-parser/script_parse_theory_lib.py}.
 
-        LABEL_PROOF:
-            (r"Proof\.(.*?)(?:Qed|Admitted|Abort)\.",
-             [LABEL_INTRO,
-              LABEL_REWRITE,
-              ...]),
-
-            LABEL_INTRO:
-                (r"intro\s?(.*?){}".format(REGEXP_TACTIC_END),
-                 []),
-
-            LABEL_REWRITE:
-                (r"{}\s?((?:->|<-)?\s?\(?.+?\)?){}(?={}|$)".format(KW_REWRITE,
-                                                                   REGEXP_TACTIC_END,
-                                                                   TACTIC_KEYWORDS),
-                 [LABEL_REWRITE_ARROW, LABEL_TERM]),
-
-                LABEL_REWRITE_ARROW:
-                    (r"(->|<-)\s?",
-                     []),
-                LABEL_TERM:
-                    (r"(.+)",
-                        []),
-
-        LABEL_ASSERTION:
-            ("(" + ASSERTION_KEYWORDS + r" .+?)\.",
-             [LABEL_ASSERTION_KEYWORD,
-              LABEL_ASSERTION_IDENT,
-              LABEL_FORALL,
-              LABEL_ASSERTION_TERM]),
-
-            LABEL_ASSERTION_KEYWORD:
-                ("(" + ASSERTION_KEYWORDS + ")",
-                 []),
-
-            LABEL_ASSERTION_IDENT:
-                (r"\s*([^\s]+?)\s*:\s*",
-                 []),
-
-            LABEL_FORALL:
-                (r"forall \(?(.+?)\)?,\s*",
-                 [LABEL_BINDER, LABEL_TYPE]),
-
-                LABEL_BINDER:
-                    (r"([^:\s]+)\s*",
-                     []),
-
-                LABEL_TYPE:
-                    (r":\s*(.+)",
-                     []),
-
-            LABEL_ASSERTION_TERM:
-                (r"(.+)",
-                 [])
-    ...
-}
-\end{lstlisting}
-
-To explain an example in detail:
-\begin{lstlisting}
-LABEL_PROOF:
-(r"Proof\.(.*?)(?:Qed|Admitted|Abort)\.",
-[LABEL_INTRO,
-        LABEL_REWRITE,
-        ...]),
-\end{lstlisting}
-
-Here, the $LABEL_PROOF$ rule states that *"a proof is a lazily matched substring beginning with the keyword 'Proof' plus a period, and ends with either 'Qed', 'Admitted', or 'Abort', plus a period. Furthermore, the inner string (in parenthesis) must consist of any number of child components matching the rules $intro$, $rewrite$, etc"*.
-
-Observe:
-- Rules are identified by constants, which are given by $LABEL$-prefixed names.
-- $LABEL_DOCUMENT$ is the root node, so it has no prerequisite matching pattern. Thus the first value is $None$.
-- For readability and code reuse, we inject constants into a regexp via the string method $format$ (string interpolation/templating would be even more readable, but cannot be used together with Python's $r$ regexp syntax highlighting.)
-- A terminal node has an empty rule list. For example, $LABEL_ASSERTION_TERM$ is terminal, and thus the regex pattern simply captures the entire string as its content.
-
-The $grammar$ module is an abstraction over the branching logic that the constructor function follows as it recursively constructs the syntax tree, allowing new rules to be defined simply by adding a key-value pair, without modifying the constructor function. Without the abstraction, we would have one logical branch (with repeated branches for multiple references) for each rule, or one function definition for each rule, which would create significant code duplication.
-
-Having generated a syntax tree, we are now in a position to traverse it in order to evaluate the input.
-
-\subsection{Feature 1: Recognizing unpermitted tactics  (TODO)}
-
-
-\subsection{Feature 2: Checking arity}
-
-The code referenced in this section can be found in $jeremy-parser/parser.py$ unless otherwise specified.
-
-\subsection{Arity checker}
-We now have a syntax tree which we can traverse to find errors.
-
-(To be refactored into two functions. Arity check should return only warning data to be formatted separately).
-
-\begin{lstlisting}
-
-def check_arity(t, arity_db):
-    warnings = []
-    warnings_output = []
-
-    def check_subterms(subterms, parent_term):
-        if not subterms:
-            return
-        first_term = subterms[0]
-        if first_term.val in arity_db:
-            arity_expected = arity_db[first_term.val]
-            arity = len(subterms) - 1
-            args = [term.val for term in subterms[1:]]
-            arg_strings = ",".join([f"({arg})" for arg in args])
-            if arity != arity_expected:
-                warning_str = utils.warning_format(
-                    parent_term.val, first_term.val,
-                    arity_expected, arity, arg_strings)
-                warnings_output.append(warning_str)
-                logger.info(warning_str)
-
-        if not first_term.children and first_term.val not in arity_db:
-            logger.info(
-                f"In {parent_term.val},direct term {first_term.val} not seen or registered.")
-
-        assert((not first_term.children or len(subterms) == 1))
-
-        check_subterms(first_term.children, parent_term)
-        for subterm in subterms[1:]:
-            if not subterm.children:
-                check_subterms([subterm], parent_term)
-            else:
-                check_subterms(subterm.children, parent_term)
-
-    def collect_arity(assertion):
+\begin{minted}{python}
+def collect_arity(t: Node, arity_db : dict) -> dict:
+    assert(t.label == LABEL_DOCUMENT)
+    for child in t.children:
+        if child.label != LABEL_ASSERTION:
+            continue
+        assertion = child
+        if len(assertion.children) < 3: 
+            continue
         ident = assertion.children[1]
         forall = assertion.children[2]
         binders = [c for c in forall.children if c.label == LABEL_BINDER]
         arity = len(binders)
         arity_db[ident.val] = arity
-        logger.info(f"New term {ident.val} arity added in db: {arity_db}.")
+    return arity_db
+\end{minted}
 
-    def traverse(t):
-        logger.info(f"TRAVERSING {t.label}")
-        if t.label in [LABEL_DOCUMENT, LABEL_PROOF]:
-            for child in t.children:
-                traverse(child)
-        elif t.label in [LABEL_EXACT, LABEL_REWRITE]:
-            if t.children[0].label == LABEL_REWRITE_ARROW:
-                t.children = t.children[1:]
-            check_subterms(t.children, t.children[0])
-        elif t.label == LABEL_ASSERTION:
-            collect_arity(t)
+\subsubsection{Collecting arity signatures of the syntax tree}
+In \code{check\_arity}, before evaluating the input syntax tree, we use the same \code{collect\_arity} function to collect arity signatures of assertions that have been defined in the script.
+
+\begin{minted}{python}
+def check_arity(t: Node, arity_db: dict) -> list:
+    #...
+    def check_subterms(subterms: list, parent_term: Node, parent_tactic_label: str):
+        #...
+    def traverse(t: Node):
+        #...
+    arity_db = collect_arity(t, arity_db)
     traverse(t)
-    return warnings, "\n".join(warnings_output)
-\end{lstlisting}
+    return warnings
+\end{minted}
+We could collect arity signatures and check arity at the same time instead of two separate steps, therefore performing a single traversal instead of two traversals, since the tree traversal is left-to-right, and assertions must be declared before they are referenced. This was the approach in an earlier implementation. However, we implement two separate traversals for the sake of readability. Since each traversal is done in constant time, there is insignificant difference in actual performance. Furthermore, Coq does not allow repeat definitions so we will not have to deal with multiple signatures for the same assertion.
 
-Since the tree traversal is left-to-right, and assertions must be declared before they are referenced, we could collect arity signatures and check arity at the same time, in a single traversal instead of two traversals. This was the approach in an earlier implementation. However, I decided that two separate functions makes for more readable and maintanable code, with no change to big-O time complexity, and a negligible cost in actual performance.
+\subsubsection{Checking arity of the syntax tree}
+The \code{check\_arity} function can be found in\code{jeremy-parser/proof\_reader.py}. It is responsible for traversing the input syntax tree \code{t} given a map of arity signatures \code{arity\_db}, and returning a list of warnings indicating instances where the expected arity is not equal to the actual arity. Expected arity is the integer value found in \code{arity\_db} if the assertion has been defined. Actual arity is the number of subterms following the first term. \code{check\_arity} simply explores relevant nodes –\code{REWRITE}, \code{EXACT}, and \code{APPLY} – and counts the number of subterms at each level, generating a warning when arity is incorrect.
 
-\subsection{Collecting arity for built-in library theorems (TODO)}
+\subsection{User interface}
+\emph{See \path{jeremy-parser/proof-reader.el} in the repository.}
 
-- For each built-in theorem module, used command $Search _ inside Nat$ to list all theorems in response buffer.
-- Saved each list as a text file and preprocessed before parsing it using the same $construct_tree$ and $collect_arity$, to generate $arity_db$ dictionary, containing all the theorems' arity signatures.
-- Pass $arity_db$ into $check_arity$ function so that it will recognize library theorems.
+We implement a user interface by defining a simple Emacs command. The command calls the Proof General function \code{proof-process-buffer} to process the current buffer and verify that the script is syntactically correct. It uses the hook \code{proof-shell-handle-error-or-interrupt-hook} to terminate if Proof General emits an error, and only runs the Python program when there is no error. Providing an Emacs command allows students to seamlessly check their script without leaving the editor. The book "Writing GNU Emacs Extensions" \parencite{glickstein} was helpful.
 
-\section{Extending the parser}
-To extend the supported syntax - for example, adding a permitted tactic - the instructor simply has to add a rule definition to the grammar module, comprising of a regex pattern and the expected child rules. For consistency, new label and keyword constants should also be defined in $terminals.py$.
+\subsection{Extending \code{proof-reader}}
+\label{extending}
+The grammar module abstraction enables syntax to be extended conveniently. To extend the supported syntax - for example, adding a permitted tactic - the instructor simply has to add a rule definition to the grammar module, comprising of a regular expression and the expected child rules. Not all desired syntax may be expressible in the current framework; see \ref{limitations-grammar} \nameref{limitations-grammar}.
 
-Refer to "Discussion/Limitations of the $grammar$ module" to see if the intended syntax addition can be expressed in the current framework, or if the base recursion has to be modified.
+\subsection{Unit and acceptance testing}
+\emph{Code referenced here from \path{jeremy-parser/tests.py}.}
 
-\section{Unit tests}
+\code{TestParser} performs unit tests to verify that \code{construct\_node} fulfils its specifications. For each test input it compares the generated syntax tree with the expected syntax tree. Each unit test verifies that variations of a particular syntactical unit is correctly parsed.
 
-The code referenced in this section can be found in $jeremy-parser/tests.py$ unless otherwise specified.
+\code{TestParserAcceptance} also performs acceptance tests for \code{construct\_node}, running it on sample student submissions which have provided by the instructor.
 
-For each unit test, the testing apparatus $TestParser$ generates the syntax tree and compares it with the expected syntax tree. Each unit test verifies that variations of a particular syntactical unit is correctly parsed.
-
-For each unit test, $TestParityCheck$ generates the syntax tree and evaluates the tree to find instances of incorrect arity. It compares the output warnings with the expected warnings. We have both positive tests (there should be no warnings) and negative tests (there should be warnings), and each input contains variations of $exact$ and $rewrite$ syntax. Negative tests contain nested errors as well as errors with varying number of arguments.
-
-\section{Acceptance tests  (TODO)}
-The code referenced in this section can be found in $jeremy-parser/tests.py$ unless otherwise specified.
+\code{TestParityCheck} performs unit tests to verify that \code{collect\_arity} and \code{arity\_check}. It generates and evaluates the syntax tree for each test input, and compares the output warnings with the expected warnings. It performs both positive tests (inputs that should trigger no warnings) and negative tests (inputs that should trigger warnings), and each input contains variations of \code{exact}, \code{rewrite} and \code{apply} syntax.
