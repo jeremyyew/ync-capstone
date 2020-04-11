@@ -3,7 +3,8 @@ This repository contains all my MCS Capstone AY19/20 project source code and sub
 
 - [The `proof-reader`](#the-proof-reader)
   - [Description](#description)
-  - [Report](#report)
+  - [Capstone Report](#capstone-report)
+  - [Appendix](#appendix)
   - [Usage](#usage)
   - [Requirements](#requirements)
   - [Setup](#setup)
@@ -24,8 +25,11 @@ The `proof-reader` tool is a parser that emits two types of warnings correspondi
 
 `proof-reader` is intended to be used by students, both during proof editing and as a final check before submission. As students are writing proofs, the `proof-reader`  keeps them on the right track by correcting issues that might be affecting their thought process. When used as a final check, it will help them correct proofs that might have been accepted by Coq but do not demonstrate the intended learning goals of the exercise. The `proof-reader` can be used directly on student submissions by the instructor as well. 
 
-## Report
+## Capstone Report 
 Read the full capstone report here: [submissions/capstone-report-final/jeremy-capstone-submission.pdf](submissions/capstone-report-final/jeremy-capstone-submission.pdf).
+
+## Appendix 
+The report contains pointers to the appendix documented hosted here: [Appendix.md](Appendix.md).
 
 ## Usage 
 To run `proof-reader` on your proof script, simply execute the following Emacs command while in Proof General, with the editor focused on the buffer containing the script: 
