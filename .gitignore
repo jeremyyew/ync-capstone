@@ -4,7 +4,7 @@
 *.fls
 *.fdb_latexmk
 *.aux
-
+*.pygtex
 
 # Python
 *.pyc
