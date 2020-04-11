@@ -9,15 +9,16 @@ import os
 import utils
 import grammar
 import pickle
-
+import arity_db
 # Change directory so we can write log files in the correct folder, instead of from where emacs calls the shell command.
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 sys.setrecursionlimit(10000)
 
 # Set logging config.
-logging.basicConfig(
-    filename=f'logs/log_{datetime.datetime.now().strftime("%H-%M-%S_%d-%m")}.txt', level=logging.WARNING)
+# logging.basicConfig(
+#     filename=f'logs/log_{datetime.datetime.now().strftime("%H-%M-%S_%d-%m")}.txt', level=logging.INFO)
 logger = logging.getLogger()
+logger.setLevel(logging.WARNING)
 
 
 class Node:
@@ -224,9 +225,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.input:
         s = preprocess(args.input)
-        with open(f'theory-lib/arity_db', 'rb') as f:
-            arity_db = pickle.load(f)
-            logger.info(f"Loaded arity_db with {len(arity_db)} entries.")
+        arity_db = arity_db.arity_db
+        logger.info(f"Loaded arity_db with {len(arity_db)} entries.")
         try:
             t = construct_node(s, LABEL_DOCUMENT)
             logger.info("\n"+utils.pretty2str(t))
